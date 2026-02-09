@@ -74,8 +74,13 @@ app.get('/api', (_req: Request, res: Response) => {
   });
 });
 
-// Import routes (will be created later)
-// app.use('/api/auth', authRoutes);
+// Import routes
+import authRoutes from './routes/auth.routes';
+
+// Use routes
+app.use('/api/auth', authRoutes);
+
+// Placeholder for other routes (will be created later)
 // app.use('/api/projects', projectRoutes);
 // app.use('/api/sustainability', sustainabilityRoutes);
 // app.use('/api/documents', documentRoutes);
