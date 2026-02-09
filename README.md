@@ -33,26 +33,43 @@ The Sustainable Construction Project Management System provides an integrated pl
 
 ## 🚀 Features
 
-### Component 1: Project Management & Sustainability Monitoring
+### Component 1: Project Management
+**Owner:** Member 1
+
 - Create and manage construction projects with location mapping (Google Maps)
 - Track project milestones and completion percentages
-- Record and analyze sustainability metrics (carbon, energy, waste, water)
-- Calculate sustainability scores with trend analysis
-- Environmental impact visualization
+- Project status tracking (Planning → In Progress → On Hold → Completed)
+- Project dashboard with filters and search functionality
+- Automated notifications on status changes
 
-### Component 2: Document & Compliance Management
+### Component 2: Sustainability Monitoring
+**Owner:** Member 1
+
+- Record and analyze sustainability metrics (carbon, energy, waste, water)
+- Calculate sustainability scores with weighted algorithm (0-100)
+- Environmental impact analysis (trees equivalent, green energy used)
+- Historical trend analysis with month-over-month comparisons
+- Carbon emission calculations via Carbon Interface API
+
+### Component 3: Document & Compliance Management
+**Owner:** Member 2
+
 - Upload and manage project documents (blueprints, permits, certificates)
 - Document approval workflow (Draft → Under Review → Approved/Rejected)
 - Compliance checklist management with scoring
 - Safety inspection tracking with risk assessment
 - Cloud storage integration (Cloudinary)
+- Document versioning and access control
 
-### Component 3: Resource & Material Management
+### Component 4: Resource & Material Management
+**Owner:** Member 3
+
 - Material inventory tracking with status workflow
-- Low stock alerts via email notifications
+- Low stock alerts via email notifications (SendGrid)
 - Equipment management with maintenance scheduling
 - Supplier performance tracking and rating
 - Cost tracking and budget analysis
+- Sustainability scoring for materials
 
 ## 🛠 Technology Stack
 
