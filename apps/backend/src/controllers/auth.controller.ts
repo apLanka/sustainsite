@@ -52,6 +52,16 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error) {
     console.error('Registration error:', error);
+    
+    // Handle MongoDB duplicate key error (E11000)
+    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
+      res.status(409).json({
+        success: false,
+        message: 'User with this email already exists',
+      });
+      return;
+    }
+    
     res.status(500).json({
       success: false,
       message: 'An error occurred during registration',
@@ -155,10 +165,8 @@ export const getCurrentUser = async (
     }
 
     // Find user and populate assigned projects
-    const user = await User.findById(req.user.userId).populate(
-      'assignedProjects',
-      'projectName status'
-    );
+    // Note: populate will work once Project model is created
+    const user = await User.findById(req.user.userId);
 
     if (!user) {
       res.status(404).json({
