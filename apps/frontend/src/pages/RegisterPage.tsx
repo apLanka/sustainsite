@@ -57,7 +57,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-black dark:via-gray-950 dark:to-gray-900 p-4">
       <div className="w-full max-w-md">
         {/* Logo/Header */}
         <div className="text-center mb-8">
@@ -69,7 +69,7 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 shadow-xl">
+        <Card className="backdrop-blur-sm bg-white dark:bg-black border-2 border-gray-200 dark:border-gray-800 shadow-2xl">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">Create account</CardTitle>
             <CardDescription className="text-center">
@@ -194,10 +194,10 @@ export default function RegisterPage() {
               </div>
             </CardContent>
 
-            <CardFooter className="flex flex-col space-y-4">
+            <CardFooter className="flex flex-col space-y-3 pt-2">
               <Button
                 type="submit"
-                className="w-full bg-green-600 hover:bg-green-700"
+                className="w-full bg-black hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-100 dark:text-black transition-all duration-200"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -217,7 +217,7 @@ export default function RegisterPage() {
                 Already have an account?{' '}
                 <Link
                   to="/login"
-                  className="text-green-600 hover:text-green-700 font-medium"
+                  className="text-black dark:text-white hover:underline font-medium transition-all duration-200"
                 >
                   Sign in
                 </Link>
