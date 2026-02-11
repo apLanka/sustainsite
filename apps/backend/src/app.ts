@@ -93,29 +93,27 @@ app.get('/api', (_req: Request, res: Response) => {
       sustainability: '/api/sustainability',
       documents: '/api/documents',
       compliance: '/api/compliance',
-      inspections: '/api/inspections',
-      materials: '/api/materials',
-      equipment: '/api/equipment',
-      suppliers: '/api/suppliers',
+      resources: '/api/resources',
     },
+    documentation: 'See README.md for detailed API documentation',
   });
 });
 
 // Import routes
 import authRoutes from './routes/auth.routes';
+import projectRoutes from './routes/project.routes';
+import sustainabilityRoutes from './routes/sustainability.routes';
+import documentRoutes from './routes/document.routes';
+import complianceRoutes from './routes/compliance.routes';
+import resourceRoutes from './routes/resource.routes';
 
-// Use routes
+// Register routes
 app.use('/api/auth', authRoutes);
-
-// Placeholder for other routes (will be created later)
-// app.use('/api/projects', projectRoutes);
-// app.use('/api/sustainability', sustainabilityRoutes);
-// app.use('/api/documents', documentRoutes);
-// app.use('/api/compliance', complianceRoutes);
-// app.use('/api/inspections', inspectionRoutes);
-// app.use('/api/materials', materialRoutes);
-// app.use('/api/equipment', equipmentRoutes);
-// app.use('/api/suppliers', supplierRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/sustainability', sustainabilityRoutes);
+app.use('/api/documents', documentRoutes);
+app.use('/api/compliance', complianceRoutes);
+app.use('/api/resources', resourceRoutes);
 
 // 404 handler
 app.use(notFound);
