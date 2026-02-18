@@ -13,6 +13,11 @@
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "vite": ["../../node_modules/vite"],
+      "vite/*": ["../../node_modules/vite/*"]
+    },
 
     /* Linting */
     "strict": true,

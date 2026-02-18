@@ -35,7 +35,7 @@ export const registerSchema = z.object({
       'Password must contain at least one uppercase letter, one lowercase letter, and one number'
     ),
   role: z.nativeEnum(UserRole, {
-    errorMap: () => ({ message: 'Please select a valid role' }),
+    error: 'Please select a valid role',
   }),
   phoneNumber: z
     .string()
