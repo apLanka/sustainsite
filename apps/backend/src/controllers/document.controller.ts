@@ -5,7 +5,7 @@ import { Request, Response } from 'express';
  * Handles all document management operations
  */
 
-export const uploadDocument = async (req: Request, res: Response): Promise<void> => {
+export const uploadDocument = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement document upload logic with Cloudinary
     res.status(501).json({
@@ -20,7 +20,7 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const getDocuments = async (req: Request, res: Response): Promise<void> => {
+export const getDocuments = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement get all documents with filters
     res.status(501).json({
@@ -35,7 +35,7 @@ export const getDocuments = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-export const getDocumentById = async (req: Request, res: Response): Promise<void> => {
+export const getDocumentById = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement get document by ID
     res.status(501).json({
@@ -50,7 +50,7 @@ export const getDocumentById = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const updateDocument = async (req: Request, res: Response): Promise<void> => {
+export const updateDocument = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement update document metadata
     res.status(501).json({
@@ -65,7 +65,7 @@ export const updateDocument = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const deleteDocument = async (req: Request, res: Response): Promise<void> => {
+export const deleteDocument = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement delete document (also delete from Cloudinary)
     res.status(501).json({
@@ -80,7 +80,7 @@ export const deleteDocument = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const approveDocument = async (req: Request, res: Response): Promise<void> => {
+export const approveDocument = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement approve document logic
     res.status(501).json({
@@ -95,7 +95,7 @@ export const approveDocument = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const rejectDocument = async (req: Request, res: Response): Promise<void> => {
+export const rejectDocument = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement reject document logic
     res.status(501).json({
@@ -110,7 +110,7 @@ export const rejectDocument = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const createNewVersion = async (req: Request, res: Response): Promise<void> => {
+export const createNewVersion = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement create new version logic
     res.status(501).json({
@@ -125,7 +125,7 @@ export const createNewVersion = async (req: Request, res: Response): Promise<voi
   }
 };
 
-export const downloadDocument = async (req: Request, res: Response): Promise<void> => {
+export const downloadDocument = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement download document logic
     res.status(501).json({

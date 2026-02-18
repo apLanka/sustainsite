@@ -1,11 +1,12 @@
 // User roles matching backend
-export enum UserRole {
-  ADMIN = 'ADMIN',
-  PROJECT_MANAGER = 'PROJECT_MANAGER',
-  INSPECTOR = 'INSPECTOR',
-  SUPPLIER = 'SUPPLIER',
-  VIEWER = 'VIEWER',
-}
+export const UserRole = {
+  ADMIN: 'ADMIN',
+  PROJECT_MANAGER: 'PROJECT_MANAGER',
+  INSPECTOR: 'INSPECTOR',
+  SUPPLIER: 'SUPPLIER',
+  VIEWER: 'VIEWER',
+} as const;
+export type UserRole = typeof UserRole[keyof typeof UserRole];
 
 // User interface
 export interface User {
