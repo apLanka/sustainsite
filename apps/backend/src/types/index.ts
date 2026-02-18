@@ -21,7 +21,7 @@ export enum UserRole {
   PROJECT_MANAGER = 'PROJECT_MANAGER',
   INSPECTOR = 'INSPECTOR',
   SUPPLIER = 'SUPPLIER',
-  VIEWER = 'VIEWER'
+  VIEWER = 'VIEWER',
 }
 
 // Project status types
@@ -29,14 +29,14 @@ export enum ProjectStatus {
   PLANNING = 'Planning',
   IN_PROGRESS = 'In Progress',
   ON_HOLD = 'On Hold',
-  COMPLETED = 'Completed'
+  COMPLETED = 'Completed',
 }
 
 // Milestone status types
 export enum MilestoneStatus {
   PENDING = 'Pending',
   IN_PROGRESS = 'In Progress',
-  COMPLETED = 'Completed'
+  COMPLETED = 'Completed',
 }
 
 // Document types
@@ -46,7 +46,7 @@ export enum DocumentType {
   CERTIFICATE = 'Certificate',
   SAFETY_REPORT = 'Safety Report',
   CONTRACT = 'Contract',
-  OTHER = 'Other'
+  OTHER = 'Other',
 }
 
 // Document status
@@ -54,7 +54,7 @@ export enum DocumentStatus {
   DRAFT = 'Draft',
   UNDER_REVIEW = 'Under Review',
   APPROVED = 'Approved',
-  REJECTED = 'Rejected'
+  REJECTED = 'Rejected',
 }
 
 // Material status
@@ -64,7 +64,7 @@ export enum MaterialStatus {
   DELIVERED = 'Delivered',
   IN_STOCK = 'In Stock',
   USED = 'Used',
-  CANCELLED = 'Cancelled'
+  CANCELLED = 'Cancelled',
 }
 
 // Equipment status
@@ -73,7 +73,7 @@ export enum EquipmentStatus {
   IN_USE = 'In Use',
   UNDER_MAINTENANCE = 'Under Maintenance',
   DAMAGED = 'Damaged',
-  RETIRED = 'Retired'
+  RETIRED = 'Retired',
 }
 
 // Risk levels
@@ -81,14 +81,14 @@ export enum RiskLevel {
   LOW = 'Low',
   MEDIUM = 'Medium',
   HIGH = 'High',
-  CRITICAL = 'Critical'
+  CRITICAL = 'Critical',
 }
 
 // Score categories
 export enum ScoreCategory {
   RED = 'Red',
   YELLOW = 'Yellow',
-  GREEN = 'Green'
+  GREEN = 'Green',
 }
 
 // JWT Payload

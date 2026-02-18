@@ -47,9 +47,7 @@ export const canEditProject = (
   // PROJECT_MANAGER can edit if they are the manager or a team member
   if (user.role === UserRole.PROJECT_MANAGER) {
     const isManager = project.projectManager.toString() === user.userId;
-    const isTeamMember = project.teamMembers
-      .map((id) => id.toString())
-      .includes(user.userId);
+    const isTeamMember = project.teamMembers.map((id) => id.toString()).includes(user.userId);
     return isManager || isTeamMember;
   }
 
@@ -84,9 +82,7 @@ export const canManageResources = (
 
   if (user.role === UserRole.PROJECT_MANAGER && project) {
     const isManager = project.projectManager.toString() === user.userId;
-    const isTeamMember = project.teamMembers
-      .map((id) => id.toString())
-      .includes(user.userId);
+    const isTeamMember = project.teamMembers.map((id) => id.toString()).includes(user.userId);
     return isManager || isTeamMember;
   }
 
@@ -99,10 +95,7 @@ export const canManageResources = (
  * - INSPECTOR: Can approve any document
  * - Others: Cannot approve documents
  */
-export const canApproveDocuments = (user: {
-  userId: string;
-  role: UserRole;
-}): boolean => {
+export const canApproveDocuments = (user: { userId: string; role: UserRole }): boolean => {
   return user.role === UserRole.ADMIN || user.role === UserRole.INSPECTOR;
 };
 
@@ -112,10 +105,7 @@ export const canApproveDocuments = (user: {
  * - INSPECTOR: Can conduct inspections
  * - Others: Cannot conduct inspections
  */
-export const canConductInspections = (user: {
-  userId: string;
-  role: UserRole;
-}): boolean => {
+export const canConductInspections = (user: { userId: string; role: UserRole }): boolean => {
   return user.role === UserRole.ADMIN || user.role === UserRole.INSPECTOR;
 };
 
@@ -155,10 +145,7 @@ export const canUpdateMaterialStatus = (
  * - INSPECTOR: Can create metrics
  * - Others: Cannot create metrics
  */
-export const canCreateMetrics = (user: {
-  userId: string;
-  role: UserRole;
-}): boolean => {
+export const canCreateMetrics = (user: { userId: string; role: UserRole }): boolean => {
   return (
     user.role === UserRole.ADMIN ||
     user.role === UserRole.PROJECT_MANAGER ||
@@ -173,10 +160,7 @@ export const canCreateMetrics = (user: {
  * - INSPECTOR: Can update any metrics
  * - Others: Cannot update metrics
  */
-export const canUpdateMetrics = (user: {
-  userId: string;
-  role: UserRole;
-}): boolean => {
+export const canUpdateMetrics = (user: { userId: string; role: UserRole }): boolean => {
   return (
     user.role === UserRole.ADMIN ||
     user.role === UserRole.PROJECT_MANAGER ||
@@ -227,10 +211,7 @@ export const canManageTeamMembers = (
  * Check if user can view reports
  * - All authenticated users can view reports
  */
-export const canViewReports = (_user: {
-  userId: string;
-  role: UserRole;
-}): boolean => {
+export const canViewReports = (_user: { userId: string; role: UserRole }): boolean => {
   return true; // All authenticated users can view reports
 };
 
@@ -242,10 +223,7 @@ export const canViewReports = (_user: {
  * - VIEWER: Can generate read-only reports
  * - Others: Cannot generate reports
  */
-export const canGenerateReports = (user: {
-  userId: string;
-  role: UserRole;
-}): boolean => {
+export const canGenerateReports = (user: { userId: string; role: UserRole }): boolean => {
   return (
     user.role === UserRole.ADMIN ||
     user.role === UserRole.PROJECT_MANAGER ||

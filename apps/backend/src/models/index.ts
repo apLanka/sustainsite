@@ -27,21 +27,8 @@ export { UserRole } from '../types';
 export { ProjectStatus } from './Project';
 export { MilestoneStatus } from './Milestone';
 export { ScoreCategory } from './SustainabilityMetric';
-export {
-  DocumentType,
-  DocumentStatus,
-  AccessAction,
-} from './Document';
+export { DocumentType, DocumentStatus, AccessAction } from './Document';
 export { ComplianceCategory } from './ComplianceChecklist';
-export {
-  InspectionType,
-  RiskLevel,
-  ActionStatus,
-  IssueSeverity,
-} from './SafetyInspection';
+export { InspectionType, RiskLevel, ActionStatus, IssueSeverity } from './SafetyInspection';
 export { MaterialCategory, MaterialStatus } from './Material';
-export {
-  EquipmentType,
-  EquipmentStatus,
-  MaintenanceType,
-} from './Equipment';
+export { EquipmentType, EquipmentStatus, MaintenanceType } from './Equipment';

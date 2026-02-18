@@ -8,6 +8,7 @@
     "dev": "nodemon --exec ts-node src/server.ts",
     "start": "node dist/server.js",
     "check-types": "tsc --noEmit",
+    "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint . --ext .ts",
     "test": "jest --coverage",
     "test:watch": "jest --watch",

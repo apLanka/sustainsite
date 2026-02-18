@@ -186,8 +186,7 @@ sustainabilityMetricSchema.pre('save', async function () {
   }
 
   // Calculate water usage total
-  this.waterUsage.total =
-    this.waterUsage.municipal + this.waterUsage.recycled;
+  this.waterUsage.total = this.waterUsage.municipal + this.waterUsage.recycled;
 
   // Calculate sustainability score (weighted algorithm)
   const carbonScore = calculateCarbonScore(this.carbonEmissions.total);
@@ -196,10 +195,7 @@ sustainabilityMetricSchema.pre('save', async function () {
     this.energyConsumption.renewableEnergy
   );
   const wasteScore = this.wasteManagement.diversionRate;
-  const waterScore = calculateWaterScore(
-    this.waterUsage.municipal,
-    this.waterUsage.recycled
-  );
+  const waterScore = calculateWaterScore(this.waterUsage.municipal, this.waterUsage.recycled);
 
   // Weighted scoring: Carbon 30%, Energy 25%, Waste 25%, Water 20%
   this.sustainabilityScore = Math.round(
@@ -228,10 +224,7 @@ function calculateCarbonScore(totalCarbon: number): number {
 }
 
 // Helper function: Calculate energy score (higher renewable % is better)
-function calculateEnergyScore(
-  electricity: number,
-  renewableEnergy: number
-): number {
+function calculateEnergyScore(electricity: number, renewableEnergy: number): number {
   const totalEnergy = electricity + renewableEnergy;
   if (totalEnergy === 0) return 50; // Neutral score if no energy data
   const renewablePercentage = (renewableEnergy / totalEnergy) * 100;
@@ -247,10 +240,9 @@ function calculateWaterScore(municipal: number, recycled: number): number {
 }
 
 // Create and export SustainabilityMetric model
-const SustainabilityMetric: Model<ISustainabilityMetric> =
-  mongoose.model<ISustainabilityMetric>(
-    'SustainabilityMetric',
-    sustainabilityMetricSchema
-  );
+const SustainabilityMetric: Model<ISustainabilityMetric> = mongoose.model<ISustainabilityMetric>(
+  'SustainabilityMetric',
+  sustainabilityMetricSchema
+);
 
 export default SustainabilityMetric;

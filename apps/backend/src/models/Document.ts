@@ -236,9 +236,6 @@ documentSchema.methods.createNewVersion = function (
 };
 
 // Create and export Document model
-const DocumentModel: Model<IDocument> = mongoose.model<IDocument>(
-  'Document',
-  documentSchema
-);
+const DocumentModel: Model<IDocument> = mongoose.model<IDocument>('Document', documentSchema);
 
 export default DocumentModel;

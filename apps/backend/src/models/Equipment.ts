@@ -176,10 +176,7 @@ const equipmentSchema = new Schema<IEquipment>(
     yearOfManufacture: {
       type: Number,
       min: [1900, 'Year must be after 1900'],
-      max: [
-        new Date().getFullYear(),
-        'Year cannot be in the future',
-      ],
+      max: [new Date().getFullYear(), 'Year cannot be in the future'],
     },
     currentProjectId: {
       type: Schema.Types.ObjectId,
@@ -271,9 +268,6 @@ equipmentSchema.methods.assignToProject = async function (
 };
 
 // Create and export Equipment model
-const Equipment: Model<IEquipment> = mongoose.model<IEquipment>(
-  'Equipment',
-  equipmentSchema
-);
+const Equipment: Model<IEquipment> = mongoose.model<IEquipment>('Equipment', equipmentSchema);
 
 export default Equipment;

@@ -268,9 +268,6 @@ materialSchema.methods.recordUsage = async function (
 };
 
 // Create and export Material model
-const Material: Model<IMaterial> = mongoose.model<IMaterial>(
-  'Material',
-  materialSchema
-);
+const Material: Model<IMaterial> = mongoose.model<IMaterial>('Material', materialSchema);
 
 export default Material;

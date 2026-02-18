@@ -8,7 +8,7 @@ beforeAll(async () => {
   // Create in-memory MongoDB instance
   mongoServer = await MongoMemoryServer.create();
   const mongoUri = mongoServer.getUri();
-  
+
   // Connect to the in-memory database
   await mongoose.connect(mongoUri);
 });
@@ -17,7 +17,7 @@ beforeAll(async () => {
 afterAll(async () => {
   // Disconnect from database
   await mongoose.disconnect();
-  
+
   // Stop MongoDB server
   await mongoServer.stop();
 });
@@ -25,7 +25,7 @@ afterAll(async () => {
 // Clear database between tests
 afterEach(async () => {
   const collections = mongoose.connection.collections;
-  
+
   // Delete all documents from all collections
   for (const key in collections) {
     await collections[key].deleteMany({});

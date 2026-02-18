@@ -36,12 +36,7 @@ router.post('/', authenticate, requireManager(), createProject);
 router.get(
   '/',
   authenticate,
-  authorize(
-    UserRole.ADMIN,
-    UserRole.PROJECT_MANAGER,
-    UserRole.INSPECTOR,
-    UserRole.VIEWER
-  ),
+  authorize(UserRole.ADMIN, UserRole.PROJECT_MANAGER, UserRole.INSPECTOR, UserRole.VIEWER),
   getProjects
 );
 

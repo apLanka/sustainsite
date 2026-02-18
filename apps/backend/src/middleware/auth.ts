@@ -19,7 +19,7 @@ export const authenticate = async (
   try {
     // Get token from header
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       res.status(401).json({
         success: false,
@@ -31,10 +31,7 @@ export const authenticate = async (
     const token = authHeader.split(' ')[1];
 
     // Verify token
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET as string
-    ) as JWTPayload;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JWTPayload;
 
     // Attach user to request
     req.user = decoded;

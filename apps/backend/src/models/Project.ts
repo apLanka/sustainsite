@@ -165,9 +165,6 @@ projectSchema.set('toJSON', { virtuals: true });
 projectSchema.set('toObject', { virtuals: true });
 
 // Create and export Project model
-const Project: Model<IProject> = mongoose.model<IProject>(
-  'Project',
-  projectSchema
-);
+const Project: Model<IProject> = mongoose.model<IProject>('Project', projectSchema);
 
 export default Project;

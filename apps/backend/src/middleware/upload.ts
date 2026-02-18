@@ -13,7 +13,11 @@ const storage = multer.diskStorage({
 });
 
 // File filter
-const fileFilter = (_req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (
+  _req: Express.Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+) => {
   // Allowed file types
   const allowedTypes = /pdf|doc|docx|xls|xlsx|jpg|jpeg|png|dwg/;
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -22,7 +26,11 @@ const fileFilter = (_req: Express.Request, file: Express.Multer.File, cb: multer
   if (extname && mimetype) {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only PDF, DOC, DOCX, XLS, XLSX, JPG, PNG, and DWG files are allowed.'));
+    cb(
+      new Error(
+        'Invalid file type. Only PDF, DOC, DOCX, XLS, XLSX, JPG, PNG, and DWG files are allowed.'
+      )
+    );
   }
 };
 

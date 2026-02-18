@@ -137,12 +137,7 @@ describe('Auth Validation Schemas', () => {
       });
 
       it('should accept strong passwords', () => {
-        const strongPasswords = [
-          'SecurePass123',
-          'MyP@ssw0rd',
-          'Test1234Pass',
-          'Abcd1234',
-        ];
+        const strongPasswords = ['SecurePass123', 'MyP@ssw0rd', 'Test1234Pass', 'Abcd1234'];
 
         strongPasswords.forEach((password) => {
           const { error } = registerSchema.validate({
@@ -194,12 +189,7 @@ describe('Auth Validation Schemas', () => {
 
     describe('Phone Number Validation', () => {
       it('should accept valid E.164 phone numbers', () => {
-        const validPhones = [
-          '+94771234567',
-          '+1234567890',
-          '+442071234567',
-          '+61412345678',
-        ];
+        const validPhones = ['+94771234567', '+1234567890', '+442071234567', '+61412345678'];
 
         validPhones.forEach((phoneNumber) => {
           const { error } = registerSchema.validate({
