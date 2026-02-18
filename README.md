@@ -103,7 +103,7 @@ The Sustainable Construction Project Management System provides an integrated pl
 Before you begin, ensure you have the following installed:
 
 - **Node.js:** v18 or higher ([Download](https://nodejs.org/))
-- **Package Manager:** yarn v1.22+ (recommended) or npm
+- **Package Manager:** bun v1.2.20+ (recommended) or npm
 - **MongoDB Atlas Account:** Free tier ([Sign up](https://www.mongodb.com/cloud/atlas))
 - **Git:** For version control
 
@@ -121,8 +121,8 @@ cd sustainsite
 This is a Turborepo monorepo. Install all dependencies from the root:
 
 ```bash
-# Using yarn (recommended)
-yarn install
+# Using bun (recommended)
+bun install
 
 # Or using npm
 npm install
@@ -203,11 +203,11 @@ From the root directory:
 
 ```bash
 # Development mode (runs both backend and frontend)
-yarn dev
+bun dev
 
 # Or run specific apps
-yarn dev --filter=backend
-yarn dev --filter=frontend
+bun dev --filter=backend
+bun dev --filter=frontend
 ```
 
 The backend will start on `http://localhost:5000`  
@@ -228,10 +228,10 @@ Visit `http://localhost:5000/health` - you should see:
 
 ```bash
 # Build all apps
-yarn build
+bun build
 
 # Build specific app
-yarn build --filter=backend
+bun build --filter=backend
 ```
 
 ## 📚 API Documentation
@@ -1128,37 +1128,37 @@ sustainsite/
 
 ```bash
 # Run only backend
-yarn dev --filter=backend
+bun dev --filter=backend
 
 # Run only frontend
-yarn dev --filter=frontend
+bun dev --filter=frontend
 ```
 
 ### Type Checking
 
 ```bash
 # Check types in all apps
-yarn check-types
+bun check-types
 
 # Check types in specific app
-yarn check-types --filter=backend
+bun check-types --filter=backend
 ```
 
 ### Linting
 
 ```bash
 # Lint all apps
-yarn lint
+bun lint
 
 # Lint specific app
-yarn lint --filter=backend
+bun lint --filter=backend
 ```
 
 ### Code Formatting
 
 ```bash
 # Format all files
-yarn format
+bun format
 ```
 
 ### Common Development Tasks
@@ -1168,13 +1168,13 @@ yarn format
 cd apps/backend
 
 # Development with hot reload
-yarn dev
+bun dev
 
 # Build TypeScript
-yarn build
+bun build
 
 # Run production build
-yarn start
+bun start
 ```
 
 **Frontend:**
@@ -1182,13 +1182,13 @@ yarn start
 cd apps/frontend
 
 # Development server
-yarn dev
+bun dev
 
 # Build for production
-yarn build
+bun build
 
 # Preview production build
-yarn preview
+bun preview
 ```
 
 ## 🚀 Deployment
@@ -1197,8 +1197,8 @@ yarn preview
 
 1. Create a new Web Service
 2. Connect your GitHub repository
-3. Set build command: `yarn install && yarn build --filter=backend`
-4. Set start command: `cd apps/backend && yarn start`
+3. Set build command: `bun install && bun build --filter=backend`
+4. Set start command: `cd apps/backend && bun start`
 5. Add environment variables from `.env`
 6. Deploy
 
@@ -1206,7 +1206,7 @@ yarn preview
 
 1. Connect your GitHub repository
 2. Set root directory: `apps/frontend`
-3. Build command: `yarn build`
+3. Build command: `bun build`
 4. Output directory: `dist`
 5. Add environment variables (API URL)
 6. Deploy
