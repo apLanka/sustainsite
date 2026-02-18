@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import mongoose, { Model, Document } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import Project from '../models/Project';
 
 /**

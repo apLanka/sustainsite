@@ -52,7 +52,7 @@ export interface IEquipment extends Document {
   serialNumber?: string;
   assetId?: string;
   manufacturer?: string;
-  model?: string;
+  equipmentModel?: string;
   yearOfManufacture?: number;
   currentProjectId?: mongoose.Types.ObjectId;
   assignedTo?: mongoose.Types.ObjectId;
@@ -169,7 +169,7 @@ const equipmentSchema = new Schema<IEquipment>(
       type: String,
       trim: true,
     },
-    model: {
+    equipmentModel: {
       type: String,
       trim: true,
     },

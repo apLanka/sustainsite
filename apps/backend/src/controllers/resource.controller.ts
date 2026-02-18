@@ -7,7 +7,7 @@ import { Request, Response } from 'express';
 
 // ==================== Materials ====================
 
-export const createMaterial = async (req: Request, res: Response): Promise<void> => {
+export const createMaterial = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement create material logic
     res.status(501).json({
@@ -22,7 +22,7 @@ export const createMaterial = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const getMaterials = async (req: Request, res: Response): Promise<void> => {
+export const getMaterials = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement get all materials
     res.status(501).json({
@@ -37,7 +37,7 @@ export const getMaterials = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-export const getMaterialById = async (req: Request, res: Response): Promise<void> => {
+export const getMaterialById = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement get material by ID
     res.status(501).json({
@@ -52,7 +52,7 @@ export const getMaterialById = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const updateMaterial = async (req: Request, res: Response): Promise<void> => {
+export const updateMaterial = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement update material logic
     res.status(501).json({
@@ -67,7 +67,7 @@ export const updateMaterial = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const deleteMaterial = async (req: Request, res: Response): Promise<void> => {
+export const deleteMaterial = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement delete material logic
     res.status(501).json({
@@ -82,7 +82,7 @@ export const deleteMaterial = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const updateMaterialStatus = async (req: Request, res: Response): Promise<void> => {
+export const updateMaterialStatus = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement update material status (with permission check for SUPPLIER)
     res.status(501).json({
@@ -97,7 +97,7 @@ export const updateMaterialStatus = async (req: Request, res: Response): Promise
   }
 };
 
-export const recordMaterialUsage = async (req: Request, res: Response): Promise<void> => {
+export const recordMaterialUsage = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement record material usage logic
     res.status(501).json({
@@ -114,7 +114,7 @@ export const recordMaterialUsage = async (req: Request, res: Response): Promise<
 
 // ==================== Equipment ====================
 
-export const createEquipment = async (req: Request, res: Response): Promise<void> => {
+export const createEquipment = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement create equipment logic
     res.status(501).json({
@@ -129,7 +129,7 @@ export const createEquipment = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const getEquipment = async (req: Request, res: Response): Promise<void> => {
+export const getEquipment = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement get all equipment
     res.status(501).json({
@@ -144,7 +144,7 @@ export const getEquipment = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-export const getEquipmentById = async (req: Request, res: Response): Promise<void> => {
+export const getEquipmentById = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement get equipment by ID
     res.status(501).json({
@@ -159,7 +159,7 @@ export const getEquipmentById = async (req: Request, res: Response): Promise<voi
   }
 };
 
-export const updateEquipment = async (req: Request, res: Response): Promise<void> => {
+export const updateEquipment = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement update equipment logic
     res.status(501).json({
@@ -174,7 +174,7 @@ export const updateEquipment = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const deleteEquipment = async (req: Request, res: Response): Promise<void> => {
+export const deleteEquipment = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement delete equipment logic
     res.status(501).json({
@@ -189,7 +189,7 @@ export const deleteEquipment = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const assignEquipment = async (req: Request, res: Response): Promise<void> => {
+export const assignEquipment = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement assign equipment to project logic
     res.status(501).json({
@@ -204,7 +204,7 @@ export const assignEquipment = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const scheduleMaintenanceForEquipment = async (req: Request, res: Response): Promise<void> => {
+export const scheduleMaintenanceForEquipment = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement schedule maintenance logic
     res.status(501).json({
@@ -221,7 +221,7 @@ export const scheduleMaintenanceForEquipment = async (req: Request, res: Respons
 
 // ==================== Suppliers ====================
 
-export const createSupplier = async (req: Request, res: Response): Promise<void> => {
+export const createSupplier = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement create supplier logic
     res.status(501).json({
@@ -236,7 +236,7 @@ export const createSupplier = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const getSuppliers = async (req: Request, res: Response): Promise<void> => {
+export const getSuppliers = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement get all suppliers
     res.status(501).json({
@@ -251,7 +251,7 @@ export const getSuppliers = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-export const getSupplierById = async (req: Request, res: Response): Promise<void> => {
+export const getSupplierById = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement get supplier by ID
     res.status(501).json({
@@ -266,7 +266,7 @@ export const getSupplierById = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const updateSupplier = async (req: Request, res: Response): Promise<void> => {
+export const updateSupplier = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement update supplier logic
     res.status(501).json({
@@ -281,7 +281,7 @@ export const updateSupplier = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const deleteSupplier = async (req: Request, res: Response): Promise<void> => {
+export const deleteSupplier = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement delete supplier logic
     res.status(501).json({
@@ -296,7 +296,7 @@ export const deleteSupplier = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const rateSupplier = async (req: Request, res: Response): Promise<void> => {
+export const rateSupplier = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement rate supplier logic
     res.status(501).json({

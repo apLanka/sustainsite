@@ -5,7 +5,7 @@ import { Request, Response } from 'express';
  * Handles all project-related operations
  */
 
-export const createProject = async (req: Request, res: Response): Promise<void> => {
+export const createProject = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement project creation logic
     res.status(501).json({
@@ -20,7 +20,7 @@ export const createProject = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-export const getProjects = async (req: Request, res: Response): Promise<void> => {
+export const getProjects = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement get all projects with pagination and filters
     res.status(501).json({
@@ -35,7 +35,7 @@ export const getProjects = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
-export const getProjectById = async (req: Request, res: Response): Promise<void> => {
+export const getProjectById = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement get project by ID
     // Project is already attached to req by checkProjectMembership middleware
@@ -51,7 +51,7 @@ export const getProjectById = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const updateProject = async (req: Request, res: Response): Promise<void> => {
+export const updateProject = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement project update logic
     res.status(501).json({
@@ -66,7 +66,7 @@ export const updateProject = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-export const deleteProject = async (req: Request, res: Response): Promise<void> => {
+export const deleteProject = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement project deletion logic
     res.status(501).json({
@@ -81,7 +81,7 @@ export const deleteProject = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-export const addMilestone = async (req: Request, res: Response): Promise<void> => {
+export const addMilestone = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement add milestone logic
     res.status(501).json({
@@ -96,7 +96,7 @@ export const addMilestone = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-export const updateMilestone = async (req: Request, res: Response): Promise<void> => {
+export const updateMilestone = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement update milestone logic
     res.status(501).json({
@@ -111,7 +111,7 @@ export const updateMilestone = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const getProjectTimeline = async (req: Request, res: Response): Promise<void> => {
+export const getProjectTimeline = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement get project timeline logic
     res.status(501).json({

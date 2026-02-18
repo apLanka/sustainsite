@@ -18,7 +18,7 @@ import { IDocument } from '../models/Document';
  */
 export const canViewProject = (
   user: { userId: string; role: UserRole },
-  project?: IProject
+  _project?: IProject
 ): boolean => {
   const allowedRoles = [
     UserRole.ADMIN,
@@ -63,7 +63,7 @@ export const canEditProject = (
  */
 export const canDeleteProject = (
   user: { userId: string; role: UserRole },
-  project?: IProject
+  _project?: IProject
 ): boolean => {
   return user.role === UserRole.ADMIN;
 };
@@ -227,7 +227,7 @@ export const canManageTeamMembers = (
  * Check if user can view reports
  * - All authenticated users can view reports
  */
-export const canViewReports = (user: {
+export const canViewReports = (_user: {
   userId: string;
   role: UserRole;
 }): boolean => {

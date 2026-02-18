@@ -7,7 +7,7 @@ import { Request, Response } from 'express';
 
 // ==================== Compliance Checklists ====================
 
-export const createChecklist = async (req: Request, res: Response): Promise<void> => {
+export const createChecklist = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement create checklist logic
     res.status(501).json({
@@ -22,7 +22,7 @@ export const createChecklist = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const getChecklists = async (req: Request, res: Response): Promise<void> => {
+export const getChecklists = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement get all checklists
     res.status(501).json({
@@ -37,7 +37,7 @@ export const getChecklists = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-export const getChecklistById = async (req: Request, res: Response): Promise<void> => {
+export const getChecklistById = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement get checklist by ID
     res.status(501).json({
@@ -52,7 +52,7 @@ export const getChecklistById = async (req: Request, res: Response): Promise<voi
   }
 };
 
-export const updateChecklist = async (req: Request, res: Response): Promise<void> => {
+export const updateChecklist = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement update checklist logic
     res.status(501).json({
@@ -67,7 +67,7 @@ export const updateChecklist = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const deleteChecklist = async (req: Request, res: Response): Promise<void> => {
+export const deleteChecklist = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement delete checklist logic
     res.status(501).json({
@@ -84,7 +84,7 @@ export const deleteChecklist = async (req: Request, res: Response): Promise<void
 
 // ==================== Safety Inspections ====================
 
-export const createInspection = async (req: Request, res: Response): Promise<void> => {
+export const createInspection = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement create inspection logic
     res.status(501).json({
@@ -99,7 +99,7 @@ export const createInspection = async (req: Request, res: Response): Promise<voi
   }
 };
 
-export const getInspections = async (req: Request, res: Response): Promise<void> => {
+export const getInspections = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement get all inspections
     res.status(501).json({
@@ -114,7 +114,7 @@ export const getInspections = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const getInspectionById = async (req: Request, res: Response): Promise<void> => {
+export const getInspectionById = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement get inspection by ID
     res.status(501).json({
@@ -129,7 +129,7 @@ export const getInspectionById = async (req: Request, res: Response): Promise<vo
   }
 };
 
-export const updateInspection = async (req: Request, res: Response): Promise<void> => {
+export const updateInspection = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement update inspection logic
     res.status(501).json({
@@ -144,7 +144,7 @@ export const updateInspection = async (req: Request, res: Response): Promise<voi
   }
 };
 
-export const deleteInspection = async (req: Request, res: Response): Promise<void> => {
+export const deleteInspection = async (_req: Request, res: Response): Promise<void> => {
   try {
     // TODO: Implement delete inspection logic
     res.status(501).json({

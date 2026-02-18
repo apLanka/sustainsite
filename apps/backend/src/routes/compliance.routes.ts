@@ -16,7 +16,6 @@ import {
   requireDataEntry,
   requireAdmin,
   authorize,
-  checkProjectMembership,
 } from '../middleware';
 import { UserRole } from '../types';
 
