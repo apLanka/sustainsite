@@ -9,7 +9,14 @@ import { UserRole } from '@/types/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Select,
@@ -61,9 +68,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         {/* Logo/Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            SustainSite
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">SustainSite</h1>
           <p className="text-gray-600 dark:text-gray-400">
             Join our sustainable construction platform
           </p>
@@ -118,9 +123,7 @@ export default function RegisterPage() {
                     disabled={isLoading}
                   />
                 </div>
-                {errors.email && (
-                  <p className="text-sm text-red-500">{errors.email.message}</p>
-                )}
+                {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
               </div>
 
               {/* Password Field */}
@@ -166,9 +169,7 @@ export default function RegisterPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                {errors.role && (
-                  <p className="text-sm text-red-500">{errors.role.message}</p>
-                )}
+                {errors.role && <p className="text-sm text-red-500">{errors.role.message}</p>}
               </div>
 
               {/* Phone Number Field (Optional) */}

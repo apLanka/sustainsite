@@ -192,19 +192,15 @@ safetyInspectionSchema.index({ isResolved: 1 });
 
 // Pre-save hook: Auto-resolve when action is completed
 safetyInspectionSchema.pre('save', async function () {
-  if (
-    this.isModified('actionStatus') &&
-    this.actionStatus === ActionStatus.COMPLETED
-  ) {
+  if (this.isModified('actionStatus') && this.actionStatus === ActionStatus.COMPLETED) {
     this.isResolved = true;
   }
 });
 
 // Create and export SafetyInspection model
-const SafetyInspection: Model<ISafetyInspection> =
-  mongoose.model<ISafetyInspection>(
-    'SafetyInspection',
-    safetyInspectionSchema
-  );
+const SafetyInspection: Model<ISafetyInspection> = mongoose.model<ISafetyInspection>(
+  'SafetyInspection',
+  safetyInspectionSchema
+);
 
 export default SafetyInspection;

@@ -52,7 +52,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    
+
     // Handle MongoDB duplicate key error (E11000)
     if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
       res.status(409).json({
@@ -61,11 +61,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       });
       return;
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'An error occurred during registration',
-      error: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : undefined,
+      error:
+        process.env.NODE_ENV === 'development' && error instanceof Error
+          ? error.message
+          : undefined,
     });
   }
 };
@@ -140,7 +143,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({
       success: false,
       message: 'An error occurred during login',
-      error: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : undefined,
+      error:
+        process.env.NODE_ENV === 'development' && error instanceof Error
+          ? error.message
+          : undefined,
     });
   }
 };
@@ -150,10 +156,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
  * @route   GET /api/auth/me
  * @access  Protected
  */
-export const getCurrentUser = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const getCurrentUser = async (req: Request, res: Response): Promise<void> => {
   try {
     // req.user is populated by authenticate middleware
     if (!req.user) {
@@ -196,7 +199,10 @@ export const getCurrentUser = async (
     res.status(500).json({
       success: false,
       message: 'An error occurred while fetching user data',
-      error: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : undefined,
+      error:
+        process.env.NODE_ENV === 'development' && error instanceof Error
+          ? error.message
+          : undefined,
     });
   }
 };

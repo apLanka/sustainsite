@@ -28,10 +28,7 @@ describe('Authentication API', () => {
     });
 
     it('should hash password in database', async () => {
-      await request(app)
-        .post('/api/auth/register')
-        .send(validRegistrationData)
-        .expect(201);
+      await request(app).post('/api/auth/register').send(validRegistrationData).expect(201);
 
       const user = await User.findOne({ email: validRegistrationData.email }).select('+password');
       expect(user?.password).not.toBe(validRegistrationData.password);
@@ -271,11 +268,7 @@ describe('Authentication API', () => {
         password: 'MePass123',
         role: UserRole.PROJECT_MANAGER,
       });
-      authToken = getAuthToken(
-        testUser._id.toString(),
-        testUser.email,
-        testUser.role
-      );
+      authToken = getAuthToken(testUser._id.toString(), testUser.email, testUser.role);
     });
 
     it('should return user data with valid token', async () => {
@@ -293,9 +286,7 @@ describe('Authentication API', () => {
     });
 
     it('should return 401 without token', async () => {
-      const response = await request(app)
-        .get('/api/auth/me')
-        .expect(401);
+      const response = await request(app).get('/api/auth/me').expect(401);
 
       expect(response.body.success).toBe(false);
       expect(response.body.error).toContain('No token provided');
@@ -400,10 +391,7 @@ describe('Authentication API', () => {
     });
 
     it('should handle empty request body', async () => {
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send({})
-        .expect(400);
+      const response = await request(app).post('/api/auth/register').send({}).expect(400);
 
       expect(response.body.success).toBe(false);
       expect(response.body.message).toContain('Validation error');

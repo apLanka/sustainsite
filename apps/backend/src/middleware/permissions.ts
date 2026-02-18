@@ -128,8 +128,7 @@ export const checkProjectMembership = (projectIdField: string) => {
       const teamMemberIds = project.teamMembers.map((id) => id.toString());
 
       // Check if user is project manager or team member
-      const isMember =
-        projectManagerId === userId || teamMemberIds.includes(userId);
+      const isMember = projectManagerId === userId || teamMemberIds.includes(userId);
 
       if (!isMember) {
         res.status(403).json({

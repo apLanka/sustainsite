@@ -6,7 +6,7 @@ export const UserRole = {
   SUPPLIER: 'SUPPLIER',
   VIEWER: 'VIEWER',
 } as const;
-export type UserRole = typeof UserRole[keyof typeof UserRole];
+export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
 // User interface
 export interface User {

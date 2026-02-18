@@ -94,9 +94,6 @@ milestoneSchema.pre('save', async function () {
 });
 
 // Create and export Milestone model
-const Milestone: Model<IMilestone> = mongoose.model<IMilestone>(
-  'Milestone',
-  milestoneSchema
-);
+const Milestone: Model<IMilestone> = mongoose.model<IMilestone>('Milestone', milestoneSchema);
 
 export default Milestone;

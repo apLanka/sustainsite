@@ -204,7 +204,10 @@ export const assignEquipment = async (_req: Request, res: Response): Promise<voi
   }
 };
 
-export const scheduleMaintenanceForEquipment = async (_req: Request, res: Response): Promise<void> => {
+export const scheduleMaintenanceForEquipment = async (
+  _req: Request,
+  res: Response
+): Promise<void> => {
   try {
     // TODO: Implement schedule maintenance logic
     res.status(501).json({

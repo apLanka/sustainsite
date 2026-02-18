@@ -46,14 +46,8 @@ export interface ISupplier extends Document {
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
-  addRating(
-    ratedBy: mongoose.Types.ObjectId,
-    rating: number,
-    comment?: string
-  ): Promise<ISupplier>;
-  updatePerformanceMetrics(
-    onTimeDelivery: boolean
-  ): Promise<ISupplier>;
+  addRating(ratedBy: mongoose.Types.ObjectId, rating: number, comment?: string): Promise<ISupplier>;
+  updatePerformanceMetrics(onTimeDelivery: boolean): Promise<ISupplier>;
 }
 
 // Address schema
@@ -239,13 +233,8 @@ supplierSchema.index({ averageRating: -1 });
 // Pre-save hook: Calculate average rating
 supplierSchema.pre('save', async function () {
   if (this.ratings.length > 0) {
-    const totalRating = this.ratings.reduce(
-      (sum, rating) => sum + rating.rating,
-      0
-    );
-    this.averageRating = parseFloat(
-      (totalRating / this.ratings.length).toFixed(2)
-    );
+    const totalRating = this.ratings.reduce((sum, rating) => sum + rating.rating, 0);
+    this.averageRating = parseFloat((totalRating / this.ratings.length).toFixed(2));
   } else {
     this.averageRating = 0;
   }
@@ -276,21 +265,15 @@ supplierSchema.methods.updatePerformanceMetrics = async function (
 
   // Recalculate on-time delivery rate
   const onTimeCount = onTimeDelivery
-    ? Math.round((this.onTimeDeliveryRate / 100) * (this.completedOrders - 1)) +
-      1
+    ? Math.round((this.onTimeDeliveryRate / 100) * (this.completedOrders - 1)) + 1
     : Math.round((this.onTimeDeliveryRate / 100) * (this.completedOrders - 1));
 
-  this.onTimeDeliveryRate = parseFloat(
-    ((onTimeCount / this.completedOrders) * 100).toFixed(2)
-  );
+  this.onTimeDeliveryRate = parseFloat(((onTimeCount / this.completedOrders) * 100).toFixed(2));
 
   return this.save();
 };
 
 // Create and export Supplier model
-const Supplier: Model<ISupplier> = mongoose.model<ISupplier>(
-  'Supplier',
-  supplierSchema
-);
+const Supplier: Model<ISupplier> = mongoose.model<ISupplier>('Supplier', supplierSchema);
 
 export default Supplier;

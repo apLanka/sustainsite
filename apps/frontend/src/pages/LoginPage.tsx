@@ -8,7 +8,14 @@ import { loginSchema, type LoginFormData } from '@/lib/validations/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function LoginPage() {
@@ -44,12 +51,8 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo/Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            SustainSite
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Sustainable Construction Management
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">SustainSite</h1>
+          <p className="text-gray-600 dark:text-gray-400">Sustainable Construction Management</p>
         </div>
 
         <Card className="backdrop-blur-sm bg-white dark:bg-black border-2 border-gray-200 dark:border-gray-800 shadow-2xl">
@@ -82,9 +85,7 @@ export default function LoginPage() {
                     disabled={isLoading}
                   />
                 </div>
-                {errors.email && (
-                  <p className="text-sm text-red-500">{errors.email.message}</p>
-                )}
+                {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
               </div>
 
               {/* Password Field */}

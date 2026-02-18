@@ -10,12 +10,7 @@ import {
   createNewVersion,
   downloadDocument,
 } from '../controllers/document.controller';
-import {
-  authenticate,
-  requireDataEntry,
-  authorize,
-  checkOwnership,
-} from '../middleware';
+import { authenticate, requireDataEntry, authorize, checkOwnership } from '../middleware';
 import { UserRole } from '../types';
 import Document from '../models/Document';
 

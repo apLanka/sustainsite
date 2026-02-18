@@ -11,12 +11,7 @@ import {
   updateInspection,
   deleteInspection,
 } from '../controllers/compliance.controller';
-import {
-  authenticate,
-  requireDataEntry,
-  requireAdmin,
-  authorize,
-} from '../middleware';
+import { authenticate, requireDataEntry, requireAdmin, authorize } from '../middleware';
 import { UserRole } from '../types';
 
 const router = Router();

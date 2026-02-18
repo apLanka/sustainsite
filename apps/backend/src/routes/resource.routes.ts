@@ -21,12 +21,7 @@ import {
   deleteSupplier,
   rateSupplier,
 } from '../controllers/resource.controller';
-import {
-  authenticate,
-  requireManager,
-  requireAdmin,
-  authorize,
-} from '../middleware';
+import { authenticate, requireManager, requireAdmin, authorize } from '../middleware';
 import { UserRole } from '../types';
 
 const router = Router();

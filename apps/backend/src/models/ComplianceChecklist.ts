@@ -144,9 +144,7 @@ complianceChecklistSchema.pre('save', async function () {
 
   // Calculate compliance score
   if (this.totalItems > 0) {
-    this.complianceScore = Math.round(
-      (this.completedItems / this.totalItems) * 100
-    );
+    this.complianceScore = Math.round((this.completedItems / this.totalItems) * 100);
   } else {
     this.complianceScore = 0;
   }
@@ -160,10 +158,9 @@ complianceChecklistSchema.pre('save', async function () {
 });
 
 // Create and export ComplianceChecklist model
-const ComplianceChecklist: Model<IComplianceChecklist> =
-  mongoose.model<IComplianceChecklist>(
-    'ComplianceChecklist',
-    complianceChecklistSchema
-  );
+const ComplianceChecklist: Model<IComplianceChecklist> = mongoose.model<IComplianceChecklist>(
+  'ComplianceChecklist',
+  complianceChecklistSchema
+);
 
 export default ComplianceChecklist;

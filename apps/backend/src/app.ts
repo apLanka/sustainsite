@@ -14,24 +14,27 @@ const app: Application = express();
 
 // CORS configuration - MUST come before helmet
 const corsOptions = {
-  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+  origin: function (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void
+  ) {
     // Allow requests with no origin (like mobile apps, Postman, curl)
     if (!origin) {
       return callback(null, true);
     }
-    
+
     // In development, allow all localhost origins
     if (process.env.NODE_ENV === 'development' && origin.startsWith('http://localhost:')) {
       return callback(null, true);
     }
-    
+
     // In production, check against whitelist
     const allowedOrigins = [
       'http://localhost:5173',
       'http://localhost:5174',
       process.env.FRONTEND_URL,
     ].filter(Boolean);
-    
+
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -46,9 +49,11 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Security middleware - Configure helmet to not interfere with CORS
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: 'cross-origin' },
-}));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+);
 
 // Body parser middleware
 app.use(express.json());
