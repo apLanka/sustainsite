@@ -6,6 +6,10 @@ import {
   updateMetric,
   deleteMetric,
   getProjectMetrics,
+  getLatestProjectMetric,
+  getProjectSustainabilityScore,
+  getProjectTrends,
+  calculateImpact
 } from '../controllers/sustainability.controller';
 import {
   authenticate,
@@ -61,6 +65,53 @@ router.get(
   authenticate,
   checkProjectMembership('params.projectId'),
   getProjectMetrics
+);
+
+/**
+ * @route   GET /api/sustainability/projects/:projectId/metrics/latest
+ * @desc    Get most recent metrics for a specific project
+ * @access  Project members
+ */
+router.get(
+  '/projects/:projectId/metrics/latest',
+  authenticate,
+  checkProjectMembership('params.projectId'),
+  getLatestProjectMetric
+);
+
+/**
+ * @route   GET /api/sustainability/projects/:projectId/score
+ * @desc    Get current sustainability score for project
+ * @access  Project members
+ */
+router.get(
+  '/projects/:projectId/score',
+  authenticate,
+  checkProjectMembership('params.projectId'),
+  getProjectSustainabilityScore
+);
+
+/**
+ * @route   GET /api/sustainability/projects/:projectId/trends
+ * @desc    Get metric trends for project
+ * @access  Project members
+ */
+router.get(
+  '/projects/:projectId/trends',
+  authenticate,
+  checkProjectMembership('params.projectId'),
+  getProjectTrends
+);
+
+/**
+ * @route   POST /api/sustainability/calculate-impact
+ * @desc    Calculate theoretical impact based on input body
+ * @access  Authenticated users
+ */
+router.post(
+  '/calculate-impact',
+  authenticate,
+  calculateImpact
 );
 
 export default router;
