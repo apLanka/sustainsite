@@ -10,7 +10,7 @@ import Milestone from '../models/Milestone';
 export const createProject = async (req: Request, res: Response): Promise<void> => {
   try {
     const projectData = req.body;
-    const userId = (req as any).user.userId;
+    const userId = (req as unknown as { user: { userId: string } }).user.userId;
     
     // Set createdBy
     projectData.createdBy = userId;
@@ -26,10 +26,10 @@ export const createProject = async (req: Request, res: Response): Promise<void> 
       success: true,
       data: project,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(400).json({
       success: false,
-      error: error.message || 'Error creating project',
+      error: error instanceof Error ? error.message : 'Error creating project',
     });
   }
 };
@@ -41,7 +41,7 @@ export const getProjects = async (req: Request, res: Response): Promise<void> =>
     const skip = (page - 1) * limit;
 
     // Build filter query
-    const query: any = {};
+    const query: Record<string, unknown> = {};
     if (req.query.status) {
       query.status = req.query.status;
     }
@@ -69,10 +69,10 @@ export const getProjects = async (req: Request, res: Response): Promise<void> =>
       },
       data: projects,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: error.message || 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
@@ -102,10 +102,10 @@ export const getProjectById = async (req: Request, res: Response): Promise<void>
         milestones
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: error.message || 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
@@ -130,10 +130,10 @@ export const updateProject = async (req: Request, res: Response): Promise<void> 
       success: true,
       data: project,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(400).json({
       success: false,
-      error: error.message || 'Error updating project',
+      error: error instanceof Error ? error.message : 'Error updating project',
     });
   }
 };
@@ -157,10 +157,10 @@ export const deleteProject = async (req: Request, res: Response): Promise<void> 
       success: true,
       data: {},
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: error.message || 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
@@ -178,10 +178,10 @@ export const addMilestone = async (req: Request, res: Response): Promise<void> =
       success: true,
       data: milestone,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(400).json({
       success: false,
-      error: error.message || 'Error adding milestone',
+      error: error instanceof Error ? error.message : 'Error adding milestone',
     });
   }
 };
@@ -206,10 +206,10 @@ export const updateMilestone = async (req: Request, res: Response): Promise<void
       success: true,
       data: milestone,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(400).json({
       success: false,
-      error: error.message || 'Error updating milestone',
+      error: error instanceof Error ? error.message : 'Error updating milestone',
     });
   }
 };
@@ -237,10 +237,10 @@ export const getProjectTimeline = async (req: Request, res: Response): Promise<v
         milestones,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: error.message || 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
