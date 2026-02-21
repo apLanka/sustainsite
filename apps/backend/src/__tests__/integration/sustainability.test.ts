@@ -141,4 +141,115 @@ describe('Sustainability Monitoring API', () => {
       expect(response.body.data.renewablePercentage).toBe(50);
     });
   });
+
+  describe('GET /api/sustainability', () => {
+    beforeEach(async () => {
+      await SustainabilityMetric.create({ ...validMetricData, projectId, recordedBy: pmId });
+      await SustainabilityMetric.create({ ...validMetricData, projectId, recordedBy: pmId });
+    });
+
+    it('should return all metrics with pagination', async () => {
+      const response = await request(app)
+        .get('/api/sustainability')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.length).toBe(2);
+      expect(response.body.pagination).toBeDefined();
+    });
+  });
+
+  describe('GET /api/sustainability/:id', () => {
+    let metricId: string;
+    beforeEach(async () => {
+      const metric = await SustainabilityMetric.create({ ...validMetricData, projectId, recordedBy: pmId });
+      metricId = metric._id.toString();
+    });
+
+    it('should return a single metric by ID', async () => {
+      const response = await request(app)
+        .get(`/api/sustainability/${metricId}`)
+        .set('Authorization', `Bearer ${viewerToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.notes).toBe('Test note');
+    });
+  });
+
+  describe('PUT /api/sustainability/:id', () => {
+    let metricId: string;
+    beforeEach(async () => {
+      const metric = await SustainabilityMetric.create({ ...validMetricData, projectId, recordedBy: pmId });
+      metricId = metric._id.toString();
+    });
+
+    it('should update a metric and recalculate score/trees', async () => {
+      const response = await request(app)
+        .put(`/api/sustainability/${metricId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ notes: 'Updated note' })
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.notes).toBe('Updated note');
+    });
+  });
+
+  describe('DELETE /api/sustainability/:id', () => {
+    let metricId: string;
+    beforeEach(async () => {
+      const metric = await SustainabilityMetric.create({ ...validMetricData, projectId, recordedBy: pmId });
+      metricId = metric._id.toString();
+    });
+
+    it('should allow ADMIN to delete metric', async () => {
+      const response = await request(app)
+        .delete(`/api/sustainability/${metricId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+    });
+  });
+
+  describe('GET /api/sustainability/projects/:projectId/metrics/latest', () => {
+    beforeEach(async () => {
+      const pastDate = new Date();
+      pastDate.setDate(pastDate.getDate() - 5);
+      
+      await SustainabilityMetric.create({ ...validMetricData, projectId, recordedDate: pastDate, notes: 'Old' });
+      await SustainabilityMetric.create({ ...validMetricData, projectId, recordedDate: new Date(), notes: 'Latest' });
+    });
+
+    it('should fetch only the most recent metric for a project', async () => {
+      const response = await request(app)
+        .get(`/api/sustainability/projects/${projectId}/metrics/latest`)
+        .set('Authorization', `Bearer ${pmToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.notes).toBe('Latest');
+    });
+  });
+
+  describe('GET /api/sustainability/projects/:projectId/trends', () => {
+    beforeEach(async () => {
+      await SustainabilityMetric.create({ ...validMetricData, projectId });
+      await SustainabilityMetric.create({ ...validMetricData, projectId });
+    });
+
+    it('should fetch metric trends for a project', async () => {
+      const response = await request(app)
+        .get(`/api/sustainability/projects/${projectId}/trends`)
+        .set('Authorization', `Bearer ${pmToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.length).toBe(2);
+      expect(response.body.data[0]).toHaveProperty('sustainabilityScore');
+      expect(response.body.data[0]).not.toHaveProperty('notes'); // We selected specific fields in the controller
+    });
+  });
 });

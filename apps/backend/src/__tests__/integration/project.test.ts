@@ -212,4 +212,116 @@ describe('Project Management API', () => {
         .expect(403);
     });
   });
+
+  describe('POST /api/projects/:id/milestones', () => {
+    let projectId: string;
+
+    beforeEach(async () => {
+      const proj = await Project.create({
+        projectName: 'Milestone Project',
+        location: { address: 'Address 1' },
+        startDate: new Date(),
+        endDate: new Date(),
+        budget: 50000,
+        projectManager: pmId,
+        createdBy: adminId,
+      });
+      projectId = proj._id.toString();
+    });
+
+    it('should allow PM to add milestone', async () => {
+      const milestoneData = {
+        title: 'Phase 1',
+        description: 'First phase of project',
+        targetDate: new Date(Date.now() + 86400000).toISOString(),
+        status: 'Pending',
+      };
+
+      const response = await request(app)
+        .post(`/api/projects/${projectId}/milestones`)
+        .set('Authorization', `Bearer ${pmToken}`)
+        .send(milestoneData)
+        .expect(201);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.title).toBe('Phase 1');
+      expect(response.body.data.projectId).toBe(projectId);
+    });
+  });
+
+  describe('PUT /api/projects/:id/milestones/:milestoneId', () => {
+    let projectId: string;
+    let milestoneId: string;
+
+    beforeEach(async () => {
+      const proj = await Project.create({
+        projectName: 'Milestone Update Project',
+        location: { address: 'Address 1' },
+        startDate: new Date(),
+        endDate: new Date(),
+        budget: 50000,
+        projectManager: pmId,
+        createdBy: adminId,
+      });
+      projectId = proj._id.toString();
+
+      const res = await request(app)
+        .post(`/api/projects/${projectId}/milestones`)
+        .set('Authorization', `Bearer ${pmToken}`)
+        .send({
+          title: 'Initial Phase',
+          targetDate: new Date(Date.now() + 86400000).toISOString(),
+        });
+      milestoneId = res.body.data._id;
+    });
+
+    it('should allow PM to update milestone', async () => {
+      const response = await request(app)
+        .put(`/api/projects/${projectId}/milestones/${milestoneId}`)
+        .set('Authorization', `Bearer ${pmToken}`)
+        .send({ status: 'Completed', completionPercentage: 100 })
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.status).toBe('Completed');
+    });
+  });
+
+  describe('GET /api/projects/:id/timeline', () => {
+    let projectId: string;
+
+    beforeEach(async () => {
+      const proj = await Project.create({
+        projectName: 'Timeline Project',
+        location: { address: 'Address 1' },
+        startDate: new Date(),
+        endDate: new Date(),
+        budget: 50000,
+        projectManager: pmId,
+        createdBy: adminId,
+        teamMembers: [adminId, pmId]
+      });
+      projectId = proj._id.toString();
+
+      await request(app)
+        .post(`/api/projects/${projectId}/milestones`)
+        .set('Authorization', `Bearer ${pmToken}`)
+        .send({
+          title: 'Timeline Phase 1',
+          targetDate: new Date(Date.now() + 86400000).toISOString(),
+        });
+    });
+
+    it('should return project timeline data', async () => {
+      const response = await request(app)
+        .get(`/api/projects/${projectId}/timeline`)
+        .set('Authorization', `Bearer ${pmToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveProperty('project');
+      expect(response.body.data).toHaveProperty('milestones');
+      expect(response.body.data.milestones.length).toBe(1);
+    });
+  });
 });
