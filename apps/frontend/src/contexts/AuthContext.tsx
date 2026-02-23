@@ -56,7 +56,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fullName: userData.fullName,
         email: userData.email,
         role: userData.role,
-        phoneNumber: userData.phoneNumber,
         isActive: true,
         createdAt: new Date(),
       };
@@ -85,7 +84,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fullName: userData.fullName,
         email: userData.email,
         role: userData.role,
-        phoneNumber: userData.phoneNumber,
         isActive: true,
         createdAt: new Date(),
       };

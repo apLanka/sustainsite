@@ -14,7 +14,7 @@ export interface User {
   fullName: string;
   email: string;
   role: UserRole;
-  phoneNumber?: string;
+
   assignedProjects?: string[];
   isActive: boolean;
   lastLogin?: Date;
@@ -27,7 +27,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   role: UserRole;
-  phoneNumber?: string;
+
 }
 
 export interface LoginRequest {
@@ -43,7 +43,7 @@ export interface AuthResponse {
     fullName: string;
     email: string;
     role: UserRole;
-    phoneNumber?: string;
+
     token: string;
     expiresIn?: string;
   };

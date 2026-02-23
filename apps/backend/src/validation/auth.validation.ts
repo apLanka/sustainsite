@@ -34,12 +34,7 @@ export const registerSchema = Joi.object({
       'any.required': 'Role is required',
     }),
 
-  phoneNumber: Joi.string()
-    .pattern(/^\+?[1-9]\d{1,14}$/)
-    .optional()
-    .messages({
-      'string.pattern.base': 'Please provide a valid phone number in E.164 format',
-    }),
+
 });
 
 // Login validation schema

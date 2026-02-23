@@ -37,11 +37,7 @@ export const registerSchema = z.object({
   role: z.nativeEnum(UserRole, {
     error: 'Please select a valid role',
   }),
-  phoneNumber: z
-    .string()
-    .regex(/^\+?[1-9]\d{1,14}$/, 'Please provide a valid phone number in E.164 format')
-    .optional()
-    .or(z.literal('')),
+
 });
 
 export type RegisterFormData = z.infer<typeof registerSchema>;
