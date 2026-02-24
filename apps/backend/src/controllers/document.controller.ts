@@ -69,17 +69,68 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const getDocuments = async (_req: Request, res: Response): Promise<void> => {
+export const getDocuments = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement get all documents with filters
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
+    const {
+      projectId,
+      documentType,
+      status,
+      uploadedBy,
+      tag,
+      page = '1',
+      limit = '10',
+    } = req.query;
+
+    const filter: Record<string, unknown> = {};
+
+    if (projectId) {
+      if (!mongoose.Types.ObjectId.isValid(projectId as string)) {
+        res.status(400).json({ success: false, error: 'Invalid projectId format' });
+        return;
+      }
+      filter.projectId = projectId;
+    }
+
+    if (documentType) filter.documentType = documentType;
+    if (status) filter.status = status;
+    if (uploadedBy) {
+      if (!mongoose.Types.ObjectId.isValid(uploadedBy as string)) {
+        res.status(400).json({ success: false, error: 'Invalid uploadedBy format' });
+        return;
+      }
+      filter.uploadedBy = uploadedBy;
+    }
+    if (tag) filter.tags = tag;
+
+    const pageNum = Math.max(1, parseInt(page as string, 10));
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit as string, 10)));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [documents, total] = await Promise.all([
+      DocumentModel.find(filter)
+        .select('-accessLog -previousVersions')
+        .populate('uploadedBy', 'name email')
+        .populate('approvedBy', 'name email')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum),
+      DocumentModel.countDocuments(filter),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: documents,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        pages: Math.ceil(total / limitNum),
+      },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };

@@ -2156,57 +2156,57 @@
   ],
   "variable": [
     {
-      "id": "890a7f7a-7aaa-4d66-a165-b4c6bd935d78",
+      "id": "00c575a0-a4bb-406a-972c-a9bfefec8230",
       "key": "baseUrl",
       "value": "http://localhost:5001"
     },
     {
-      "id": "cb58fb84-8050-4d36-b5a3-02fb43fcd7f5",
+      "id": "1773e117-0a2d-4681-8736-0231c0942ef9",
       "key": "token",
       "value": ""
     },
     {
-      "id": "fe60bd37-a39d-43aa-a026-9dcde87ba4e6",
+      "id": "5a0c4b66-9b56-4e80-bfa0-cf8209173613",
       "key": "projectId",
       "value": ""
     },
     {
-      "id": "5ef63a5f-eaf5-4520-8d64-18686ad308f5",
+      "id": "51da0a18-df0d-4a18-9df5-039f9666b7c0",
       "key": "documentId",
       "value": ""
     },
     {
-      "id": "920960a9-d3c0-4f50-ae70-d609fe99829f",
+      "id": "94f56216-c73a-4fac-bf48-ec87f7245e0f",
       "key": "checklistId",
       "value": ""
     },
     {
-      "id": "f2e6d928-dc92-4f01-8f25-39956e78ebf2",
+      "id": "61c12f01-3b27-474e-81f4-324b6535c8dc",
       "key": "inspectionId",
       "value": ""
     },
     {
-      "id": "421c05fa-52e2-4f38-9238-0e9bdd928cce",
+      "id": "c52b4b23-f975-4362-9efb-da516a51363e",
       "key": "metricId",
       "value": ""
     },
     {
-      "id": "df9c2a4b-f17a-4f67-926a-1589251d4bcd",
+      "id": "07fe089f-68f7-4ee0-9859-db43e5d7d58e",
       "key": "milestoneId",
       "value": ""
     },
     {
-      "id": "ceaa8903-320e-4cae-a892-5abb01b4bb59",
+      "id": "120b25f6-a888-46a8-8189-5d118ddd7862",
       "key": "materialId",
       "value": ""
     },
     {
-      "id": "512810fe-babb-4ac1-b95c-6df5141f7a7d",
+      "id": "cf39db96-641a-463e-94f1-f208462a5719",
       "key": "equipmentId",
       "value": ""
     },
     {
-      "id": "e0f4b8a7-891b-4fbb-9dc6-d5990671ed28",
+      "id": "2a6c1f3a-c8d2-4cec-8646-dc055e86a842",
       "key": "supplierId",
       "value": ""
     }
