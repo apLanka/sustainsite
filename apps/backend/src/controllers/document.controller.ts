@@ -154,13 +154,13 @@ export const getDocumentById = async (req: Request, res: Response): Promise<void
       return;
     }
 
-    // this is not a long running process I think. So its not need to be async
+    res.status(200).json({ success: true, data: document });
+
+    // Log view access after response is sent
     document.addAccessLog(
       new mongoose.Types.ObjectId(req.user!.userId),
       AccessAction.VIEW
     );
-
-    res.status(200).json({ success: true, data: document });
   } catch (error: unknown) {
     res.status(500).json({
       success: false,
