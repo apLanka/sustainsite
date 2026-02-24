@@ -1,0 +1,2214 @@
+{
+  "info": {
+    "_postman_id": "11390e5e-882a-4bb1-b518-f39be189228a",
+    "name": "SustainSite API",
+    "description": "Sustainable Construction Project Management System — Full API collection.\n\n## Getting Started\n1. Set `baseUrl` variable if needed (default: http://localhost:5001)\n2. Run **Register** or **Login** — the token is auto-saved to `{{token}}`\n3. Run **Create Project** — the projectId is auto-saved to `{{projectId}}`\n4. Use any downstream request freely\n\n## Variables auto-set by test scripts\n- `token` — set on Login / Register\n- `projectId` — set on Create Project\n- `documentId` — set on Upload Document\n- `checklistId` — set on Create Checklist\n- `inspectionId` — set on Create Inspection\n- `metricId` — set on Create Metric\n- `milestoneId` — set on Add Milestone\n- `materialId` — set on Create Material\n- `equipmentId` — set on Create Equipment\n- `supplierId` — set on Create Supplier",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.token) {",
+                  "  pm.collectionVariables.set('token', res.data.token);",
+                  "  console.log('Token saved:', res.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "0ef7c65c-2932-45c6-83ec-1fab74d039aa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"John Silva\",\n  \"email\": \"john@test.com\",\n  \"password\": \"TestPass123\",\n  \"role\": \"PROJECT_MANAGER\",\n  \"phoneNumber\": \"+94771234567\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register a new user. Roles: ADMIN | PROJECT_MANAGER | INSPECTOR | SUPPLIER | VIEWER\n\nToken is auto-saved to `{{token}}`."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.token) {",
+                  "  pm.collectionVariables.set('token', res.data.token);",
+                  "  console.log('Token saved:', res.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "f6f6dc66-8656-4ec7-a043-b56bd51e6645",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@test.com\",\n  \"password\": \"TestPass123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login and receive a JWT token. Token is auto-saved to `{{token}}`."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "id": "023d6394-9751-49f7-a1ce-feebb1f25edd",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Returns the profile of the currently authenticated user."
+          },
+          "response": []
+        }
+      ],
+      "id": "12f6f090-5b60-4f43-ba64-db85ab1ae96e"
+    },
+    {
+      "name": "🏗️ Projects",
+      "item": [
+        {
+          "name": "Create Project",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data._id) {",
+                  "  pm.collectionVariables.set('projectId', res.data._id);",
+                  "  console.log('projectId saved:', res.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "cc615cc3-fbdd-415b-ab8c-a91c3c48c1a3",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectName\": \"Green Tower Construction\",\n  \"description\": \"Sustainable high-rise residential building\",\n  \"location\": {\n    \"address\": \"123 Main St, Colombo, Sri Lanka\",\n    \"latitude\": 6.9271,\n    \"longitude\": 79.8612\n  },\n  \"startDate\": \"2026-03-01\",\n  \"endDate\": \"2026-12-31\",\n  \"budget\": 50000000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects"
+              ]
+            },
+            "description": "Access: ADMIN, PROJECT_MANAGER\n\n`projectId` is auto-saved to `{{projectId}}`."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Projects",
+          "id": "d14a0286-5078-435b-ac00-b7c945da46a1",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects?page=1&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "In Progress",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "Green",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Filters (all optional): `status`, `search`, `page`, `limit`"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Project By ID",
+          "id": "b7e7ac8a-2e31-4422-b0d8-a4bfcb7d3e0c",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            },
+            "description": "Access: Project members (manager or team member) only."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Project",
+          "id": "042ccdee-9071-4c33-9804-80b09dd0c074",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated description\",\n  \"status\": \"In Progress\",\n  \"currentPhase\": \"Foundation Works\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            },
+            "description": "Access: Project manager or ADMIN only."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Project",
+          "id": "c5b37590-99a8-4277-981f-5d1e140a2d7e",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}"
+              ]
+            },
+            "description": "Access: ADMIN only."
+          },
+          "response": []
+        },
+        {
+          "name": "Add Milestone",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.milestones) {",
+                  "  const milestones = res.data.milestones;",
+                  "  const last = milestones[milestones.length - 1];",
+                  "  if (last && last._id) {",
+                  "    pm.collectionVariables.set('milestoneId', last._id);",
+                  "    console.log('milestoneId saved:', last._id);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "b804d7e7-90d0-45d5-bc37-35bd5d638115",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Foundation Complete\",\n  \"description\": \"All foundation works completed\",\n  \"targetDate\": \"2026-04-30\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}/milestones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}",
+                "milestones"
+              ]
+            },
+            "description": "Access: Project manager or ADMIN only."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Milestone",
+          "id": "57b2257e-e8b7-4415-86e3-c2a5b192a672",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Completed\",\n  \"completionPercentage\": 100\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}/milestones/{{milestoneId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}",
+                "milestones",
+                "{{milestoneId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Project Timeline",
+          "id": "d6dde334-6bda-4662-95d0-7960355262e1",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}/timeline",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}",
+                "timeline"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "b8b4a4e6-7b34-4db5-a1d7-9a7e0f5f65dd"
+    },
+    {
+      "name": "📄 Documents (Component 3)",
+      "item": [
+        {
+          "name": "Upload Document",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data._id) {",
+                  "  pm.collectionVariables.set('documentId', res.data._id);",
+                  "  console.log('documentId saved:', res.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "3bb22807-d5af-4eea-8d6d-c9bcd8a3c188",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "Select a PDF, JPG, PNG, DOCX, XLSX, or DWG file (max 10MB)",
+                  "src": []
+                },
+                {
+                  "key": "projectId",
+                  "value": "{{projectId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "documentType",
+                  "value": "Permit",
+                  "type": "text",
+                  "description": "Blueprint | Permit | Certificate | Safety Report | Contract | Other"
+                },
+                {
+                  "key": "title",
+                  "value": "Building Permit 2026",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Municipal building permit for Green Tower",
+                  "type": "text"
+                },
+                {
+                  "key": "version",
+                  "value": "1.0",
+                  "type": "text"
+                },
+                {
+                  "key": "tags",
+                  "value": "[\"permit\",\"2026\"]",
+                  "type": "text",
+                  "description": "JSON array string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents"
+              ]
+            },
+            "description": "Access: ADMIN, PROJECT_MANAGER, INSPECTOR\n\nUse **form-data** body (not JSON). Select an actual file for the `file` field.\n\nStatus defaults to `Draft`. `documentId` is auto-saved."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Documents",
+          "id": "b804482f-84b7-4638-b4bd-01ef55b235d8",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents?projectId={{projectId}}&page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents"
+              ],
+              "query": [
+                {
+                  "key": "projectId",
+                  "value": "{{projectId}}"
+                },
+                {
+                  "key": "documentType",
+                  "value": "Permit",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "Draft",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Filters (all optional): `projectId`, `documentType`, `status`, `page`, `limit`"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Document By ID",
+          "id": "d48ce479-e34e-4458-9b12-4d39de2fac12",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents",
+                "{{documentId}}"
+              ]
+            },
+            "description": "Also logs a `view` entry in the document's access log."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Document Metadata",
+          "id": "6596365c-80f9-487b-a689-9ff1e40b3017",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Permit Title\",\n  \"description\": \"Revised description\",\n  \"tags\": [\"permit\", \"revised\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents",
+                "{{documentId}}"
+              ]
+            },
+            "description": "Access: ADMIN, PROJECT_MANAGER, INSPECTOR\n\nUpdates metadata only (title, description, documentType, version, tags). Does NOT replace the file."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Document",
+          "id": "d45ead8d-e44e-4190-b1e0-b646356a6f8f",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents",
+                "{{documentId}}"
+              ]
+            },
+            "description": "Access: Document owner (uploadedBy) or ADMIN.\n\nAlso deletes the file from Cloudinary."
+          },
+          "response": []
+        },
+        {
+          "name": "Approve Document",
+          "id": "5477aa13-d031-4eae-aa85-8a4499ee6e92",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents",
+                "{{documentId}}",
+                "approve"
+              ]
+            },
+            "description": "Access: ADMIN, INSPECTOR\n\nChanges status from `Draft` / `Under Review` → `Approved`. Sets `approvedBy` and `approvalDate`."
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Document",
+          "id": "0266c4ee-57cf-4b44-bb4f-6675be8b9cf7",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rejectionReason\": \"Document is missing signature on page 3\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents",
+                "{{documentId}}",
+                "reject"
+              ]
+            },
+            "description": "Access: ADMIN, INSPECTOR\n\n`rejectionReason` is required. Changes status → `Rejected`."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload New Version",
+          "id": "39e63d9b-a192-403e-a281-3d6377bb7c63",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "The replacement file (max 10MB)",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/version",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents",
+                "{{documentId}}",
+                "version"
+              ]
+            },
+            "description": "Access: ADMIN, PROJECT_MANAGER, INSPECTOR\n\nPushes current version to `previousVersions`, increments version number (1.0 → 1.1), resets status to `Draft`."
+          },
+          "response": []
+        },
+        {
+          "name": "Download Document",
+          "id": "72e128a7-1b9a-4f61-b273-5c2d561cbe62",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/download",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents",
+                "{{documentId}}",
+                "download"
+              ]
+            },
+            "description": "Returns the Cloudinary file URL and logs a `download` entry in the access log."
+          },
+          "response": []
+        }
+      ],
+      "id": "3759bcfd-41f7-41df-b893-6a7163fab8ed"
+    },
+    {
+      "name": "✅ Compliance (Component 3)",
+      "item": [
+        {
+          "name": "Checklists",
+          "item": [
+            {
+              "name": "Create Checklist",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const res = pm.response.json();",
+                      "if (res.data && res.data._id) {",
+                      "  pm.collectionVariables.set('checklistId', res.data._id);",
+                      "  console.log('checklistId saved:', res.data._id);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "id": "30a762fd-359b-4294-9961-404ec71dbc72",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"projectId\": \"{{projectId}}\",\n  \"checklistName\": \"Environmental Compliance Q1 2026\",\n  \"category\": \"Environmental\",\n  \"dueDate\": \"2026-03-31\",\n  \"items\": [\n    {\n      \"itemId\": \"item-001\",\n      \"itemName\": \"Environmental Impact Assessment\",\n      \"description\": \"Complete EIA report submitted to authorities\",\n      \"isCompleted\": true\n    },\n    {\n      \"itemId\": \"item-002\",\n      \"itemName\": \"Waste Management Plan\",\n      \"description\": \"Approved waste disposal plan in place\",\n      \"isCompleted\": true\n    },\n    {\n      \"itemId\": \"item-003\",\n      \"itemName\": \"Air Quality Monitoring\",\n      \"description\": \"Monthly air quality readings submitted\",\n      \"isCompleted\": false\n    },\n    {\n      \"itemId\": \"item-004\",\n      \"itemName\": \"Noise Level Assessment\",\n      \"description\": \"Noise measurements within permitted limits\",\n      \"isCompleted\": false\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/compliance/checklists",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "compliance",
+                    "checklists"
+                  ]
+                },
+                "description": "Access: ADMIN, PROJECT_MANAGER, INSPECTOR\n\nCategories: `Environmental` | `Safety` | `Building Code` | `Sustainability Certification`\n\n`complianceScore` is auto-calculated (50% here — 2 of 4 items completed). `checklistId` is auto-saved."
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Checklists",
+              "id": "1ef3f31e-42b0-467f-89c3-836bff517f7e",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/compliance/checklists?projectId={{projectId}}&page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "compliance",
+                    "checklists"
+                  ],
+                  "query": [
+                    {
+                      "key": "projectId",
+                      "value": "{{projectId}}"
+                    },
+                    {
+                      "key": "category",
+                      "value": "Environmental",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                },
+                "description": "Filters: `projectId`, `category`, `page`, `limit`"
+              },
+              "response": []
+            },
+            {
+              "name": "Get Checklist By ID",
+              "id": "1ef00c50-6da4-439c-97c1-667c5eec9a5f",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/compliance/checklists/{{checklistId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "compliance",
+                    "checklists",
+                    "{{checklistId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Checklist",
+              "id": "31b44ff7-1d77-45f3-96a7-743f456c658d",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\n    {\n      \"itemId\": \"item-003\",\n      \"itemName\": \"Air Quality Monitoring\",\n      \"description\": \"Monthly air quality readings submitted\",\n      \"isCompleted\": true\n    },\n    {\n      \"itemId\": \"item-004\",\n      \"itemName\": \"Noise Level Assessment\",\n      \"description\": \"Noise measurements within permitted limits\",\n      \"isCompleted\": false\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/compliance/checklists/{{checklistId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "compliance",
+                    "checklists",
+                    "{{checklistId}}"
+                  ]
+                },
+                "description": "Access: ADMIN, PROJECT_MANAGER, INSPECTOR\n\nCan update metadata (`checklistName`, `category`, `dueDate`) or item completion status. Score is recalculated automatically."
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Checklist",
+              "id": "8a4c8bb5-e1be-4dd3-8cdf-f48f29c6ab51",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/compliance/checklists/{{checklistId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "compliance",
+                    "checklists",
+                    "{{checklistId}}"
+                  ]
+                },
+                "description": "Access: ADMIN only."
+              },
+              "response": []
+            }
+          ],
+          "id": "9ee42e5b-7c49-4878-a94b-f9d0d354d968"
+        },
+        {
+          "name": "Safety Inspections",
+          "item": [
+            {
+              "name": "Create Inspection",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const res = pm.response.json();",
+                      "if (res.data && res.data._id) {",
+                      "  pm.collectionVariables.set('inspectionId', res.data._id);",
+                      "  console.log('inspectionId saved:', res.data._id);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "id": "85fd001b-4f6c-4412-9eef-dd4c092761ee",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"projectId\": \"{{projectId}}\",\n  \"inspectionType\": \"Safety\",\n  \"inspectionDate\": \"2026-02-15\",\n  \"findings\": \"Scaffolding not properly secured on 5th floor. Workers observed without harnesses.\",\n  \"riskLevel\": \"High\",\n  \"issuesIdentified\": [\n    {\n      \"issue\": \"Scaffolding not secured\",\n      \"severity\": \"Major\",\n      \"location\": \"5th floor, north wing\"\n    },\n    {\n      \"issue\": \"Missing safety harnesses\",\n      \"severity\": \"Major\",\n      \"location\": \"5th floor\"\n    }\n  ],\n  \"actionRequired\": \"Immediate rectification required within 24 hours\",\n  \"recommendedActions\": [\n    \"Secure all scaffolding joints immediately\",\n    \"Issue harnesses to all workers on elevated levels\",\n    \"Conduct safety briefing before next shift\"\n  ],\n  \"actionDeadline\": \"2026-02-16\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/compliance/inspections",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "compliance",
+                    "inspections"
+                  ]
+                },
+                "description": "Access: ADMIN, INSPECTOR\n\nTypes: `Safety` | `Environmental` | `Quality` | `Structural`\nRisk Levels: `Low` | `Medium` | `High` | `Critical`\n\n`inspector` is auto-set to the logged-in user. `inspectionId` is auto-saved."
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Inspections",
+              "id": "66d4c256-7e8a-4ab0-b983-d0cbdd56be0c",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/compliance/inspections?projectId={{projectId}}&page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "compliance",
+                    "inspections"
+                  ],
+                  "query": [
+                    {
+                      "key": "projectId",
+                      "value": "{{projectId}}"
+                    },
+                    {
+                      "key": "riskLevel",
+                      "value": "High",
+                      "disabled": true
+                    },
+                    {
+                      "key": "isResolved",
+                      "value": "false",
+                      "disabled": true
+                    },
+                    {
+                      "key": "inspectionType",
+                      "value": "Safety",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                },
+                "description": "Filters: `projectId`, `riskLevel`, `isResolved`, `inspectionType`, `page`, `limit`"
+              },
+              "response": []
+            },
+            {
+              "name": "Get Inspection By ID",
+              "id": "2de843dc-9574-4163-a353-0034af98991b",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/compliance/inspections/{{inspectionId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "compliance",
+                    "inspections",
+                    "{{inspectionId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Inspection",
+              "id": "22faf670-3ea2-4885-a56f-c443d554a4e3",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"actionStatus\": \"Completed\",\n  \"followUpNotes\": \"All scaffolding secured and verified. Harnesses distributed to all workers.\",\n  \"followUpDate\": \"2026-02-17\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/compliance/inspections/{{inspectionId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "compliance",
+                    "inspections",
+                    "{{inspectionId}}"
+                  ]
+                },
+                "description": "Access: ADMIN, INSPECTOR\n\nSetting `actionStatus` to `Completed` automatically sets `isResolved: true`.\n\nAction statuses: `Pending` | `In Progress` | `Completed`"
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Inspection",
+              "id": "b69ee92f-de7f-4341-881f-8d152c766cb3",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/compliance/inspections/{{inspectionId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "compliance",
+                    "inspections",
+                    "{{inspectionId}}"
+                  ]
+                },
+                "description": "Access: ADMIN only."
+              },
+              "response": []
+            }
+          ],
+          "id": "46b3cf93-32a8-4c78-b762-3a32beb57a4e"
+        }
+      ],
+      "id": "bb84fa86-081c-45b6-9b41-faa969a2283b"
+    },
+    {
+      "name": "🌱 Sustainability (Component 2)",
+      "item": [
+        {
+          "name": "Create Metric",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data._id) {",
+                  "  pm.collectionVariables.set('metricId', res.data._id);",
+                  "  console.log('metricId saved:', res.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "6e1eaf77-9875-4570-abd3-441067a39d5b",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectId\": \"{{projectId}}\",\n  \"carbonEmissions\": {\n    \"transportation\": 1.5,\n    \"equipment\": 2.3,\n    \"materials\": 1.2\n  },\n  \"energyConsumption\": {\n    \"electricity\": 2500,\n    \"diesel\": 150,\n    \"renewableEnergy\": 500\n  },\n  \"wasteManagement\": {\n    \"recyclable\": 800,\n    \"nonRecyclable\": 200,\n    \"hazardous\": 50\n  },\n  \"waterUsage\": {\n    \"municipal\": 12000,\n    \"recycled\": 3000\n  },\n  \"recordedDate\": \"2026-02-24\",\n  \"notes\": \"Weekly sustainability audit\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sustainability",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sustainability"
+              ]
+            },
+            "description": "Access: ADMIN, PROJECT_MANAGER, INSPECTOR"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Metrics",
+          "id": "db37ef64-fb06-4d60-896a-5dc2164d6cf9",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sustainability?page=1&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sustainability"
+              ],
+              "query": [
+                {
+                  "key": "projectId",
+                  "value": "{{projectId}}",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Metric By ID",
+          "id": "ffafce56-943a-491f-9c7c-0aeeb722bca8",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sustainability/{{metricId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sustainability",
+                "{{metricId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Metric",
+          "id": "b1d39ed6-d0fc-4029-9525-47df26ddfac5",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Updated notes after re-measurement\",\n  \"energyConsumption\": {\n    \"renewableEnergy\": 800\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sustainability/{{metricId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sustainability",
+                "{{metricId}}"
+              ]
+            },
+            "description": "Access: ADMIN, PROJECT_MANAGER, INSPECTOR"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Metric",
+          "id": "5541e859-4665-48a5-9114-95f456a37c17",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sustainability/{{metricId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sustainability",
+                "{{metricId}}"
+              ]
+            },
+            "description": "Access: ADMIN only."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Project Metrics",
+          "id": "bd368476-6773-4c69-b027-9efd52ebdc9f",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sustainability/projects/{{projectId}}/metrics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sustainability",
+                "projects",
+                "{{projectId}}",
+                "metrics"
+              ]
+            },
+            "description": "Access: Project members only."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Latest Project Metric",
+          "id": "8f9833fe-2c9d-44a5-b53d-0b35e8f6867f",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sustainability/projects/{{projectId}}/metrics/latest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sustainability",
+                "projects",
+                "{{projectId}}",
+                "metrics",
+                "latest"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sustainability Score",
+          "id": "1083485e-7ec4-44b6-ab81-08ac22da5a76",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sustainability/projects/{{projectId}}/score",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sustainability",
+                "projects",
+                "{{projectId}}",
+                "score"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Project Trends",
+          "id": "30a93075-a552-42d9-ab01-d388135aaf92",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sustainability/projects/{{projectId}}/trends",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sustainability",
+                "projects",
+                "{{projectId}}",
+                "trends"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Calculate Impact",
+          "id": "d1fa995c-b9c5-469a-9427-642d019007c8",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"carbonEmissions\": {\n    \"transportation\": 2,\n    \"equipment\": 2,\n    \"materials\": 2\n  },\n  \"energyConsumption\": {\n    \"electricity\": 1000,\n    \"renewableEnergy\": 500\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sustainability/calculate-impact",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sustainability",
+                "calculate-impact"
+              ]
+            },
+            "description": "Calculates impact without saving. Returns totalCarbon, treesEquivalent, renewablePercentage."
+          },
+          "response": []
+        }
+      ],
+      "id": "de91a474-ace1-4e24-8bfc-1c8bc2c992a7"
+    },
+    {
+      "name": "📦 Resources (Component 4)",
+      "item": [
+        {
+          "name": "Materials",
+          "item": [
+            {
+              "name": "Create Material",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const res = pm.response.json();",
+                      "if (res.data && res.data._id) {",
+                      "  pm.collectionVariables.set('materialId', res.data._id);",
+                      "  console.log('materialId saved:', res.data._id);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "id": "bfe6ec6d-1922-47f3-8991-321013b3bac8",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"projectId\": \"{{projectId}}\",\n  \"materialName\": \"Portland Cement\",\n  \"category\": \"Cement\",\n  \"quantity\": 100,\n  \"unit\": \"tons\",\n  \"unitPrice\": 15000,\n  \"supplier\": \"{{supplierId}}\",\n  \"expectedDeliveryDate\": \"2026-03-05\",\n  \"minimumThreshold\": 30,\n  \"sustainabilityRating\": 7\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/materials",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "materials"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Materials",
+              "id": "52f6e95d-1f4c-4b74-be8f-cc7c88c60a81",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/materials",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "materials"
+                  ],
+                  "query": [
+                    {
+                      "key": "projectId",
+                      "value": "{{projectId}}",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Material By ID",
+              "id": "60d92478-73f9-4da8-baab-c111f26923ac",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/materials/{{materialId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "materials",
+                    "{{materialId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Material",
+              "id": "1709e1be-50d1-4577-ada5-8f03a5dc7507",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"quantity\": 120,\n  \"unitPrice\": 14500\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/materials/{{materialId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "materials",
+                    "{{materialId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Material Status",
+              "id": "563a227d-db03-4375-b5b9-aea318a1a515",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"In Transit\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/materials/{{materialId}}/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "materials",
+                    "{{materialId}}",
+                    "status"
+                  ]
+                },
+                "description": "Statuses: `Ordered` | `In Transit` | `Delivered` | `In Stock` | `Used` | `Cancelled`"
+              },
+              "response": []
+            },
+            {
+              "name": "Record Material Usage",
+              "id": "e4322f2c-753b-482d-99b6-803dad347c8c",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"usedQuantity\": 25,\n  \"purpose\": \"Foundation slab pour\",\n  \"notes\": \"Used for north section\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/materials/{{materialId}}/usage",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "materials",
+                    "{{materialId}}",
+                    "usage"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Material",
+              "id": "af40439a-c079-4fe3-8417-db19335191fc",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/materials/{{materialId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "materials",
+                    "{{materialId}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ],
+          "id": "ec494d33-eca2-4ce4-8d35-bf123189ef19"
+        },
+        {
+          "name": "Equipment",
+          "item": [
+            {
+              "name": "Create Equipment",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const res = pm.response.json();",
+                      "if (res.data && res.data._id) {",
+                      "  pm.collectionVariables.set('equipmentId', res.data._id);",
+                      "  console.log('equipmentId saved:', res.data._id);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "id": "730b4c3f-ec01-4187-a7d3-7cb3b8fb12af",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"equipmentName\": \"Excavator CAT-320\",\n  \"equipmentType\": \"Excavator\",\n  \"serialNumber\": \"CAT-320-2026-001\",\n  \"manufacturer\": \"Caterpillar\",\n  \"model\": \"320\",\n  \"yearOfManufacture\": 2022,\n  \"purchasePrice\": 12000000,\n  \"rentalRatePerDay\": 50000\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/equipment",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "equipment"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Equipment",
+              "id": "920dbf2e-a729-4da2-990a-032e30ae012d",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/equipment",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "equipment"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Equipment By ID",
+              "id": "4540b1b1-50ef-47c1-9cc1-636dbb53bdb7",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/equipment/{{equipmentId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "equipment",
+                    "{{equipmentId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Assign Equipment to Project",
+              "id": "16fe1678-7bd2-49ff-a0df-ba8562399616",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"projectId\": \"{{projectId}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/equipment/{{equipmentId}}/assign",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "equipment",
+                    "{{equipmentId}}",
+                    "assign"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Schedule Maintenance",
+              "id": "5e43c524-fb49-4d55-8555-0e37b036d276",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"maintenanceDate\": \"2026-04-01\",\n  \"maintenanceType\": \"Routine\",\n  \"description\": \"Oil change and filter replacement\",\n  \"cost\": 25000,\n  \"performedBy\": \"Lanka Service Co.\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/equipment/{{equipmentId}}/maintenance",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "equipment",
+                    "{{equipmentId}}",
+                    "maintenance"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Equipment",
+              "id": "99abf00b-cbd2-4d24-821f-73158ef1e948",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/equipment/{{equipmentId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "equipment",
+                    "{{equipmentId}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ],
+          "id": "6175acdd-c5c8-42a8-aab5-96590d8fb2c2"
+        },
+        {
+          "name": "Suppliers",
+          "item": [
+            {
+              "name": "Create Supplier",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "const res = pm.response.json();",
+                      "if (res.data && res.data._id) {",
+                      "  pm.collectionVariables.set('supplierId', res.data._id);",
+                      "  console.log('supplierId saved:', res.data._id);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "id": "83057a04-4f6e-4c9b-8b48-ff9151fc63ef",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"companyName\": \"Lanka Cement Co.\",\n  \"contactPerson\": \"Nimal Perera\",\n  \"email\": \"nimal@lankacement.com\",\n  \"phoneNumber\": \"+94112345678\",\n  \"address\": {\n    \"street\": \"45 Industrial Zone\",\n    \"city\": \"Gampaha\",\n    \"country\": \"Sri Lanka\"\n  },\n  \"materialsSupplied\": [\"Cement\", \"Aggregates\"],\n  \"paymentTerms\": \"Net 30\",\n  \"sustainabilityScore\": 8\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/suppliers",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "suppliers"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Suppliers",
+              "id": "7fa0878b-99ab-4750-9a36-b03d1fc294aa",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/suppliers",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "suppliers"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Supplier By ID",
+              "id": "24e76792-30fe-4ddb-8fd7-0620fb4cd44a",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/suppliers/{{supplierId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "suppliers",
+                    "{{supplierId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Rate Supplier",
+              "id": "0501a4e6-23d4-47d2-8194-e7e84e8bb0e7",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"rating\": 5,\n  \"comment\": \"On-time delivery and excellent quality\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/suppliers/{{supplierId}}/rating",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "suppliers",
+                    "{{supplierId}}",
+                    "rating"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Supplier",
+              "id": "e75157b9-d8c2-4012-a803-6f968251495d",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/suppliers/{{supplierId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "suppliers",
+                    "{{supplierId}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ],
+          "id": "38add5e7-7027-4b62-b05c-45491bf25631"
+        }
+      ],
+      "id": "ca0d1a43-5de2-467d-a58f-e01f4a310b7b"
+    },
+    {
+      "name": "🔍 Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "id": "4edc7366-37c5-4066-98dc-25973e3fc714",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Check if the server is running. No auth required."
+          },
+          "response": []
+        },
+        {
+          "name": "API Info",
+          "id": "6fd49296-e9e2-4090-8f21-d8d2bbde0806",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api"
+              ]
+            },
+            "description": "Returns all available API endpoint groups."
+          },
+          "response": []
+        }
+      ],
+      "id": "5bc41b7b-8134-41c8-83b4-32a1a729cee6"
+    }
+  ],
+  "variable": [
+    {
+      "id": "55c68c0d-0b2f-4786-85b9-e68987329255",
+      "key": "baseUrl",
+      "value": "http://localhost:5001"
+    },
+    {
+      "id": "483e08cf-0567-4953-80f0-15def133df3f",
+      "key": "token",
+      "value": ""
+    },
+    {
+      "id": "2a65f190-7207-4752-8686-5464d90c9825",
+      "key": "projectId",
+      "value": ""
+    },
+    {
+      "id": "2839c4ca-c5e1-43a1-bc95-76e6b6e5e4d2",
+      "key": "documentId",
+      "value": ""
+    },
+    {
+      "id": "c439d697-8b11-4fa0-ac3f-fbb71caf0e88",
+      "key": "checklistId",
+      "value": ""
+    },
+    {
+      "id": "b4e70323-1525-402f-938f-ad8d8dc414da",
+      "key": "inspectionId",
+      "value": ""
+    },
+    {
+      "id": "1edf8eec-253e-4882-a1cf-347200d9ff52",
+      "key": "metricId",
+      "value": ""
+    },
+    {
+      "id": "ce98707b-5cee-4d52-9f37-82a82d6a755a",
+      "key": "milestoneId",
+      "value": ""
+    },
+    {
+      "id": "f93f1cee-28af-4737-a709-e3b2a37d0bdc",
+      "key": "materialId",
+      "value": ""
+    },
+    {
+      "id": "ab10191b-b637-4876-9aab-49c27607910c",
+      "key": "equipmentId",
+      "value": ""
+    },
+    {
+      "id": "1c9b3935-6f7f-4091-a663-3bc5c00d9495",
+      "key": "supplierId",
+      "value": ""
+    }
+  ]
+}
