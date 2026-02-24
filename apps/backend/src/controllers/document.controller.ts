@@ -334,17 +334,46 @@ export const rejectDocument = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const createNewVersion = async (_req: Request, res: Response): Promise<void> => {
+export const createNewVersion = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement create new version logic
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
-    });
-  } catch (error) {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, error: 'Invalid document ID format' });
+      return;
+    }
+
+    if (!req.file) {
+      res.status(400).json({ success: false, error: 'No file uploaded' });
+      return;
+    }
+
+    const document = await DocumentModel.findById(id);
+
+    if (!document) {
+      fs.unlink(req.file.path, () => {});
+      res.status(404).json({ success: false, error: 'Document not found' });
+      return;
+    }
+
+    const { url, cloudinaryId } = await uploadToCloudinary(req.file.path, 'construction-docs');
+    fs.unlink(req.file.path, () => {});
+
+    // createNewVersion: archives current fileUrl into previousVersions, bumps minor version, resets status to Draft
+    await document.createNewVersion(url, new mongoose.Types.ObjectId(req.user!.userId));
+
+    document.cloudinaryId = cloudinaryId;
+    document.fileName = req.file.originalname;
+    await document.save();
+
+    await document.populate('uploadedBy', 'name email');
+
+    res.status(200).json({ success: true, data: document });
+  } catch (error: unknown) {
+    if (req.file) fs.unlink(req.file.path, () => {});
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
