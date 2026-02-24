@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose, { Model } from 'mongoose';
 import Project from '../models/Project';
+import { UserRole } from '../types';
 
 /**
  * Middleware to check if the authenticated user owns a specific resource
@@ -51,6 +52,12 @@ export const checkOwnership = (
           success: false,
           error: 'Resource not found',
         });
+        return;
+      }
+
+      // ADMIN can bypass ownership check
+      if (req.user.role === UserRole.ADMIN) {
+        next();
         return;
       }
 
