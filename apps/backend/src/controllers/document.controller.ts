@@ -378,17 +378,34 @@ export const createNewVersion = async (req: Request, res: Response): Promise<voi
   }
 };
 
-export const downloadDocument = async (_req: Request, res: Response): Promise<void> => {
+export const downloadDocument = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement download document logic
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
-    });
-  } catch (error) {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, error: 'Invalid document ID format' });
+      return;
+    }
+
+    const document = await DocumentModel.findById(id).select('fileUrl fileName cloudinaryId');
+
+    console.log(`Download request for document ID: ${id} by user ID: ${req.user!.userId}`);
+
+    if (!document) {
+      res.status(404).json({ success: false, error: 'Document not found' });
+      return;
+    }
+
+    res.redirect(document.fileUrl);
+
+    DocumentModel.updateOne(
+      { _id: id },
+      { $push: { accessLog: { userId: req.user!.userId, action: AccessAction.DOWNLOAD, timestamp: new Date() } } }
+    ).catch((err: unknown) => console.error('Failed to log download access:', err));
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
