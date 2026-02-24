@@ -1,21 +1,70 @@
 import { Request, Response } from 'express';
+import fs from 'fs';
+import mongoose from 'mongoose';
+import DocumentModel, { DocumentStatus } from '../models/Document';
+import { uploadToCloudinary } from '../config/cloudinary';
 
 /**
  * Document Controller
  * Handles all document management operations
  */
 
-export const uploadDocument = async (_req: Request, res: Response): Promise<void> => {
+export const uploadDocument = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement document upload logic with Cloudinary
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
+    if (!req.file) {
+      res.status(400).json({ success: false, error: 'No file uploaded' });
+      return;
+    }
+
+    const { projectId, documentType, title, description, version, tags } = req.body;
+
+    if (!projectId || !documentType || !title) {
+      fs.unlink(req.file.path, () => {});
+      res.status(400).json({ success: false, error: 'projectId, documentType, and title are required' });
+      return;
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      fs.unlink(req.file.path, () => {});
+      res.status(400).json({ success: false, error: 'Invalid projectId format' });
+      return;
+    }
+
+    const { url, cloudinaryId, format, size } = await uploadToCloudinary(req.file.path, 'construction-docs');
+
+    fs.unlink(req.file.path, () => {});
+
+    let parsedTags: string[] = [];
+    if (tags) {
+      try {
+        parsedTags = typeof tags === 'string' ? JSON.parse(tags) : tags;
+      } catch {
+        parsedTags = [];
+      }
+    }
+
+    const document = await DocumentModel.create({
+      projectId,
+      documentType,
+      title,
+      description,
+      version: version || '1.0',
+      tags: parsedTags,
+      fileUrl: url,
+      cloudinaryId,
+      fileName: req.file.originalname,
+      fileSize: size,
+      fileFormat: format,
+      status: DocumentStatus.DRAFT,
+      uploadedBy: req.user!.userId,
     });
-  } catch (error) {
+
+    res.status(201).json({ success: true, data: document });
+  } catch (error: unknown) {
+    if (req.file) fs.unlink(req.file.path, () => {});
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
