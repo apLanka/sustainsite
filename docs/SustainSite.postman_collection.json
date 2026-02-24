@@ -60,6 +60,7 @@
             {
               "listen": "test",
               "script": {
+                "id": "169d9cce-6b2c-4651-99de-8f90302316eb",
                 "exec": [
                   "const res = pm.response.json();",
                   "if (res.data && res.data.token) {",
@@ -67,7 +68,21 @@
                   "  console.log('Token saved:', res.data.token);",
                   "}"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "1a4e9dbf-195d-44eb-ac72-2e6d1bb75397",
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -82,7 +97,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"john@test.com\",\n  \"password\": \"TestPass123\"\n}"
+              "raw": "{\n  \"email\": \"nisharasenadheera2@gmail.com\",\n  \"password\": \"TestPass123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
@@ -122,6 +137,66 @@
               ]
             },
             "description": "Returns the profile of the currently authenticated user."
+          },
+          "response": []
+        },
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "0a359ca4-0eb8-4633-90c7-dae1025afa5b",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.token) {",
+                  "  pm.collectionVariables.set('token', res.data.token);",
+                  "  console.log('Token saved:', res.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "920a3438-af1b-45df-8fc0-33b31f64bcbe",
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "id": "d3206d96-82c4-4470-8875-202c091a2d8e",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"x@nishara.me\",\n  \"password\": \"@Sustain.12\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Login and receive a JWT token. Token is auto-saved to `{{token}}`."
           },
           "response": []
         }
@@ -2156,57 +2231,57 @@
   ],
   "variable": [
     {
-      "id": "6c3c0861-e0f6-46ef-b9c1-be5511b6fb77",
+      "id": "62574d85-866f-42f9-a2ec-a57b7d693056",
       "key": "baseUrl",
       "value": "http://localhost:5001"
     },
     {
-      "id": "25045eb8-c571-458d-a87d-a38e0fc80833",
+      "id": "cf079276-671a-43d6-8fa8-f11af8890e36",
       "key": "token",
       "value": ""
     },
     {
-      "id": "5f07f8e6-c82a-4d0f-9da9-40fed5d52f97",
+      "id": "86582239-7434-4782-a8e6-5c806c7fd6be",
       "key": "projectId",
       "value": ""
     },
     {
-      "id": "922d4a57-3867-4fea-a907-f668324ebc3a",
+      "id": "a71c99f3-8948-4ccd-ad7b-e2b1b86c857c",
       "key": "documentId",
       "value": ""
     },
     {
-      "id": "335ea5e5-0e12-4602-81fe-eaa11bba14fa",
+      "id": "2d8a5b33-2bdb-4d24-bdf4-19e62c196a2b",
       "key": "checklistId",
       "value": ""
     },
     {
-      "id": "bf9e8d5f-556c-464d-beb6-ef13c0d684b2",
+      "id": "4a0233ba-64ed-4ca6-81f8-dd2a78c7e4dd",
       "key": "inspectionId",
       "value": ""
     },
     {
-      "id": "e5b76a1d-b69f-4fd6-82c3-71a9b0d30f54",
+      "id": "f7d9561b-db10-43cc-8e31-479061ccf698",
       "key": "metricId",
       "value": ""
     },
     {
-      "id": "ef37d891-e06a-4580-b8ef-3e207459a272",
+      "id": "6a3d6443-ed07-4ce1-a9d4-f2aaf3fd5c4d",
       "key": "milestoneId",
       "value": ""
     },
     {
-      "id": "5f10f6d5-722f-42dd-9d9e-73ce045c7aac",
+      "id": "48f4e933-9b66-474e-b487-e3f026a1f0f2",
       "key": "materialId",
       "value": ""
     },
     {
-      "id": "a6aeed06-079f-4fed-8252-391bf65cebf9",
+      "id": "b2b58c98-0def-446d-9c5d-a0403dc12650",
       "key": "equipmentId",
       "value": ""
     },
     {
-      "id": "5e8fcf03-6b66-46cc-bcc4-b9ac02a817df",
+      "id": "1a180b5b-7864-47b9-9c59-275f6a7105e0",
       "key": "supplierId",
       "value": ""
     }

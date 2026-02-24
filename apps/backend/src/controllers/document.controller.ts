@@ -252,32 +252,84 @@ export const deleteDocument = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const approveDocument = async (_req: Request, res: Response): Promise<void> => {
+export const approveDocument = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement approve document logic
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
-    });
-  } catch (error) {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, error: 'Invalid document ID format' });
+      return;
+    }
+
+    const document = await DocumentModel.findById(id);
+
+    if (!document) {
+      res.status(404).json({ success: false, error: 'Document not found' });
+      return;
+    }
+
+    if (document.status === DocumentStatus.APPROVED) {
+      res.status(400).json({ success: false, error: 'Document is already approved' });
+      return;
+    }
+
+    document.status = DocumentStatus.APPROVED;
+    document.approvedBy = new mongoose.Types.ObjectId(req.user!.userId);
+    document.rejectionReason = undefined;
+    await document.save();
+
+    await document.populate('uploadedBy', 'name email');
+    await document.populate('approvedBy', 'name email');
+
+    res.status(200).json({ success: true, data: document });
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
 
-export const rejectDocument = async (_req: Request, res: Response): Promise<void> => {
+export const rejectDocument = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement reject document logic
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
-    });
-  } catch (error) {
+    const { id } = req.params;
+    const { rejectionReason } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, error: 'Invalid document ID format' });
+      return;
+    }
+
+    if (!rejectionReason || typeof rejectionReason !== 'string' || rejectionReason.trim().length === 0) {
+      res.status(400).json({ success: false, error: 'A rejection reason is required' });
+      return;
+    }
+
+    const document = await DocumentModel.findById(id);
+
+    if (!document) {
+      res.status(404).json({ success: false, error: 'Document not found' });
+      return;
+    }
+
+    if (document.status === DocumentStatus.REJECTED) {
+      res.status(400).json({ success: false, error: 'Document is already rejected' });
+      return;
+    }
+
+    document.status = DocumentStatus.REJECTED;
+    document.rejectionReason = rejectionReason.trim();
+    document.approvedBy = undefined;
+    document.approvalDate = undefined;
+    await document.save();
+
+    await document.populate('uploadedBy', 'name email');
+
+    res.status(200).json({ success: true, data: document });
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
