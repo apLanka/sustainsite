@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import fs from 'fs';
 import mongoose from 'mongoose';
 import DocumentModel, { DocumentStatus, AccessAction } from '../models/Document';
-import { uploadToCloudinary } from '../config/cloudinary';
+import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinary';
 
 /**
  * Document Controller
@@ -220,17 +220,34 @@ export const updateDocument = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const deleteDocument = async (_req: Request, res: Response): Promise<void> => {
+export const deleteDocument = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement delete document (also delete from Cloudinary)
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
-    });
-  } catch (error) {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, error: 'Invalid document ID format' });
+      return;
+    }
+
+    const document = await DocumentModel.findById(id);
+
+    if (!document) {
+      res.status(404).json({ success: false, error: 'Document not found' });
+      return;
+    }
+
+    // Delete file from Cloudinary before removing the DB record
+    if (document.cloudinaryId) {
+      await deleteFromCloudinary(document.cloudinaryId);
+    }
+
+    await DocumentModel.findByIdAndDelete(id);
+
+    res.status(200).json({ success: true, message: 'Document deleted successfully' });
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
