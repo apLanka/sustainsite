@@ -169,17 +169,53 @@ export const getDocumentById = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const updateDocument = async (_req: Request, res: Response): Promise<void> => {
+export const updateDocument = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement update document metadata
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
-    });
-  } catch (error) {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, error: 'Invalid document ID format' });
+      return;
+    }
+
+    // Only allow metadata fields — file-related and system fields are immutable via this endpoint
+    const { title, description, documentType, tags } = req.body;
+
+    const updates: Record<string, unknown> = {};
+    if (title !== undefined) updates.title = title;
+    if (description !== undefined) updates.description = description;
+    if (documentType !== undefined) updates.documentType = documentType;
+    if (tags !== undefined) {
+      try {
+        updates.tags = typeof tags === 'string' ? JSON.parse(tags) : tags;
+      } catch {
+        updates.tags = [];
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
+      res.status(400).json({ success: false, error: 'No updatable fields provided' });
+      return;
+    }
+
+    const document = await DocumentModel.findByIdAndUpdate(
+      id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    )
+      .populate('uploadedBy', 'name email')
+      .populate('approvedBy', 'name email');
+
+    if (!document) {
+      res.status(404).json({ success: false, error: 'Document not found' });
+      return;
+    }
+
+    res.status(200).json({ success: true, data: document });
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
