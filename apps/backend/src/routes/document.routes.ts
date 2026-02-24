@@ -13,6 +13,7 @@ import {
 import { authenticate, requireDataEntry, authorize, checkOwnership } from '../middleware';
 import { UserRole } from '../types';
 import Document from '../models/Document';
+import { upload } from '../middleware/upload';
 
 const router = Router();
 
@@ -21,7 +22,7 @@ const router = Router();
  * @desc    Upload a new document
  * @access  ADMIN, PROJECT_MANAGER, INSPECTOR
  */
-router.post('/', authenticate, requireDataEntry(), uploadDocument);
+router.post('/', authenticate, requireDataEntry(), upload.single('file'), uploadDocument);
 
 /**
  * @route   GET /api/documents
@@ -85,7 +86,7 @@ router.put(
  * @desc    Create a new version of a document
  * @access  ADMIN, PROJECT_MANAGER, INSPECTOR
  */
-router.post('/:id/version', authenticate, requireDataEntry(), createNewVersion);
+router.post('/:id/version', authenticate, requireDataEntry(), upload.single('file'), createNewVersion);
 
 /**
  * @route   GET /api/documents/:id/download
