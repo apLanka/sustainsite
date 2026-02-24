@@ -21,7 +21,7 @@ export const uploadToCloudinary = async (
 }> => {
   try {
     const result = await cloudinary.uploader.upload(filePath, {
-      folder,
+      folder: 'sustain/' + folder,
       resource_type: 'auto',
     });
 
