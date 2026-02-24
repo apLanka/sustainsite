@@ -27,7 +27,7 @@ export enum MaintenanceType {
 }
 
 // Nested interfaces
-interface IMaintenanceRecord {
+export interface IMaintenanceRecord {
   maintenanceDate: Date;
   maintenanceType: MaintenanceType;
   description?: string;

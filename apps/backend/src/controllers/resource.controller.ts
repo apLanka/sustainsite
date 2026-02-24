@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import Material, { IMaterial, MaterialCategory, MaterialStatus } from '../models/Material';
-import Equipment, { IEquipment, EquipmentType, EquipmentStatus, MaintenanceType } from '../models/Equipment';
-import Supplier, { ISupplier } from '../models/Supplier';
+import Material, { MaterialStatus } from '../models/Material';
+import Equipment, { EquipmentStatus, MaintenanceType, IMaintenanceRecord } from '../models/Equipment';
+import Supplier from '../models/Supplier';
 import Project from '../models/Project';
 
 /**
@@ -607,7 +607,7 @@ export const scheduleMaintenanceForEquipment = async (req: Request, res: Respons
       equipment.nextScheduledMaintenance = nextDate;
     }
 
-    equipment.maintenanceHistory.push(maintenanceRecord as import('../models/Equipment').IMaintenanceRecord);
+    equipment.maintenanceHistory.push(maintenanceRecord as IMaintenanceRecord);
     equipment.lastMaintenanceDate = new Date();
 
     // If major maintenance, mark as under maintenance
