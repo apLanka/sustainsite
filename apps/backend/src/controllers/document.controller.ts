@@ -156,7 +156,6 @@ export const getDocumentById = async (req: Request, res: Response): Promise<void
 
     res.status(200).json({ success: true, data: document });
 
-    // Log view access after response is sent
     document.addAccessLog(
       new mongoose.Types.ObjectId(req.user!.userId),
       AccessAction.VIEW
@@ -178,7 +177,6 @@ export const updateDocument = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    // Only allow metadata fields — file-related and system fields are immutable via this endpoint
     const { title, description, documentType, tags } = req.body;
 
     const updates: Record<string, unknown> = {};
@@ -236,7 +234,6 @@ export const deleteDocument = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    // Delete file from Cloudinary before removing the DB record
     if (document.cloudinaryId) {
       await deleteFromCloudinary(document.cloudinaryId);
     }
@@ -359,7 +356,6 @@ export const createNewVersion = async (req: Request, res: Response): Promise<voi
     const { url, cloudinaryId } = await uploadToCloudinary(req.file.path, 'construction-docs');
     fs.unlink(req.file.path, () => {});
 
-    // createNewVersion: archives current fileUrl into previousVersions, bumps minor version, resets status to Draft
     await document.createNewVersion(url, new mongoose.Types.ObjectId(req.user!.userId));
 
     document.cloudinaryId = cloudinaryId;
