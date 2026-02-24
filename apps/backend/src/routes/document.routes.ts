@@ -10,7 +10,7 @@ import {
   createNewVersion,
   downloadDocument,
 } from '../controllers/document.controller';
-import { authenticate, requireDataEntry, authorize, checkOwnership } from '../middleware';
+import {authenticate, requireDataEntry, authorize, checkOwnership, requireManager} from '../middleware';
 import { UserRole } from '../types';
 import Document from '../models/Document';
 import { upload } from '../middleware/upload';
@@ -22,7 +22,7 @@ const router = Router();
  * @desc    Upload a new document
  * @access  ADMIN, PROJECT_MANAGER, INSPECTOR
  */
-router.post('/', authenticate, requireDataEntry(), upload.single('file'), uploadDocument);
+router.post('/', authenticate, requireManager(), upload.single('file'), uploadDocument);
 
 /**
  * @route   GET /api/documents
