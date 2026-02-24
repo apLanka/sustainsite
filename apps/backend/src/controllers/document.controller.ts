@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import fs from 'fs';
 import mongoose from 'mongoose';
-import DocumentModel, { DocumentStatus } from '../models/Document';
+import DocumentModel, { DocumentStatus, AccessAction } from '../models/Document';
 import { uploadToCloudinary } from '../config/cloudinary';
 
 /**
@@ -135,17 +135,36 @@ export const getDocuments = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-export const getDocumentById = async (_req: Request, res: Response): Promise<void> => {
+export const getDocumentById = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement get document by ID
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
-    });
-  } catch (error) {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, error: 'Invalid document ID format' });
+      return;
+    }
+
+    const document = await DocumentModel.findById(id)
+      .populate('uploadedBy', 'name email')
+      .populate('approvedBy', 'name email')
+      .populate('accessLog.userId', 'name email');
+
+    if (!document) {
+      res.status(404).json({ success: false, error: 'Document not found' });
+      return;
+    }
+
+    // this is not a long running process I think. So its not need to be async
+    document.addAccessLog(
+      new mongoose.Types.ObjectId(req.user!.userId),
+      AccessAction.VIEW
+    );
+
+    res.status(200).json({ success: true, data: document });
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
