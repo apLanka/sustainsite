@@ -43,17 +43,50 @@ export const createChecklist = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const getChecklists = async (_req: Request, res: Response): Promise<void> => {
+// Task 11: Get all checklists with optional filters and pagination
+export const getChecklists = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement get all checklists
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
+    const { projectId, category, page = '1', limit = '10' } = req.query;
+
+    const filter: Record<string, unknown> = {};
+
+    if (projectId) {
+      if (!mongoose.Types.ObjectId.isValid(projectId as string)) {
+        res.status(400).json({ success: false, error: 'Invalid projectId format' });
+        return;
+      }
+      filter.projectId = projectId;
+    }
+
+    if (category) filter.category = category;
+
+    const pageNum = Math.max(1, parseInt(page as string, 10));
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit as string, 10)));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [checklists, total] = await Promise.all([
+      ComplianceChecklist.find(filter)
+        .populate('createdBy', 'name email')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum),
+      ComplianceChecklist.countDocuments(filter),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: checklists,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        pages: Math.ceil(total / limitNum),
+      },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
