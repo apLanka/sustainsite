@@ -1,4 +1,6 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
+import ComplianceChecklist from '../models/ComplianceChecklist';
 
 /**
  * Compliance Controller
@@ -7,17 +9,36 @@ import { Request, Response } from 'express';
 
 // ==================== Compliance Checklists ====================
 
-export const createChecklist = async (_req: Request, res: Response): Promise<void> => {
+// Task 10: Create a compliance checklist
+export const createChecklist = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement create checklist logic
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
+    const { projectId, checklistName, category, items, dueDate, lastReviewDate } = req.body;
+
+    if (!projectId || !checklistName) {
+      res.status(400).json({ success: false, error: 'projectId and checklistName are required' });
+      return;
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      res.status(400).json({ success: false, error: 'Invalid projectId format' });
+      return;
+    }
+
+    const checklist = await ComplianceChecklist.create({
+      projectId,
+      checklistName,
+      category,
+      items: items ?? [],
+      dueDate,
+      lastReviewDate,
+      createdBy: req.user!.userId,
     });
-  } catch (error) {
+
+    res.status(201).json({ success: true, data: checklist });
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
