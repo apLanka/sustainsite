@@ -413,17 +413,28 @@ export const updateInspection = async (req: Request, res: Response): Promise<voi
   }
 };
 
-export const deleteInspection = async (_req: Request, res: Response): Promise<void> => {
+// Task 19: Delete inspection (ADMIN only — enforced by route middleware)
+export const deleteInspection = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement delete inspection logic
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
-    });
-  } catch (error) {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, error: 'Invalid inspection ID format' });
+      return;
+    }
+
+    const inspection = await SafetyInspection.findByIdAndDelete(id);
+
+    if (!inspection) {
+      res.status(404).json({ success: false, error: 'Inspection not found' });
+      return;
+    }
+
+    res.status(200).json({ success: true, message: 'Inspection deleted successfully' });
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
