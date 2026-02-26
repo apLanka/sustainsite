@@ -262,17 +262,61 @@ export const createInspection = async (req: Request, res: Response): Promise<voi
   }
 };
 
-export const getInspections = async (_req: Request, res: Response): Promise<void> => {
+// Task 16: Get all inspections with optional filters and pagination
+export const getInspections = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement get all inspections
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
+    const {
+      projectId,
+      riskLevel,
+      actionStatus,
+      isResolved,
+      inspectionType,
+      page = '1',
+      limit = '10',
+    } = req.query;
+
+    const filter: Record<string, unknown> = {};
+
+    if (projectId) {
+      if (!mongoose.Types.ObjectId.isValid(projectId as string)) {
+        res.status(400).json({ success: false, error: 'Invalid projectId format' });
+        return;
+      }
+      filter.projectId = projectId;
+    }
+
+    if (riskLevel) filter.riskLevel = riskLevel;
+    if (actionStatus) filter.actionStatus = actionStatus;
+    if (inspectionType) filter.inspectionType = inspectionType;
+    if (isResolved !== undefined) filter.isResolved = isResolved === 'true';
+
+    const pageNum = Math.max(1, parseInt(page as string, 10));
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit as string, 10)));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [inspections, total] = await Promise.all([
+      SafetyInspection.find(filter)
+        .populate('inspector', 'name email')
+        .sort({ inspectionDate: -1 })
+        .skip(skip)
+        .limit(limitNum),
+      SafetyInspection.countDocuments(filter),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: inspections,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        pages: Math.ceil(total / limitNum),
+      },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
