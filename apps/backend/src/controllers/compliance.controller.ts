@@ -321,17 +321,30 @@ export const getInspections = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const getInspectionById = async (_req: Request, res: Response): Promise<void> => {
+// Task 17: Get inspection by ID
+export const getInspectionById = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement get inspection by ID
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
-    });
-  } catch (error) {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, error: 'Invalid inspection ID format' });
+      return;
+    }
+
+    const inspection = await SafetyInspection.findById(id)
+      .populate('inspector', 'name email')
+      .populate('attachments', 'title fileUrl fileName documentType');
+
+    if (!inspection) {
+      res.status(404).json({ success: false, error: 'Inspection not found' });
+      return;
+    }
+
+    res.status(200).json({ success: true, data: inspection });
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
