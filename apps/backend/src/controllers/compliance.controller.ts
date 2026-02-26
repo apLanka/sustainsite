@@ -349,17 +349,66 @@ export const getInspectionById = async (req: Request, res: Response): Promise<vo
   }
 };
 
-export const updateInspection = async (_req: Request, res: Response): Promise<void> => {
+// Task 18: Update inspection (ADMIN, INSPECTOR — enforced by route middleware)
+export const updateInspection = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement update inspection logic
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
-    });
-  } catch (error) {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, error: 'Invalid inspection ID format' });
+      return;
+    }
+
+    const inspection = await SafetyInspection.findById(id);
+
+    if (!inspection) {
+      res.status(404).json({ success: false, error: 'Inspection not found' });
+      return;
+    }
+
+    const {
+      inspectionType,
+      inspectionDate,
+      inspectorNotes,
+      findings,
+      riskLevel,
+      issuesIdentified,
+      actionRequired,
+      recommendedActions,
+      actionDeadline,
+      actionStatus,
+      attachments,
+      photos,
+      followUpDate,
+      followUpNotes,
+    } = req.body;
+
+    if (inspectionType !== undefined) inspection.inspectionType = inspectionType;
+    if (inspectionDate !== undefined) inspection.inspectionDate = inspectionDate;
+    if (inspectorNotes !== undefined) inspection.inspectorNotes = inspectorNotes;
+    if (findings !== undefined) inspection.findings = findings;
+    if (riskLevel !== undefined) inspection.riskLevel = riskLevel;
+    if (issuesIdentified !== undefined) inspection.issuesIdentified = issuesIdentified;
+    if (actionRequired !== undefined) inspection.actionRequired = actionRequired;
+    if (recommendedActions !== undefined) inspection.recommendedActions = recommendedActions;
+    if (actionDeadline !== undefined) inspection.actionDeadline = actionDeadline;
+    if (actionStatus !== undefined) inspection.actionStatus = actionStatus;
+    if (attachments !== undefined) inspection.attachments = attachments;
+    if (photos !== undefined) inspection.photos = photos;
+    if (followUpDate !== undefined) inspection.followUpDate = followUpDate;
+    if (followUpNotes !== undefined) inspection.followUpNotes = followUpNotes;
+
+    // pre-save hook auto-sets isResolved = true when actionStatus = Completed
+    await inspection.save();
+
+    await inspection.populate('inspector', 'name email');
+    await inspection.populate('attachments', 'title fileUrl fileName documentType');
+
+    res.status(200).json({ success: true, data: inspection });
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
