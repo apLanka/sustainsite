@@ -171,17 +171,28 @@ export const updateChecklist = async (req: Request, res: Response): Promise<void
   }
 };
 
-export const deleteChecklist = async (_req: Request, res: Response): Promise<void> => {
+// Task 14: Delete checklist (ADMIN only — enforced by route middleware)
+export const deleteChecklist = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement delete checklist logic
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
-    });
-  } catch (error) {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, error: 'Invalid checklist ID format' });
+      return;
+    }
+
+    const checklist = await ComplianceChecklist.findByIdAndDelete(id);
+
+    if (!checklist) {
+      res.status(404).json({ success: false, error: 'Checklist not found' });
+      return;
+    }
+
+    res.status(200).json({ success: true, message: 'Checklist deleted successfully' });
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
