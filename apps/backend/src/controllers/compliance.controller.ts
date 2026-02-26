@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import ComplianceChecklist from '../models/ComplianceChecklist';
+import SafetyInspection from '../models/SafetyInspection';
 
 /**
  * Compliance Controller
@@ -199,17 +200,64 @@ export const deleteChecklist = async (req: Request, res: Response): Promise<void
 
 // ==================== Safety Inspections ====================
 
-export const createInspection = async (_req: Request, res: Response): Promise<void> => {
+// Task 15: Create a safety inspection
+export const createInspection = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement create inspection logic
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
+    const {
+      projectId,
+      inspectionType,
+      inspectionDate,
+      inspectorNotes,
+      findings,
+      riskLevel,
+      issuesIdentified,
+      actionRequired,
+      recommendedActions,
+      actionDeadline,
+      attachments,
+      photos,
+      followUpDate,
+      followUpNotes,
+    } = req.body;
+
+    if (!projectId || !inspectionDate || !findings || !riskLevel) {
+      res.status(400).json({
+        success: false,
+        error: 'projectId, inspectionDate, findings, and riskLevel are required',
+      });
+      return;
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      res.status(400).json({ success: false, error: 'Invalid projectId format' });
+      return;
+    }
+
+    const inspection = await SafetyInspection.create({
+      projectId,
+      inspectionType,
+      inspectionDate,
+      inspector: req.user!.userId,
+      inspectorNotes,
+      findings,
+      riskLevel,
+      issuesIdentified: issuesIdentified ?? [],
+      actionRequired,
+      recommendedActions: recommendedActions ?? [],
+      actionDeadline,
+      attachments: attachments ?? [],
+      photos: photos ?? [],
+      followUpDate,
+      followUpNotes,
     });
-  } catch (error) {
+
+    await inspection.populate('inspector', 'name email');
+
+    res.status(201).json({ success: true, data: inspection });
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
