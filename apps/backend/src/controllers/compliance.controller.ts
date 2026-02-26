@@ -120,17 +120,53 @@ export const getChecklistById = async (req: Request, res: Response): Promise<voi
   }
 };
 
-export const updateChecklist = async (_req: Request, res: Response): Promise<void> => {
+// Task 13: Update checklist (metadata and/or items)
+export const updateChecklist = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement update checklist logic
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
-    });
-  } catch (error) {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, error: 'Invalid checklist ID format' });
+      return;
+    }
+
+    const checklist = await ComplianceChecklist.findById(id);
+
+    if (!checklist) {
+      res.status(404).json({ success: false, error: 'Checklist not found' });
+      return;
+    }
+
+    const { checklistName, category, dueDate, lastReviewDate, items } = req.body;
+
+    if (checklistName !== undefined) checklist.checklistName = checklistName;
+    if (category !== undefined) checklist.category = category;
+    if (dueDate !== undefined) checklist.dueDate = dueDate;
+    if (lastReviewDate !== undefined) checklist.lastReviewDate = lastReviewDate;
+
+    // Replace items array if provided — completedBy is set per item by the caller
+    if (items !== undefined) {
+      checklist.items = items.map((item: Record<string, unknown>) => ({
+        ...item,
+        // Auto-assign completedBy from current user if item is being marked complete without a completedBy
+        completedBy: item.isCompleted && !item.completedBy
+          ? new mongoose.Types.ObjectId(req.user!.userId)
+          : item.completedBy,
+      }));
+    }
+
+    // pre-save hook auto-recalculates totalItems, completedItems, complianceScore
+    await checklist.save();
+
+    await checklist.populate('createdBy', 'name email');
+    await checklist.populate('items.completedBy', 'name email');
+    await checklist.populate('items.attachedDocuments', 'title fileUrl fileName documentType');
+
+    res.status(200).json({ success: true, data: checklist });
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
