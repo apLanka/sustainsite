@@ -91,17 +91,31 @@ export const getChecklists = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-export const getChecklistById = async (_req: Request, res: Response): Promise<void> => {
+// Task 12: Get checklist by ID
+export const getChecklistById = async (req: Request, res: Response): Promise<void> => {
   try {
-    // TODO: Implement get checklist by ID
-    res.status(501).json({
-      success: false,
-      error: 'Not implemented yet',
-    });
-  } catch (error) {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, error: 'Invalid checklist ID format' });
+      return;
+    }
+
+    const checklist = await ComplianceChecklist.findById(id)
+      .populate('createdBy', 'name email')
+      .populate('items.completedBy', 'name email')
+      .populate('items.attachedDocuments', 'title fileUrl fileName documentType');
+
+    if (!checklist) {
+      res.status(404).json({ success: false, error: 'Checklist not found' });
+      return;
+    }
+
+    res.status(200).json({ success: true, data: checklist });
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      error: 'Server error',
+      error: error instanceof Error ? error.message : 'Server error',
     });
   }
 };
