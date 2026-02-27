@@ -98,17 +98,18 @@ export default function () {
 }
 
 export function handleSummary(data) {
+  const p99 = data.metrics.http_req_duration?.values?.['p(99)'];
   const summary = {
     total_requests: data.metrics.http_reqs?.values?.count || 0,
     failed_requests: data.metrics.http_req_failed?.values?.count || 0,
     error_rate: ((data.metrics.http_req_failed?.values?.rate || 0) * 100).toFixed(2) + '%',
     response_times: {
-      avg_ms: data.metrics.http_req_duration?.values?.avg?.toFixed(2) || 0,
-      p95_ms: data.metrics.http_req_duration?.values?.['p(95)']?.toFixed(2) || 0,
-      p99_ms: data.metrics.http_req_duration?.values?.['p(99)']?.toFixed(2) || 0,
-      max_ms: data.metrics.http_req_duration?.values?.max?.toFixed(2) || 0,
+      avg_ms: (data.metrics.http_req_duration?.values?.avg || 0).toFixed(2),
+      p95_ms: (data.metrics.http_req_duration?.values?.['p(95)'] || 0).toFixed(2),
+      p99_ms: p99 ? p99.toFixed(2) : '0',
+      max_ms: (data.metrics.http_req_duration?.values?.max || 0).toFixed(2),
     },
-    requests_per_second: data.metrics.http_reqs?.values?.rate?.toFixed(2) || 0,
+    requests_per_second: (data.metrics.http_reqs?.values?.rate || 0).toFixed(2),
   };
 
   console.log('\n=== LOAD TEST RESULTS ===');
