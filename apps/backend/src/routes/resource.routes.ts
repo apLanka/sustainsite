@@ -7,6 +7,8 @@ import {
   deleteMaterial,
   updateMaterialStatus,
   recordMaterialUsage,
+  getLowStockMaterials,
+  getCostSummary,
   createEquipment,
   getEquipment,
   getEquipmentById,
@@ -14,12 +16,15 @@ import {
   deleteEquipment,
   assignEquipment,
   scheduleMaintenanceForEquipment,
+  updateEquipmentStatus,
+  getAvailableEquipment,
   createSupplier,
   getSuppliers,
   getSupplierById,
   updateSupplier,
   deleteSupplier,
   rateSupplier,
+  getSupplierPerformance,
 } from '../controllers/resource.controller';
 import { authenticate, requireManager, requireAdmin, authorize } from '../middleware';
 import { UserRole } from '../types';
@@ -82,6 +87,20 @@ router.put(
  */
 router.post('/materials/:id/usage', authenticate, requireManager(), recordMaterialUsage);
 
+/**
+ * @route   GET /api/resources/materials/list/low-stock
+ * @desc    Get low stock materials
+ * @access  Authenticated users
+ */
+router.get('/materials/list/low-stock', authenticate, getLowStockMaterials);
+
+/**
+ * @route   GET /api/resources/materials/:projectId/cost-summary
+ * @desc    Get cost summary for a project
+ * @access  Authenticated users
+ */
+router.get('/materials/:projectId/cost-summary', authenticate, getCostSummary);
+
 // ==================== Equipment ====================
 
 /**
@@ -138,6 +157,20 @@ router.post(
   scheduleMaintenanceForEquipment
 );
 
+/**
+ * @route   GET /api/resources/equipment/list/available
+ * @desc    Get available equipment
+ * @access  Authenticated users
+ */
+router.get('/equipment/list/available', authenticate, getAvailableEquipment);
+
+/**
+ * @route   PUT /api/resources/equipment/:id/status
+ * @desc    Update equipment status
+ * @access  ADMIN, PROJECT_MANAGER
+ */
+router.put('/equipment/:id/status', authenticate, requireManager(), updateEquipmentStatus);
+
 // ==================== Suppliers ====================
 
 /**
@@ -181,5 +214,12 @@ router.delete('/suppliers/:id', authenticate, requireAdmin(), deleteSupplier);
  * @access  ADMIN, PROJECT_MANAGER
  */
 router.post('/suppliers/:id/rating', authenticate, requireManager(), rateSupplier);
+
+/**
+ * @route   GET /api/resources/suppliers/:id/performance
+ * @desc    Get supplier performance metrics
+ * @access  Authenticated users
+ */
+router.get('/suppliers/:id/performance', authenticate, getSupplierPerformance);
 
 export default router;

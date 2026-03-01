@@ -12,7 +12,12 @@
     "lint": "eslint . --ext .ts",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
-    "test:ci": "jest --ci --coverage --maxWorkers=2"
+    "test:ci": "jest --ci --coverage --maxWorkers=2",
+    "perf:smoke": "k6 run src/__tests__/performance/smoke.test.js",
+    "perf:load": "k6 run src/__tests__/performance/load-scenarios.test.js",
+    "perf:stress": "k6 run src/__tests__/performance/stress-test.test.js",
+    "perf:endurance": "k6 run src/__tests__/performance/endurance-test.test.js",
+    "perf:all": "DISABLE_RATE_LIMIT=true k6 run src/__tests__/performance/smoke.test.js && DISABLE_RATE_LIMIT=true k6 run src/__tests__/performance/load-scenarios.test.js"
   },
   "keywords": [
     "construction",

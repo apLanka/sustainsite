@@ -66,14 +66,16 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('combined'));
 }
 
-// Rate limiting
+// Rate limiting - skip if DISABLE_RATE_LIMIT env is set (for performance testing)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: process.env.DISABLE_RATE_LIMIT ? 10000 : 100, // Much higher limit for testing
   message: 'Too many requests from this IP, please try again later.',
 });
 
-app.use('/api/', limiter);
+if (!process.env.DISABLE_RATE_LIMIT) {
+  app.use('/api/', limiter);
+}
 
 // Health check route
 app.get('/health', (_req: Request, res: Response) => {
