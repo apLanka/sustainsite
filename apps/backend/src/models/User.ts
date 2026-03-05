@@ -9,7 +9,7 @@ export interface IUser extends Document {
   password: string;
   role: UserRole;
   assignedProjects: mongoose.Types.ObjectId[];
-  phoneNumber?: string;
+
   isActive: boolean;
   lastLogin?: Date;
   createdAt: Date;
@@ -56,11 +56,7 @@ const userSchema = new Schema<IUser>(
         ref: 'Project',
       },
     ],
-    phoneNumber: {
-      type: String,
-      trim: true,
-      match: [/^\+?[1-9]\d{1,14}$/, 'Please provide a valid phone number'],
-    },
+
     isActive: {
       type: Boolean,
       default: true,

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { UserPlus, Loader2, Mail, Lock, User, Phone, Briefcase } from 'lucide-react';
+import { UserPlus, Loader2, Mail, Lock, User, Briefcase } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { registerSchema, type RegisterFormData } from '@/lib/validations/auth';
 import { UserRole } from '@/types/auth';
@@ -172,27 +172,7 @@ export default function RegisterPage() {
                 {errors.role && <p className="text-sm text-red-500">{errors.role.message}</p>}
               </div>
 
-              {/* Phone Number Field (Optional) */}
-              <div className="space-y-2">
-                <Label htmlFor="phoneNumber">
-                  Phone Number <span className="text-gray-400">(optional)</span>
-                </Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="phoneNumber"
-                    type="tel"
-                    placeholder="+94771234567"
-                    className="pl-10"
-                    {...register('phoneNumber')}
-                    disabled={isLoading}
-                  />
-                </div>
-                {errors.phoneNumber && (
-                  <p className="text-sm text-red-500">{errors.phoneNumber.message}</p>
-                )}
-                <p className="text-xs text-gray-500">E.164 format (e.g., +94771234567)</p>
-              </div>
+
             </CardContent>
 
             <CardFooter className="flex flex-col space-y-3 pt-2">

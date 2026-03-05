@@ -1,5 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, User, Mail, Briefcase, Phone, Calendar } from 'lucide-react';
+import { LogOut, User, Mail, Briefcase, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -107,20 +107,6 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Phone Number */}
-                {user.phoneNumber && (
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                    <Phone className="h-5 w-5 text-gray-600 dark:text-gray-400 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        Phone Number
-                      </p>
-                      <p className="text-base font-semibold text-gray-900 dark:text-white">
-                        {user.phoneNumber}
-                      </p>
-                    </div>
-                  </div>
-                )}
 
                 {/* Account Created */}
                 <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50">

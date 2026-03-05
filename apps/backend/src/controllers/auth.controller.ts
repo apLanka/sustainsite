@@ -9,7 +9,7 @@ import { generateToken } from '../middleware/auth';
  */
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { fullName, email, password, role, phoneNumber } = req.body;
+    const { fullName, email, password, role } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -27,7 +27,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       email,
       password,
       role,
-      phoneNumber,
     });
 
     // Generate JWT token
@@ -46,7 +45,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         fullName: user.fullName,
         email: user.email,
         role: user.role,
-        phoneNumber: user.phoneNumber,
         token,
       },
     });
@@ -132,7 +130,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         fullName: user.fullName,
         email: user.email,
         role: user.role,
-        phoneNumber: user.phoneNumber,
         lastLogin: user.lastLogin,
         token,
         expiresIn: process.env.JWT_EXPIRE || '24h',
@@ -187,7 +184,6 @@ export const getCurrentUser = async (req: Request, res: Response): Promise<void>
         fullName: user.fullName,
         email: user.email,
         role: user.role,
-        phoneNumber: user.phoneNumber,
         assignedProjects: user.assignedProjects,
         isActive: user.isActive,
         lastLogin: user.lastLogin,
