@@ -17,39 +17,14 @@ import { upload } from '../middleware/upload';
 
 const router = Router();
 
-/**
- * @route   POST /api/documents
- * @desc    Upload a new document
- * @access  ADMIN, PROJECT_MANAGER, INSPECTOR
- */
 router.post('/', authenticate, requireDataEntry(), upload.single('file'), uploadDocument);
 
-/**
- * @route   GET /api/documents
- * @desc    Get all documents (with filters)
- * @access  Authenticated users
- */
 router.get('/', authenticate, getDocuments);
 
-/**
- * @route   GET /api/documents/:id
- * @desc    Get document by ID
- * @access  Authenticated users
- */
 router.get('/:id', authenticate, getDocumentById);
 
-/**
- * @route   PUT /api/documents/:id
- * @desc    Update document metadata
- * @access  ADMIN, PROJECT_MANAGER, INSPECTOR
- */
 router.put('/:id', authenticate, requireDataEntry(), updateDocument);
 
-/**
- * @route   DELETE /api/documents/:id
- * @desc    Delete document
- * @access  Document owner or ADMIN
- */
 router.delete(
   '/:id',
   authenticate,
@@ -57,11 +32,6 @@ router.delete(
   deleteDocument
 );
 
-/**
- * @route   PUT /api/documents/:id/approve
- * @desc    Approve a document
- * @access  ADMIN, INSPECTOR
- */
 router.put(
   '/:id/approve',
   authenticate,
@@ -69,11 +39,6 @@ router.put(
   approveDocument
 );
 
-/**
- * @route   PUT /api/documents/:id/reject
- * @desc    Reject a document
- * @access  ADMIN, INSPECTOR
- */
 router.put(
   '/:id/reject',
   authenticate,
@@ -81,18 +46,8 @@ router.put(
   rejectDocument
 );
 
-/**
- * @route   POST /api/documents/:id/version
- * @desc    Create a new version of a document
- * @access  ADMIN, PROJECT_MANAGER, INSPECTOR
- */
 router.post('/:id/version', authenticate, requireDataEntry(), upload.single('file'), createNewVersion);
 
-/**
- * @route   GET /api/documents/:id/download
- * @desc    Download a document
- * @access  Authenticated users
- */
 router.get('/:id/download', authenticate, downloadDocument);
 
 export default router;

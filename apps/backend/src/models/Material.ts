@@ -1,6 +1,5 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
 
-// Material category enum
 export enum MaterialCategory {
   CEMENT = 'Cement',
   STEEL = 'Steel',
@@ -11,7 +10,6 @@ export enum MaterialCategory {
   OTHER = 'Other',
 }
 
-// Material status enum
 export enum MaterialStatus {
   ORDERED = 'Ordered',
   IN_TRANSIT = 'In Transit',
@@ -21,7 +19,6 @@ export enum MaterialStatus {
   CANCELLED = 'Cancelled',
 }
 
-// Nested interfaces
 interface IUsageHistory {
   usedQuantity: number;
   usedDate: Date;
@@ -30,7 +27,6 @@ interface IUsageHistory {
   notes?: string;
 }
 
-// Material interface
 export interface IMaterial extends Document {
   projectId: mongoose.Types.ObjectId;
   materialName: string;
@@ -66,7 +62,6 @@ export interface IMaterial extends Document {
   ): Promise<IMaterial>;
 }
 
-// Usage history schema
 const usageHistorySchema = new Schema<IUsageHistory>(
   {
     usedQuantity: {
@@ -95,7 +90,6 @@ const usageHistorySchema = new Schema<IUsageHistory>(
   { _id: false }
 );
 
-// Material schema
 const materialSchema = new Schema<IMaterial>(
   {
     projectId: {
@@ -213,17 +207,14 @@ const materialSchema = new Schema<IMaterial>(
   }
 );
 
-// Indexes
 materialSchema.index({ projectId: 1 });
 materialSchema.index({ status: 1 });
 materialSchema.index({ supplier: 1 });
 materialSchema.index({ currentStock: 1 });
 
-// Pre-save hook: Calculate total cost
 materialSchema.pre('save', async function () {
   this.totalCost = this.quantity * this.unitPrice;
 
-  // Initialize currentStock when delivered
   if (
     this.isModified('status') &&
     this.status === MaterialStatus.DELIVERED &&
@@ -233,12 +224,10 @@ materialSchema.pre('save', async function () {
   }
 });
 
-// Instance method: Check if stock is low
 materialSchema.methods.checkLowStock = function (): boolean {
   return this.currentStock < this.minimumThreshold;
 };
 
-// Instance method: Record material usage
 materialSchema.methods.recordUsage = async function (
   quantity: number,
   usedBy: mongoose.Types.ObjectId,
@@ -248,7 +237,6 @@ materialSchema.methods.recordUsage = async function (
     throw new Error('Insufficient stock for this usage');
   }
 
-  // Add to usage history
   this.usageHistory.push({
     usedQuantity: quantity,
     usedDate: new Date(),
@@ -256,10 +244,8 @@ materialSchema.methods.recordUsage = async function (
     purpose,
   });
 
-  // Update current stock
   this.currentStock -= quantity;
 
-  // Update status if all stock is used
   if (this.currentStock === 0) {
     this.status = MaterialStatus.USED;
   }
@@ -267,7 +253,6 @@ materialSchema.methods.recordUsage = async function (
   return this.save();
 };
 
-// Create and export Material model
 const Material: Model<IMaterial> = mongoose.model<IMaterial>('Material', materialSchema);
 
 export default Material;

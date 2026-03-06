@@ -2,7 +2,6 @@ import mongoose, { Document, Schema, Model } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { UserRole } from '../types';
 
-// User interface
 export interface IUser extends Document {
   fullName: string;
   email: string;
@@ -17,7 +16,6 @@ export interface IUser extends Document {
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-// User schema
 const userSchema = new Schema<IUser>(
   {
     fullName: {
@@ -42,7 +40,7 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: [true, 'Password is required'],
       minlength: [8, 'Password must be at least 8 characters'],
-      select: false, // Don't include password in queries by default
+      select: false,
     },
     role: {
       type: String,
@@ -66,27 +64,22 @@ const userSchema = new Schema<IUser>(
     },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt
+    timestamps: true,
   }
 );
 
-// Indexes
-// Note: email index is automatically created by unique: true
 userSchema.index({ role: 1 });
 
-// Pre-save hook to hash password
 userSchema.pre('save', async function () {
-  // Only hash the password if it has been modified (or is new)
+
   if (!this.isModified('password')) {
     return;
   }
 
-  // Generate salt and hash password
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Instance method to compare password
 userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
   try {
     return await bcrypt.compare(candidatePassword, this.password);
@@ -95,14 +88,12 @@ userSchema.methods.comparePassword = async function (candidatePassword: string):
   }
 };
 
-// Override toJSON to exclude password
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
   return obj;
 };
 
-// Create and export User model
 const User: Model<IUser> = mongoose.model<IUser>('User', userSchema);
 
 export default User;

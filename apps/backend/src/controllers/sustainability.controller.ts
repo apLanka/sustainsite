@@ -2,11 +2,6 @@ import { Request, Response } from 'express';
 import SustainabilityMetric from '../models/SustainabilityMetric';
 import Project from '../models/Project';
 
-/**
- * Sustainability Controller
- * Handles all sustainability metrics operations
- */
-
 export const createMetric = async (req: Request, res: Response): Promise<void> => {
   try {
     const metricData = req.body;
@@ -14,7 +9,6 @@ export const createMetric = async (req: Request, res: Response): Promise<void> =
 
     const metric = await SustainabilityMetric.create(metricData);
 
-    // Update the Project's overall sustainability score
     const project = await Project.findById(metric.projectId);
     if (project) {
       project.sustainabilityScore = metric.sustainabilityScore;
@@ -98,9 +92,9 @@ export const getMetricById = async (req: Request, res: Response): Promise<void> 
 
 export const updateMetric = async (req: Request, res: Response): Promise<void> => {
   try {
-    // First find the document, update fields, and save to trigger pre-save hook recalculations
+
     const metric = await SustainabilityMetric.findById(req.params.id);
-    
+
     if (!metric) {
       res.status(404).json({
         success: false,
@@ -109,16 +103,14 @@ export const updateMetric = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    // Apply allowed updates
     if (req.body.carbonEmissions) metric.carbonEmissions = { ...metric.carbonEmissions, ...req.body.carbonEmissions };
     if (req.body.energyConsumption) metric.energyConsumption = { ...metric.energyConsumption, ...req.body.energyConsumption };
     if (req.body.wasteManagement) metric.wasteManagement = { ...metric.wasteManagement, ...req.body.wasteManagement };
     if (req.body.waterUsage) metric.waterUsage = { ...metric.waterUsage, ...req.body.waterUsage };
     if (req.body.notes !== undefined) metric.notes = req.body.notes;
-    
+
     await metric.save();
 
-    // Update the Project's overall sustainability score
     const project = await Project.findById(metric.projectId);
     if (project) {
       project.sustainabilityScore = metric.sustainabilityScore;
@@ -140,7 +132,7 @@ export const updateMetric = async (req: Request, res: Response): Promise<void> =
 export const deleteMetric = async (req: Request, res: Response): Promise<void> => {
   try {
     const metric = await SustainabilityMetric.findByIdAndDelete(req.params.id);
-    
+
     if (!metric) {
       res.status(404).json({
         success: false,
@@ -148,7 +140,7 @@ export const deleteMetric = async (req: Request, res: Response): Promise<void> =
       });
       return;
     }
-    
+
     res.status(200).json({
       success: true,
       data: {},
@@ -237,7 +229,7 @@ export const getProjectTrends = async (req: Request, res: Response): Promise<voi
   try {
     const metrics = await SustainabilityMetric.find({ projectId: req.params.projectId })
       .select('sustainabilityScore treesEquivalent wasteManagement.diversionRate recordedDate')
-      .sort({ recordedDate: 1 }); // Oldest to newest for trend graphs
+      .sort({ recordedDate: 1 });
 
     res.status(200).json({
       success: true,
@@ -253,23 +245,20 @@ export const getProjectTrends = async (req: Request, res: Response): Promise<voi
 
 export const calculateImpact = async (req: Request, res: Response): Promise<void> => {
   try {
-    // This is a mockup of the specific Calculate Environmental Impact feature.
-    // In a real app we might call the Carbon Interface API from here.
+
     const { carbonEmissions, energyConsumption } = req.body;
-    
-    // Very basic mockup calculations matching the existing logic
-    const totalCarbon = (carbonEmissions?.transportation || 0) + 
+
+    const totalCarbon = (carbonEmissions?.transportation || 0) +
                         (carbonEmissions?.equipment || 0) +
                         (carbonEmissions?.materials || 0);
-                        
+
     const treesEquivalent = Math.round(totalCarbon * 54.4);
-    
-    // Evaluate green energy percentage
+
     const electricity = energyConsumption?.electricity || 0;
     const renewableEnergy = energyConsumption?.renewableEnergy || 0;
     const totalEnergy = electricity + renewableEnergy;
     const renewablePercentage = totalEnergy > 0 ? (renewableEnergy / totalEnergy) * 100 : 0;
-    
+
     res.status(200).json({
       success: true,
       data: {

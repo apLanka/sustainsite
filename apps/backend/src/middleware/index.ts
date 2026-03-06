@@ -1,4 +1,4 @@
-// Export all middleware for easy importing
+
 export { authenticate, generateToken } from './auth';
 export {
   authorize,

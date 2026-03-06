@@ -4,11 +4,6 @@ import mongoose from 'mongoose';
 import DocumentModel, { DocumentStatus, AccessAction } from '../models/Document';
 import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinary';
 
-/**
- * Document Controller
- * Handles all document management operations
- */
-
 export const uploadDocument = async (req: Request, res: Response): Promise<void> => {
   try {
     if (!req.file) {

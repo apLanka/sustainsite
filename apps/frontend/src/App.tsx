@@ -10,11 +10,11 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          {/* Public routes */}
+          {}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* Protected routes */}
+          {}
           <Route
             path="/dashboard"
             element={
@@ -24,10 +24,10 @@ function App() {
             }
           />
 
-          {/* Default redirect */}
+          {}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-          {/* 404 - redirect to login */}
+          {}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </AuthProvider>

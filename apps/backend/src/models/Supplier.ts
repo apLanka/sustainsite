@@ -1,6 +1,5 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
 
-// Nested interfaces
 interface IAddress {
   street?: string;
   city?: string;
@@ -16,7 +15,6 @@ interface IRating {
   ratedDate: Date;
 }
 
-// Supplier interface
 export interface ISupplier extends Document {
   companyName: string;
   registrationNumber?: string;
@@ -50,7 +48,6 @@ export interface ISupplier extends Document {
   updatePerformanceMetrics(onTimeDelivery: boolean): Promise<ISupplier>;
 }
 
-// Address schema
 const addressSchema = new Schema<IAddress>(
   {
     street: { type: String, trim: true },
@@ -62,7 +59,6 @@ const addressSchema = new Schema<IAddress>(
   { _id: false }
 );
 
-// Rating schema
 const ratingSchema = new Schema<IRating>(
   {
     ratedBy: {
@@ -88,7 +84,6 @@ const ratingSchema = new Schema<IRating>(
   { _id: false }
 );
 
-// Supplier schema
 const supplierSchema = new Schema<ISupplier>(
   {
     companyName: {
@@ -224,13 +219,11 @@ const supplierSchema = new Schema<ISupplier>(
   }
 );
 
-// Indexes
 supplierSchema.index({ companyName: 1 }, { unique: true });
 supplierSchema.index({ email: 1 });
 supplierSchema.index({ isActive: 1 });
 supplierSchema.index({ averageRating: -1 });
 
-// Pre-save hook: Calculate average rating
 supplierSchema.pre('save', async function () {
   if (this.ratings.length > 0) {
     const totalRating = this.ratings.reduce((sum, rating) => sum + rating.rating, 0);
@@ -240,7 +233,6 @@ supplierSchema.pre('save', async function () {
   }
 });
 
-// Instance method: Add rating
 supplierSchema.methods.addRating = async function (
   ratedBy: mongoose.Types.ObjectId,
   rating: number,
@@ -253,17 +245,15 @@ supplierSchema.methods.addRating = async function (
     ratedDate: new Date(),
   });
 
-  return this.save(); // Pre-save hook will recalculate average
+  return this.save();
 };
 
-// Instance method: Update performance metrics
 supplierSchema.methods.updatePerformanceMetrics = async function (
   onTimeDelivery: boolean
 ): Promise<ISupplier> {
   this.totalOrders += 1;
   this.completedOrders += 1;
 
-  // Recalculate on-time delivery rate
   const onTimeCount = onTimeDelivery
     ? Math.round((this.onTimeDeliveryRate / 100) * (this.completedOrders - 1)) + 1
     : Math.round((this.onTimeDeliveryRate / 100) * (this.completedOrders - 1));
@@ -273,7 +263,6 @@ supplierSchema.methods.updatePerformanceMetrics = async function (
   return this.save();
 };
 
-// Create and export Supplier model
 const Supplier: Model<ISupplier> = mongoose.model<ISupplier>('Supplier', supplierSchema);
 
 export default Supplier;

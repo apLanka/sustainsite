@@ -1,6 +1,5 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
 
-// Compliance category enum
 export enum ComplianceCategory {
   ENVIRONMENTAL = 'Environmental',
   SAFETY = 'Safety',
@@ -8,7 +7,6 @@ export enum ComplianceCategory {
   SUSTAINABILITY_CERTIFICATION = 'Sustainability Certification',
 }
 
-// Nested interfaces
 interface IComplianceItem {
   itemId: string;
   itemName: string;
@@ -20,7 +18,6 @@ interface IComplianceItem {
   notes?: string;
 }
 
-// ComplianceChecklist interface
 export interface IComplianceChecklist extends Document {
   projectId: mongoose.Types.ObjectId;
   checklistName: string;
@@ -36,7 +33,6 @@ export interface IComplianceChecklist extends Document {
   updatedAt: Date;
 }
 
-// Compliance item schema
 const complianceItemSchema = new Schema<IComplianceItem>(
   {
     itemId: {
@@ -77,7 +73,6 @@ const complianceItemSchema = new Schema<IComplianceItem>(
   { _id: false }
 );
 
-// ComplianceChecklist schema
 const complianceChecklistSchema = new Schema<IComplianceChecklist>(
   {
     projectId: {
@@ -129,27 +124,22 @@ const complianceChecklistSchema = new Schema<IComplianceChecklist>(
   }
 );
 
-// Indexes
 complianceChecklistSchema.index({ projectId: 1 });
 complianceChecklistSchema.index({ category: 1 });
 complianceChecklistSchema.index({ complianceScore: 1 });
 
-// Pre-save hook: Calculate compliance metrics
 complianceChecklistSchema.pre('save', async function () {
-  // Calculate total items
+
   this.totalItems = this.items.length;
 
-  // Calculate completed items
   this.completedItems = this.items.filter((item) => item.isCompleted).length;
 
-  // Calculate compliance score
   if (this.totalItems > 0) {
     this.complianceScore = Math.round((this.completedItems / this.totalItems) * 100);
   } else {
     this.complianceScore = 0;
   }
 
-  // Auto-set completion date for newly completed items
   this.items.forEach((item) => {
     if (item.isCompleted && !item.completedDate) {
       item.completedDate = new Date();
@@ -157,7 +147,6 @@ complianceChecklistSchema.pre('save', async function () {
   });
 });
 
-// Create and export ComplianceChecklist model
 const ComplianceChecklist: Model<IComplianceChecklist> = mongoose.model<IComplianceChecklist>(
   'ComplianceChecklist',
   complianceChecklistSchema

@@ -49,7 +49,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-black dark:via-gray-950 dark:to-gray-900 p-4">
       <div className="w-full max-w-md">
-        {/* Logo/Header */}
+        {}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">SustainSite</h1>
           <p className="text-gray-600 dark:text-gray-400">Sustainable Construction Management</p>
@@ -71,7 +71,7 @@ export default function LoginPage() {
                 </Alert>
               )}
 
-              {/* Email Field */}
+              {}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">

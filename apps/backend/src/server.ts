@@ -7,10 +7,10 @@ connectDB();
 
 const server = app.listen(PORT, () => {
   console.log(`
-      🏗️  Sustainable Construction Management API         
+      🏗️  Sustainable Construction Management API
       Server running in ${process.env.NODE_ENV || 'development'} mode
-      Port: ${PORT} 
-      URL: http://localhost:${PORT} 
+      Port: ${PORT}
+      URL: http://localhost:${PORT}
   `);
 });
 

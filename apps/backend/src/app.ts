@@ -6,29 +6,24 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { errorHandler, notFound } from './middleware/errorHandler';
 
-// Load environment variables
 dotenv.config();
 
-// Create Express app
 const app: Application = express();
 
-// CORS configuration - MUST come before helmet
 const corsOptions = {
   origin: function (
     origin: string | undefined,
     callback: (err: Error | null, allow?: boolean) => void
   ) {
-    // Allow requests with no origin (like mobile apps, Postman, curl)
+
     if (!origin) {
       return callback(null, true);
     }
 
-    // In development, allow all localhost origins
     if (process.env.NODE_ENV === 'development' && origin.startsWith('http://localhost:')) {
       return callback(null, true);
     }
 
-    // In production, check against whitelist
     const allowedOrigins = [
       'http://localhost:5173',
       'http://localhost:5174',
@@ -48,28 +43,24 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Security middleware - Configure helmet to not interfere with CORS
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
   })
 );
 
-// Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Logging middleware
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } else {
   app.use(morgan('combined'));
 }
 
-// Rate limiting - skip if DISABLE_RATE_LIMIT env is set (for performance testing)
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.DISABLE_RATE_LIMIT ? 10000 : 100, // Much higher limit for testing
+  windowMs: 15 * 60 * 1000,
+  max: process.env.DISABLE_RATE_LIMIT ? 10000 : 100,
   message: 'Too many requests from this IP, please try again later.',
 });
 
@@ -77,7 +68,6 @@ if (!process.env.DISABLE_RATE_LIMIT) {
   app.use('/api/', limiter);
 }
 
-// Health check route
 app.get('/health', (_req: Request, res: Response) => {
   res.json({
     success: true,
@@ -87,7 +77,6 @@ app.get('/health', (_req: Request, res: Response) => {
   });
 });
 
-// API Routes
 app.get('/api', (_req: Request, res: Response) => {
   res.json({
     success: true,
@@ -106,7 +95,6 @@ app.get('/api', (_req: Request, res: Response) => {
   });
 });
 
-// Import routes
 import authRoutes from './routes/auth.routes';
 import projectRoutes from './routes/project.routes';
 import sustainabilityRoutes from './routes/sustainability.routes';
@@ -114,7 +102,6 @@ import documentRoutes from './routes/document.routes';
 import complianceRoutes from './routes/compliance.routes';
 import resourceRoutes from './routes/resource.routes';
 
-// Register routes
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/sustainability', sustainabilityRoutes);
@@ -122,10 +109,8 @@ app.use('/api/documents', documentRoutes);
 app.use('/api/compliance', complianceRoutes);
 app.use('/api/resources', resourceRoutes);
 
-// 404 handler
 app.use(notFound);
 
-// Error handler (must be last)
 app.use(errorHandler);
 
 export default app;

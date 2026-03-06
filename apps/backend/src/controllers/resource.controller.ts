@@ -4,25 +4,16 @@ import Equipment, { EquipmentStatus, MaintenanceType, IMaintenanceRecord } from 
 import Supplier from '../models/Supplier';
 import Project from '../models/Project';
 
-/**
- * Resource Controller
- * Handles materials, equipment, and suppliers
- */
-
-// ==================== Materials ====================
-
 export const createMaterial = async (req: Request, res: Response): Promise<void> => {
   try {
     const { projectId, materialName, category, description, quantity, unit, unitPrice, supplier, purchaseOrderNumber, orderDate, expectedDeliveryDate, minimumThreshold, isEcoFriendly, recycledContent, certifications, notes } = req.body;
 
-    // Verify project exists
     const project = await Project.findById(projectId);
     if (!project) {
       res.status(404).json({ success: false, error: 'Project not found' });
       return;
     }
 
-    // Verify supplier exists
     const supplierDoc = await Supplier.findById(supplier);
     if (!supplierDoc) {
       res.status(404).json({ success: false, error: 'Supplier not found' });
@@ -137,7 +128,6 @@ export const updateMaterial = async (req: Request, res: Response): Promise<void>
     const { id } = req.params;
     const updates = req.body;
 
-    // Don't allow updating certain fields directly
     delete updates.projectId;
     delete updates.createdBy;
 
@@ -205,7 +195,6 @@ export const updateMaterialStatus = async (req: Request, res: Response): Promise
       return;
     }
 
-    // If marking as delivered, update currentStock
     if (status === MaterialStatus.DELIVERED && material.currentStock === 0) {
       material.currentStock = material.quantity;
     }
@@ -243,7 +232,6 @@ export const recordMaterialUsage = async (req: Request, res: Response): Promise<
       return;
     }
 
-    // Add to usage history
     material.usageHistory.push({
       usedQuantity: quantity,
       usedDate: new Date(),
@@ -252,10 +240,8 @@ export const recordMaterialUsage = async (req: Request, res: Response): Promise<
       notes,
     });
 
-    // Update current stock
     material.currentStock -= quantity;
 
-    // Update status if all stock is used
     if (material.currentStock === 0) {
       material.status = MaterialStatus.USED;
     }
@@ -290,7 +276,6 @@ export const getLowStockMaterials = async (req: Request, res: Response): Promise
       .populate('supplier', 'companyName')
       .exec();
 
-    // Filter for low stock in memory
     const lowStockMaterials = materials.filter(
       (mat) => mat.currentStock < mat.minimumThreshold
     );
@@ -314,7 +299,6 @@ export const getCostSummary = async (req: Request, res: Response): Promise<void>
   try {
     const { projectId } = req.params;
 
-    // Verify project exists
     const project = await Project.findById(projectId);
     if (!project) {
       res.status(404).json({ success: false, error: 'Project not found' });
@@ -362,8 +346,6 @@ export const getCostSummary = async (req: Request, res: Response): Promise<void>
     });
   }
 };
-
-// ==================== Equipment ====================
 
 export const createEquipment = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -470,7 +452,6 @@ export const updateEquipment = async (req: Request, res: Response): Promise<void
     const { id } = req.params;
     const updates = req.body;
 
-    // Don't allow updating certain fields directly
     delete updates.currentProjectId;
     delete updates.assignmentHistory;
 
@@ -535,7 +516,6 @@ export const assignEquipment = async (req: Request, res: Response): Promise<void
       return;
     }
 
-    // Verify project exists if provided
     if (projectId) {
       const project = await Project.findById(projectId);
       if (!project) {
@@ -546,7 +526,6 @@ export const assignEquipment = async (req: Request, res: Response): Promise<void
       equipment.currentProjectId = projectId;
     }
 
-    // Add to assignment history
     equipment.assignmentHistory.push({
       projectId: projectId as unknown as import('mongoose').Types.ObjectId,
       assignedDate: new Date(),
@@ -599,7 +578,6 @@ export const scheduleMaintenanceForEquipment = async (req: Request, res: Respons
       performedBy,
     };
 
-    // Schedule next maintenance if requested
     if (nextMaintenanceMonths) {
       const nextDate = new Date();
       nextDate.setMonth(nextDate.getMonth() + nextMaintenanceMonths);
@@ -610,7 +588,6 @@ export const scheduleMaintenanceForEquipment = async (req: Request, res: Respons
     equipment.maintenanceHistory.push(maintenanceRecord as IMaintenanceRecord);
     equipment.lastMaintenanceDate = new Date();
 
-    // If major maintenance, mark as under maintenance
     if (maintenanceType === MaintenanceType.REPAIR || maintenanceType === MaintenanceType.OVERHAUL) {
       equipment.status = EquipmentStatus.UNDER_MAINTENANCE;
     }
@@ -650,7 +627,6 @@ export const updateEquipmentStatus = async (req: Request, res: Response): Promis
 
     equipment.status = status;
 
-    // If marking as available, clear current project assignment
     if (status === EquipmentStatus.AVAILABLE) {
       equipment.currentProjectId = undefined;
       equipment.assignedTo = undefined;
@@ -695,8 +671,6 @@ export const getAvailableEquipment = async (req: Request, res: Response): Promis
     });
   }
 };
-
-// ==================== Suppliers ====================
 
 export const createSupplier = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -812,7 +786,6 @@ export const updateSupplier = async (req: Request, res: Response): Promise<void>
     const { id } = req.params;
     const updates = req.body;
 
-    // Don't allow updating certain fields directly
     delete updates.addedBy;
     delete updates.totalOrders;
     delete updates.completedOrders;
@@ -917,7 +890,6 @@ export const getSupplierPerformance = async (req: Request, res: Response): Promi
       ? (supplier.completedOrders / supplier.totalOrders) * 100
       : 0;
 
-    // Get recent ratings
     const recentRatings = supplier.ratings.slice(-10);
 
     res.status(200).json({

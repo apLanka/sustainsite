@@ -3,12 +3,6 @@ import mongoose, { Model } from 'mongoose';
 import Project from '../models/Project';
 import { UserRole } from '../types';
 
-/**
- * Middleware to check if the authenticated user owns a specific resource
- * @param resourceModel - Mongoose model of the resource
- * @param resourceIdField - Path to resource ID in request (e.g., 'params.id', 'body.projectId')
- * @param ownerField - Field name in the resource that contains the owner's user ID (default: 'createdBy')
- */
 export const checkOwnership = (
   resourceModel: Model<any>,
   resourceIdField: string,
@@ -24,7 +18,6 @@ export const checkOwnership = (
         return;
       }
 
-      // Extract resource ID from request based on field path
       const resourceId = getNestedValue(req, resourceIdField);
 
       if (!resourceId) {
@@ -35,7 +28,6 @@ export const checkOwnership = (
         return;
       }
 
-      // Validate ObjectId
       if (!mongoose.Types.ObjectId.isValid(resourceId)) {
         res.status(400).json({
           success: false,
@@ -44,7 +36,6 @@ export const checkOwnership = (
         return;
       }
 
-      // Find the resource
       const resource = await resourceModel.findById(resourceId);
 
       if (!resource) {
@@ -55,13 +46,11 @@ export const checkOwnership = (
         return;
       }
 
-      // ADMIN can bypass ownership check
       if (req.user.role === UserRole.ADMIN) {
         next();
         return;
       }
 
-      // Check ownership
       const ownerId = resource[ownerField]?.toString();
       const userId = req.user.userId;
 
@@ -83,11 +72,6 @@ export const checkOwnership = (
   };
 };
 
-/**
- * Middleware to check if the authenticated user is a member of a project
- * (either project manager or team member)
- * @param projectIdField - Path to project ID in request (e.g., 'params.id', 'body.projectId')
- */
 export const checkProjectMembership = (projectIdField: string) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -99,7 +83,6 @@ export const checkProjectMembership = (projectIdField: string) => {
         return;
       }
 
-      // Extract project ID from request
       const projectId = getNestedValue(req, projectIdField);
 
       if (!projectId) {
@@ -110,7 +93,6 @@ export const checkProjectMembership = (projectIdField: string) => {
         return;
       }
 
-      // Validate ObjectId
       if (!mongoose.Types.ObjectId.isValid(projectId)) {
         res.status(400).json({
           success: false,
@@ -119,7 +101,6 @@ export const checkProjectMembership = (projectIdField: string) => {
         return;
       }
 
-      // Find the project
       const project = await Project.findById(projectId);
 
       if (!project) {
@@ -134,7 +115,6 @@ export const checkProjectMembership = (projectIdField: string) => {
       const projectManagerId = project.projectManager.toString();
       const teamMemberIds = project.teamMembers.map((id) => id.toString());
 
-      // Check if user is project manager or team member
       const isMember = projectManagerId === userId || teamMemberIds.includes(userId);
 
       if (!isMember) {
@@ -145,7 +125,6 @@ export const checkProjectMembership = (projectIdField: string) => {
         return;
       }
 
-      // Attach project to request for use in controller
       (req as any).project = project;
 
       next();
@@ -158,10 +137,6 @@ export const checkProjectMembership = (projectIdField: string) => {
   };
 };
 
-/**
- * Middleware to check if the authenticated user is the project manager
- * @param projectIdField - Path to project ID in request (e.g., 'params.id', 'body.projectId')
- */
 export const checkProjectManager = (projectIdField: string) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -173,7 +148,6 @@ export const checkProjectManager = (projectIdField: string) => {
         return;
       }
 
-      // Extract project ID from request
       const projectId = getNestedValue(req, projectIdField);
 
       if (!projectId) {
@@ -184,7 +158,6 @@ export const checkProjectManager = (projectIdField: string) => {
         return;
       }
 
-      // Validate ObjectId
       if (!mongoose.Types.ObjectId.isValid(projectId)) {
         res.status(400).json({
           success: false,
@@ -193,7 +166,6 @@ export const checkProjectManager = (projectIdField: string) => {
         return;
       }
 
-      // Find the project
       const project = await Project.findById(projectId);
 
       if (!project) {
@@ -207,7 +179,6 @@ export const checkProjectManager = (projectIdField: string) => {
       const userId = req.user.userId;
       const projectManagerId = project.projectManager.toString();
 
-      // Check if user is the project manager
       if (projectManagerId !== userId) {
         res.status(403).json({
           success: false,
@@ -216,7 +187,6 @@ export const checkProjectManager = (projectIdField: string) => {
         return;
       }
 
-      // Attach project to request for use in controller
       (req as any).project = project;
 
       next();
@@ -229,21 +199,17 @@ export const checkProjectManager = (projectIdField: string) => {
   };
 };
 
-/**
- * Combine multiple permission checks - all must pass
- * @param checks - Array of middleware functions to execute
- */
 export const combinePermissions = (...checks: any[]) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      // Execute all checks sequentially
+
       for (const check of checks) {
         await new Promise<void>((resolve, reject) => {
           check(req, res, (error?: any) => {
             if (error) {
               reject(error);
             } else if (res.headersSent) {
-              // Response was sent (permission denied)
+
               reject(new Error('Permission denied'));
             } else {
               resolve();
@@ -253,7 +219,7 @@ export const combinePermissions = (...checks: any[]) => {
       }
       next();
     } catch (error) {
-      // Error already handled by individual checks
+
       if (!res.headersSent) {
         res.status(500).json({
           success: false,
@@ -264,11 +230,6 @@ export const combinePermissions = (...checks: any[]) => {
   };
 };
 
-/**
- * Helper function to get nested value from object using dot notation
- * @param obj - Object to extract value from
- * @param path - Dot-separated path (e.g., 'params.id', 'body.projectId')
- */
 function getNestedValue(obj: any, path: string): any {
   return path.split('.').reduce((current, key) => current?.[key], obj);
 }

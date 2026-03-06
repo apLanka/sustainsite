@@ -1,6 +1,5 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
 
-// Inspection type enum
 export enum InspectionType {
   SAFETY = 'Safety',
   ENVIRONMENTAL = 'Environmental',
@@ -8,7 +7,6 @@ export enum InspectionType {
   STRUCTURAL = 'Structural',
 }
 
-// Risk level enum
 export enum RiskLevel {
   LOW = 'Low',
   MEDIUM = 'Medium',
@@ -16,21 +14,18 @@ export enum RiskLevel {
   CRITICAL = 'Critical',
 }
 
-// Action status enum
 export enum ActionStatus {
   PENDING = 'Pending',
   IN_PROGRESS = 'In Progress',
   COMPLETED = 'Completed',
 }
 
-// Issue severity enum
 export enum IssueSeverity {
   MINOR = 'Minor',
   MODERATE = 'Moderate',
   MAJOR = 'Major',
 }
 
-// Nested interfaces
 interface IIssueIdentified {
   issue: string;
   severity: IssueSeverity;
@@ -43,7 +38,6 @@ interface IPhoto {
   uploadedAt: Date;
 }
 
-// SafetyInspection interface
 export interface ISafetyInspection extends Document {
   projectId: mongoose.Types.ObjectId;
   inspectionType?: InspectionType;
@@ -66,7 +60,6 @@ export interface ISafetyInspection extends Document {
   updatedAt: Date;
 }
 
-// Issue identified schema
 const issueIdentifiedSchema = new Schema<IIssueIdentified>(
   {
     issue: {
@@ -87,7 +80,6 @@ const issueIdentifiedSchema = new Schema<IIssueIdentified>(
   { _id: false }
 );
 
-// Photo schema
 const photoSchema = new Schema<IPhoto>(
   {
     url: {
@@ -106,7 +98,6 @@ const photoSchema = new Schema<IPhoto>(
   { _id: false }
 );
 
-// SafetyInspection schema
 const safetyInspectionSchema = new Schema<ISafetyInspection>(
   {
     projectId: {
@@ -184,20 +175,17 @@ const safetyInspectionSchema = new Schema<ISafetyInspection>(
   }
 );
 
-// Indexes
 safetyInspectionSchema.index({ projectId: 1 });
 safetyInspectionSchema.index({ riskLevel: 1 });
 safetyInspectionSchema.index({ inspectionDate: -1 });
 safetyInspectionSchema.index({ isResolved: 1 });
 
-// Pre-save hook: Auto-resolve when action is completed
 safetyInspectionSchema.pre('save', async function () {
   if (this.isModified('actionStatus') && this.actionStatus === ActionStatus.COMPLETED) {
     this.isResolved = true;
   }
 });
 
-// Create and export SafetyInspection model
 const SafetyInspection: Model<ISafetyInspection> = mongoose.model<ISafetyInspection>(
   'SafetyInspection',
   safetyInspectionSchema

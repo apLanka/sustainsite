@@ -2,16 +2,10 @@ import { Request, Response } from 'express';
 import User from '../models/User';
 import { generateToken } from '../middleware/auth';
 
-/**
- * @desc    Register a new user
- * @route   POST /api/auth/register
- * @access  Public
- */
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { fullName, email, password, role } = req.body;
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       res.status(409).json({
@@ -21,7 +15,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Create new user (password will be hashed by pre-save hook)
     const user = await User.create({
       fullName,
       email,
@@ -29,14 +22,12 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       role,
     });
 
-    // Generate JWT token
     const token = generateToken({
       userId: user._id.toString(),
       email: user.email,
       role: user.role,
     });
 
-    // Return user data (password excluded by toJSON override)
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
@@ -51,7 +42,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     console.error('Registration error:', error);
 
-    // Handle MongoDB duplicate key error (E11000)
     if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
       res.status(409).json({
         success: false,
@@ -71,16 +61,10 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-/**
- * @desc    Login user
- * @route   POST /api/auth/login
- * @access  Public
- */
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
-    // Find user by email (include password field)
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
@@ -91,7 +75,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Check if user is active
     if (!user.isActive) {
       res.status(401).json({
         success: false,
@@ -100,7 +83,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Compare password
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       res.status(401).json({
@@ -110,18 +92,15 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Update last login timestamp
     user.lastLogin = new Date();
     await user.save();
 
-    // Generate JWT token
     const token = generateToken({
       userId: user._id.toString(),
       email: user.email,
       role: user.role,
     });
 
-    // Return user data and token
     res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -148,14 +127,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-/**
- * @desc    Get current authenticated user
- * @route   GET /api/auth/me
- * @access  Protected
- */
 export const getCurrentUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    // req.user is populated by authenticate middleware
+
     if (!req.user) {
       res.status(401).json({
         success: false,
@@ -164,8 +138,6 @@ export const getCurrentUser = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    // Find user and populate assigned projects
-    // Note: populate will work once Project model is created
     const user = await User.findById(req.user.userId);
 
     if (!user) {
@@ -176,7 +148,6 @@ export const getCurrentUser = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    // Return user data
     res.status(200).json({
       success: true,
       data: {

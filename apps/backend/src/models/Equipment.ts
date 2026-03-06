@@ -1,6 +1,5 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
 
-// Equipment type enum
 export enum EquipmentType {
   EXCAVATOR = 'Excavator',
   CRANE = 'Crane',
@@ -10,7 +9,6 @@ export enum EquipmentType {
   OTHER = 'Other',
 }
 
-// Equipment status enum
 export enum EquipmentStatus {
   AVAILABLE = 'Available',
   IN_USE = 'In Use',
@@ -19,14 +17,12 @@ export enum EquipmentStatus {
   RETIRED = 'Retired',
 }
 
-// Maintenance type enum
 export enum MaintenanceType {
   ROUTINE = 'Routine',
   REPAIR = 'Repair',
   OVERHAUL = 'Overhaul',
 }
 
-// Nested interfaces
 export interface IMaintenanceRecord {
   maintenanceDate: Date;
   maintenanceType: MaintenanceType;
@@ -45,7 +41,6 @@ interface IAssignmentRecord {
   fuelConsumed?: number;
 }
 
-// Equipment interface
 export interface IEquipment extends Document {
   equipmentName: string;
   equipmentType: EquipmentType;
@@ -76,7 +71,6 @@ export interface IEquipment extends Document {
   ): Promise<IEquipment>;
 }
 
-// Maintenance record schema
 const maintenanceRecordSchema = new Schema<IMaintenanceRecord>(
   {
     maintenanceDate: {
@@ -107,7 +101,6 @@ const maintenanceRecordSchema = new Schema<IMaintenanceRecord>(
   { _id: false }
 );
 
-// Assignment record schema
 const assignmentRecordSchema = new Schema<IAssignmentRecord>(
   {
     projectId: {
@@ -138,7 +131,6 @@ const assignmentRecordSchema = new Schema<IAssignmentRecord>(
   { _id: false }
 );
 
-// Equipment schema
 const equipmentSchema = new Schema<IEquipment>(
   {
     equipmentName: {
@@ -230,20 +222,17 @@ const equipmentSchema = new Schema<IEquipment>(
   }
 );
 
-// Indexes
 equipmentSchema.index({ serialNumber: 1 }, { unique: true, sparse: true });
 equipmentSchema.index({ status: 1 });
 equipmentSchema.index({ currentProjectId: 1 });
 equipmentSchema.index({ nextScheduledMaintenance: 1 });
 
-// Instance method: Schedule next maintenance
 equipmentSchema.methods.scheduleNextMaintenance = function (months: number) {
   const nextDate = new Date();
   nextDate.setMonth(nextDate.getMonth() + months);
   this.nextScheduledMaintenance = nextDate;
 };
 
-// Instance method: Assign to project
 equipmentSchema.methods.assignToProject = async function (
   projectId: mongoose.Types.ObjectId,
   operatorId?: mongoose.Types.ObjectId
@@ -252,14 +241,12 @@ equipmentSchema.methods.assignToProject = async function (
     throw new Error('Equipment is not available for assignment');
   }
 
-  // Add to assignment history
   this.assignmentHistory.push({
     projectId,
     assignedDate: new Date(),
     operatorId,
   });
 
-  // Update current assignment
   this.currentProjectId = projectId;
   this.assignedTo = operatorId;
   this.status = EquipmentStatus.IN_USE;
@@ -267,7 +254,6 @@ equipmentSchema.methods.assignToProject = async function (
   return this.save();
 };
 
-// Create and export Equipment model
 const Equipment: Model<IEquipment> = mongoose.model<IEquipment>('Equipment', equipmentSchema);
 
 export default Equipment;

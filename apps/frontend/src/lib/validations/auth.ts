@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { UserRole } from '@/types/auth';
 
-// Login validation schema
 export const loginSchema = z.object({
   email: z
     .string()
@@ -14,7 +13,6 @@ export const loginSchema = z.object({
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 
-// Register validation schema (matching backend rules)
 export const registerSchema = z.object({
   fullName: z
     .string()

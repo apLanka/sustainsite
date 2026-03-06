@@ -66,7 +66,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-black dark:via-gray-950 dark:to-gray-900 p-4">
       <div className="w-full max-w-md">
-        {/* Logo/Header */}
+        {}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">SustainSite</h1>
           <p className="text-gray-600 dark:text-gray-400">
@@ -90,7 +90,7 @@ export default function RegisterPage() {
                 </Alert>
               )}
 
-              {/* Full Name Field */}
+              {}
               <div className="space-y-2">
                 <Label htmlFor="fullName">Full Name</Label>
                 <div className="relative">
@@ -148,7 +148,7 @@ export default function RegisterPage() {
                 </p>
               </div>
 
-              {/* Role Field */}
+              {}
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
                 <div className="relative">
@@ -171,7 +171,6 @@ export default function RegisterPage() {
                 </div>
                 {errors.role && <p className="text-sm text-red-500">{errors.role.message}</p>}
               </div>
-
 
             </CardContent>
 

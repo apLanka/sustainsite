@@ -1,6 +1,5 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
 
-// Project status enum
 export enum ProjectStatus {
   PLANNING = 'Planning',
   IN_PROGRESS = 'In Progress',
@@ -8,14 +7,12 @@ export enum ProjectStatus {
   COMPLETED = 'Completed',
 }
 
-// Location interface
 interface ILocation {
   address: string;
   latitude?: number;
   longitude?: number;
 }
 
-// Project interface
 export interface IProject extends Document {
   projectName: string;
   description?: string;
@@ -33,12 +30,11 @@ export interface IProject extends Document {
   createdBy: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
-  // Virtual fields
+
   daysRemaining?: number;
   budgetVariance?: number;
 }
 
-// Location schema
 const locationSchema = new Schema<ILocation>(
   {
     address: {
@@ -59,7 +55,6 @@ const locationSchema = new Schema<ILocation>(
   { _id: false }
 );
 
-// Project schema
 const projectSchema = new Schema<IProject>(
   {
     projectName: {
@@ -138,12 +133,10 @@ const projectSchema = new Schema<IProject>(
   }
 );
 
-// Indexes
 projectSchema.index({ projectManager: 1 });
 projectSchema.index({ status: 1 });
 projectSchema.index({ startDate: -1 });
 
-// Virtual field: Days remaining
 projectSchema.virtual('daysRemaining').get(function (this: IProject) {
   if (this.status === ProjectStatus.COMPLETED) {
     return 0;
@@ -155,16 +148,13 @@ projectSchema.virtual('daysRemaining').get(function (this: IProject) {
   return diffDays > 0 ? diffDays : 0;
 });
 
-// Virtual field: Budget variance
 projectSchema.virtual('budgetVariance').get(function (this: IProject) {
   return this.budget - this.actualCost;
 });
 
-// Ensure virtuals are included in JSON
 projectSchema.set('toJSON', { virtuals: true });
 projectSchema.set('toObject', { virtuals: true });
 
-// Create and export Project model
 const Project: Model<IProject> = mongoose.model<IProject>('Project', projectSchema);
 
 export default Project;

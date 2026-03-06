@@ -1,4 +1,4 @@
-// Export all models from a central location
+
 export { default as User } from './User';
 export { default as Project } from './Project';
 export { default as Milestone } from './Milestone';
@@ -10,7 +10,6 @@ export { default as Material } from './Material';
 export { default as Equipment } from './Equipment';
 export { default as Supplier } from './Supplier';
 
-// Export interfaces
 export type { IUser } from './User';
 export type { IProject } from './Project';
 export type { IMilestone } from './Milestone';
@@ -22,7 +21,6 @@ export type { IMaterial } from './Material';
 export type { IEquipment } from './Equipment';
 export type { ISupplier } from './Supplier';
 
-// Export enums
 export { UserRole } from '../types';
 export { ProjectStatus } from './Project';
 export { MilestoneStatus } from './Milestone';

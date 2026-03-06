@@ -1,7 +1,6 @@
 import multer from 'multer';
 import path from 'path';
 
-// Configure storage
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
     cb(null, 'uploads/');
@@ -12,13 +11,12 @@ const storage = multer.diskStorage({
   },
 });
 
-// File filter
 const fileFilter = (
   _req: Express.Request,
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ) => {
-  // Allowed file types
+
   const allowedTypes = /pdf|doc|docx|xls|xlsx|jpg|jpeg|png|dwg/;
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = allowedTypes.test(file.mimetype);
@@ -34,11 +32,10 @@ const fileFilter = (
   }
 };
 
-// Configure multer
 export const upload = multer({
   storage,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+    fileSize: 10 * 1024 * 1024,
   },
   fileFilter,
 });

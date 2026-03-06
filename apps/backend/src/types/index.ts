@@ -1,4 +1,4 @@
-// Type definitions for environment variables
+
 export interface EnvConfig {
   NODE_ENV: string;
   PORT: number;
@@ -15,7 +15,6 @@ export interface EnvConfig {
   FRONTEND_URL: string;
 }
 
-// User role types
 export enum UserRole {
   ADMIN = 'ADMIN',
   PROJECT_MANAGER = 'PROJECT_MANAGER',
@@ -24,7 +23,6 @@ export enum UserRole {
   VIEWER = 'VIEWER',
 }
 
-// Project status types
 export enum ProjectStatus {
   PLANNING = 'Planning',
   IN_PROGRESS = 'In Progress',
@@ -32,14 +30,12 @@ export enum ProjectStatus {
   COMPLETED = 'Completed',
 }
 
-// Milestone status types
 export enum MilestoneStatus {
   PENDING = 'Pending',
   IN_PROGRESS = 'In Progress',
   COMPLETED = 'Completed',
 }
 
-// Document types
 export enum DocumentType {
   BLUEPRINT = 'Blueprint',
   PERMIT = 'Permit',
@@ -49,7 +45,6 @@ export enum DocumentType {
   OTHER = 'Other',
 }
 
-// Document status
 export enum DocumentStatus {
   DRAFT = 'Draft',
   UNDER_REVIEW = 'Under Review',
@@ -57,7 +52,6 @@ export enum DocumentStatus {
   REJECTED = 'Rejected',
 }
 
-// Material status
 export enum MaterialStatus {
   ORDERED = 'Ordered',
   IN_TRANSIT = 'In Transit',
@@ -67,7 +61,6 @@ export enum MaterialStatus {
   CANCELLED = 'Cancelled',
 }
 
-// Equipment status
 export enum EquipmentStatus {
   AVAILABLE = 'Available',
   IN_USE = 'In Use',
@@ -76,7 +69,6 @@ export enum EquipmentStatus {
   RETIRED = 'Retired',
 }
 
-// Risk levels
 export enum RiskLevel {
   LOW = 'Low',
   MEDIUM = 'Medium',
@@ -84,21 +76,18 @@ export enum RiskLevel {
   CRITICAL = 'Critical',
 }
 
-// Score categories
 export enum ScoreCategory {
   RED = 'Red',
   YELLOW = 'Yellow',
   GREEN = 'Green',
 }
 
-// JWT Payload
 export interface JWTPayload {
   userId: string;
   email: string;
   role: UserRole;
 }
 
-// API Response types
 export interface ApiResponse<T = any> {
   success: boolean;
   message?: string;

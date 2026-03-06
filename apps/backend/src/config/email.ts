@@ -1,6 +1,5 @@
 import sgMail from '@sendgrid/mail';
 
-// Initialize SendGrid
 if (process.env.SENDGRID_API_KEY) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 }
@@ -29,7 +28,6 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
   }
 };
 
-// Email templates
 export const emailTemplates = {
   lowStockAlert: (materialName: string, currentStock: number, threshold: number, unit: string) => `
     <h2>🚨 Low Stock Alert</h2>

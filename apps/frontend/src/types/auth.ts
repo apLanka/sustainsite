@@ -1,4 +1,4 @@
-// User roles matching backend
+
 export const UserRole = {
   ADMIN: 'ADMIN',
   PROJECT_MANAGER: 'PROJECT_MANAGER',
@@ -8,7 +8,6 @@ export const UserRole = {
 } as const;
 export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
-// User interface
 export interface User {
   userId: string;
   fullName: string;
@@ -21,7 +20,6 @@ export interface User {
   createdAt: Date;
 }
 
-// API Request/Response types
 export interface RegisterRequest {
   fullName: string;
   email: string;
@@ -60,7 +58,6 @@ export interface ErrorResponse {
   errors?: string[];
 }
 
-// Auth Context types
 export interface AuthContextType {
   user: User | null;
   token: string | null;

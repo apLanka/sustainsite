@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { JWTPayload } from '../types';
 
-// Extend Express Request type to include user
 declare global {
   namespace Express {
     interface Request {
@@ -17,7 +16,7 @@ export const authenticate = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    // Get token from header
+
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -30,10 +29,8 @@ export const authenticate = async (
 
     const token = authHeader.split(' ')[1];
 
-    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JWTPayload;
 
-    // Attach user to request
     req.user = decoded;
     next();
   } catch (error) {
@@ -44,7 +41,6 @@ export const authenticate = async (
   }
 };
 
-// Generate JWT token
 export const generateToken = (payload: JWTPayload): string => {
   return jwt.sign(
     payload,

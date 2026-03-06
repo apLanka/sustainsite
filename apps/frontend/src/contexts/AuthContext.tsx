@@ -9,7 +9,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize auth state from localStorage
   useEffect(() => {
     const initAuth = async () => {
       const storedToken = tokenManager.getToken();
@@ -19,13 +18,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
 
-        // Verify token is still valid by fetching current user
         try {
           const response = await authApi.getCurrentUser();
           setUser(response.data);
           localStorage.setItem('user', JSON.stringify(response.data));
         } catch (error) {
-          // Token is invalid, clear auth state
+
           tokenManager.removeToken();
           localStorage.removeItem('user');
           setToken(null);
@@ -39,7 +37,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, []);
 
-  // Login function
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
@@ -47,7 +44,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const { token: newToken, ...userData } = response.data;
 
-      // Store token and user data
       tokenManager.setToken(newToken);
       setToken(newToken);
 
@@ -67,7 +63,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Register function
   const register = useCallback(async (data: RegisterRequest) => {
     setIsLoading(true);
     try {
@@ -75,7 +70,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const { token: newToken, ...userData } = response.data;
 
-      // Store token and user data
       tokenManager.setToken(newToken);
       setToken(newToken);
 
@@ -95,7 +89,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Logout function
   const logout = useCallback(() => {
     tokenManager.removeToken();
     localStorage.removeItem('user');
@@ -103,7 +96,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   }, []);
 
-  // Refresh user data
   const refreshUser = useCallback(async () => {
     if (!token) return;
 
@@ -112,7 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(response.data);
       localStorage.setItem('user', JSON.stringify(response.data));
     } catch (error) {
-      // If refresh fails, logout
+
       logout();
     }
   }, [token, logout]);

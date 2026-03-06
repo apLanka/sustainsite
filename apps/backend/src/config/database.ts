@@ -12,7 +12,6 @@ const connectDB = async (): Promise<void> => {
   }
 };
 
-// Mongoose connection event listeners
 mongoose.connection.on('connected', () => {
   console.log('Mongoose connected to MongoDB');
 });
@@ -25,7 +24,6 @@ mongoose.connection.on('disconnected', () => {
   console.log('Mongoose disconnected from MongoDB');
 });
 
-// Graceful shutdown
 process.on('SIGINT', async () => {
   await mongoose.connection.close();
   console.log('Mongoose connection closed due to app termination');

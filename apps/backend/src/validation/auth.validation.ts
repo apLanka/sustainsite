@@ -2,7 +2,6 @@ import Joi from 'joi';
 import { Request, Response, NextFunction } from 'express';
 import { UserRole } from '../types';
 
-// Registration validation schema
 export const registerSchema = Joi.object({
   fullName: Joi.string().min(2).max(100).required().messages({
     'string.min': 'Full name must be at least 2 characters',
@@ -34,10 +33,8 @@ export const registerSchema = Joi.object({
       'any.required': 'Role is required',
     }),
 
-
 });
 
-// Login validation schema
 export const loginSchema = Joi.object({
   email: Joi.string().email().required().messages({
     'string.email': 'Please provide a valid email address',
@@ -49,12 +46,11 @@ export const loginSchema = Joi.object({
   }),
 });
 
-// Generic validation middleware
 export const validateRequest = (schema: Joi.ObjectSchema) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     const { error, value } = schema.validate(req.body, {
-      abortEarly: false, // Return all errors, not just the first one
-      stripUnknown: true, // Remove unknown fields
+      abortEarly: false,
+      stripUnknown: true,
     });
 
     if (error) {
@@ -67,7 +63,6 @@ export const validateRequest = (schema: Joi.ObjectSchema) => {
       return;
     }
 
-    // Replace req.body with validated and sanitized data
     req.body = value;
     next();
   };

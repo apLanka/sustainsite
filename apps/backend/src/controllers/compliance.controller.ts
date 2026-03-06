@@ -3,14 +3,6 @@ import mongoose from 'mongoose';
 import ComplianceChecklist from '../models/ComplianceChecklist';
 import SafetyInspection from '../models/SafetyInspection';
 
-/**
- * Compliance Controller
- * Handles compliance checklists and safety inspections
- */
-
-// ==================== Compliance Checklists ====================
-
-// Task 10: Create a compliance checklist
 export const createChecklist = async (req: Request, res: Response): Promise<void> => {
   try {
     const { projectId, checklistName, category, items, dueDate, lastReviewDate } = req.body;
@@ -44,7 +36,6 @@ export const createChecklist = async (req: Request, res: Response): Promise<void
   }
 };
 
-// Task 11: Get all checklists with optional filters and pagination
 export const getChecklists = async (req: Request, res: Response): Promise<void> => {
   try {
     const { projectId, category, page = '1', limit = '10' } = req.query;
@@ -92,7 +83,6 @@ export const getChecklists = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-// Task 12: Get checklist by ID
 export const getChecklistById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -121,7 +111,6 @@ export const getChecklistById = async (req: Request, res: Response): Promise<voi
   }
 };
 
-// Task 13: Update checklist (metadata and/or items)
 export const updateChecklist = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -145,18 +134,16 @@ export const updateChecklist = async (req: Request, res: Response): Promise<void
     if (dueDate !== undefined) checklist.dueDate = dueDate;
     if (lastReviewDate !== undefined) checklist.lastReviewDate = lastReviewDate;
 
-    // Replace items array if provided — completedBy is set per item by the caller
     if (items !== undefined) {
       checklist.items = items.map((item: Record<string, unknown>) => ({
         ...item,
-        // Auto-assign completedBy from current user if item is being marked complete without a completedBy
+
         completedBy: item.isCompleted && !item.completedBy
           ? new mongoose.Types.ObjectId(req.user!.userId)
           : item.completedBy,
       }));
     }
 
-    // pre-save hook auto-recalculates totalItems, completedItems, complianceScore
     await checklist.save();
 
     await checklist.populate('createdBy', 'name email');
@@ -172,7 +159,6 @@ export const updateChecklist = async (req: Request, res: Response): Promise<void
   }
 };
 
-// Task 14: Delete checklist (ADMIN only — enforced by route middleware)
 export const deleteChecklist = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -198,9 +184,6 @@ export const deleteChecklist = async (req: Request, res: Response): Promise<void
   }
 };
 
-// ==================== Safety Inspections ====================
-
-// Task 15: Create a safety inspection
 export const createInspection = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
@@ -262,7 +245,6 @@ export const createInspection = async (req: Request, res: Response): Promise<voi
   }
 };
 
-// Task 16: Get all inspections with optional filters and pagination
 export const getInspections = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
@@ -321,7 +303,6 @@ export const getInspections = async (req: Request, res: Response): Promise<void>
   }
 };
 
-// Task 17: Get inspection by ID
 export const getInspectionById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -349,7 +330,6 @@ export const getInspectionById = async (req: Request, res: Response): Promise<vo
   }
 };
 
-// Task 18: Update inspection (ADMIN, INSPECTOR — enforced by route middleware)
 export const updateInspection = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -398,7 +378,6 @@ export const updateInspection = async (req: Request, res: Response): Promise<voi
     if (followUpDate !== undefined) inspection.followUpDate = followUpDate;
     if (followUpNotes !== undefined) inspection.followUpNotes = followUpNotes;
 
-    // pre-save hook auto-sets isResolved = true when actionStatus = Completed
     await inspection.save();
 
     await inspection.populate('inspector', 'name email');
@@ -413,7 +392,6 @@ export const updateInspection = async (req: Request, res: Response): Promise<voi
   }
 };
 
-// Task 19: Delete inspection (ADMIN only — enforced by route middleware)
 export const deleteInspection = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;

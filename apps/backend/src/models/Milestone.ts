@@ -1,13 +1,11 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
 
-// Milestone status enum
 export enum MilestoneStatus {
   PENDING = 'Pending',
   IN_PROGRESS = 'In Progress',
   COMPLETED = 'Completed',
 }
 
-// Milestone interface
 export interface IMilestone extends Document {
   projectId: mongoose.Types.ObjectId;
   title: string;
@@ -22,7 +20,6 @@ export interface IMilestone extends Document {
   updatedAt: Date;
 }
 
-// Milestone schema
 const milestoneSchema = new Schema<IMilestone>(
   {
     projectId: {
@@ -76,12 +73,10 @@ const milestoneSchema = new Schema<IMilestone>(
   }
 );
 
-// Indexes
 milestoneSchema.index({ projectId: 1 });
 milestoneSchema.index({ status: 1 });
 milestoneSchema.index({ targetDate: 1 });
 
-// Pre-save hook: Auto-set completionDate when status is Completed
 milestoneSchema.pre('save', async function () {
   if (this.isModified('status') && this.status === MilestoneStatus.COMPLETED) {
     if (!this.completionDate) {
@@ -93,7 +88,6 @@ milestoneSchema.pre('save', async function () {
   }
 });
 
-// Create and export Milestone model
 const Milestone: Model<IMilestone> = mongoose.model<IMilestone>('Milestone', milestoneSchema);
 
 export default Milestone;

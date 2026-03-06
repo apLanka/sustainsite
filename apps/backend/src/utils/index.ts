@@ -1,4 +1,4 @@
-// Export all permission utility functions
+
 export {
   canViewProject,
   canEditProject,

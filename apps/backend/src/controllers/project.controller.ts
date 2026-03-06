@@ -2,20 +2,13 @@ import { Request, Response } from 'express';
 import Project from '../models/Project';
 import Milestone from '../models/Milestone';
 
-/**
- * Project Controller
- * Handles all project-related operations
- */
-
 export const createProject = async (req: Request, res: Response): Promise<void> => {
   try {
     const projectData = req.body;
     const userId = (req as unknown as { user: { userId: string } }).user.userId;
-    
-    // Set createdBy
+
     projectData.createdBy = userId;
-    
-    // Fallback projectManager to the user creating it if not provided
+
     if (!projectData.projectManager) {
       projectData.projectManager = userId;
     }
@@ -40,7 +33,6 @@ export const getProjects = async (req: Request, res: Response): Promise<void> =>
     const limit = parseInt(req.query.limit as string, 10) || 10;
     const skip = (page - 1) * limit;
 
-    // Build filter query
     const query: Record<string, unknown> = {};
     if (req.query.status) {
       query.status = req.query.status;
@@ -83,7 +75,7 @@ export const getProjectById = async (req: Request, res: Response): Promise<void>
       .populate('projectManager', 'firstName lastName email')
       .populate('teamMembers', 'firstName lastName email')
       .populate('createdBy', 'firstName lastName email');
-      
+
     if (!project) {
       res.status(404).json({
         success: false,
@@ -92,7 +84,6 @@ export const getProjectById = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    // Get milestones for the project
     const milestones = await Milestone.find({ projectId: req.params.id }).sort({ targetDate: 1 });
 
     res.status(200).json({
@@ -117,7 +108,7 @@ export const updateProject = async (req: Request, res: Response): Promise<void> 
       { $set: req.body },
       { new: true, runValidators: true }
     );
-    
+
     if (!project) {
       res.status(404).json({
         success: false,
@@ -125,7 +116,7 @@ export const updateProject = async (req: Request, res: Response): Promise<void> 
       });
       return;
     }
-    
+
     res.status(200).json({
       success: true,
       data: project,
@@ -141,7 +132,7 @@ export const updateProject = async (req: Request, res: Response): Promise<void> 
 export const deleteProject = async (req: Request, res: Response): Promise<void> => {
   try {
     const project = await Project.findByIdAndDelete(req.params.id);
-    
+
     if (!project) {
       res.status(404).json({
         success: false,
@@ -149,10 +140,9 @@ export const deleteProject = async (req: Request, res: Response): Promise<void> 
       });
       return;
     }
-    
-    // Also delete associated milestones
+
     await Milestone.deleteMany({ projectId: req.params.id });
-    
+
     res.status(200).json({
       success: true,
       data: {},
@@ -171,9 +161,9 @@ export const addMilestone = async (req: Request, res: Response): Promise<void> =
       ...req.body,
       projectId: req.params.id,
     };
-    
+
     const milestone = await Milestone.create(milestoneData);
-    
+
     res.status(201).json({
       success: true,
       data: milestone,
@@ -193,7 +183,7 @@ export const updateMilestone = async (req: Request, res: Response): Promise<void
       { $set: req.body },
       { new: true, runValidators: true }
     );
-    
+
     if (!milestone) {
       res.status(404).json({
         success: false,
@@ -201,7 +191,7 @@ export const updateMilestone = async (req: Request, res: Response): Promise<void
       });
       return;
     }
-    
+
     res.status(200).json({
       success: true,
       data: milestone,
@@ -217,7 +207,7 @@ export const updateMilestone = async (req: Request, res: Response): Promise<void
 export const getProjectTimeline = async (req: Request, res: Response): Promise<void> => {
   try {
     const project = await Project.findById(req.params.id).select('projectName startDate endDate status');
-    
+
     if (!project) {
       res.status(404).json({
         success: false,
@@ -225,11 +215,11 @@ export const getProjectTimeline = async (req: Request, res: Response): Promise<v
       });
       return;
     }
-    
+
     const milestones = await Milestone.find({ projectId: req.params.id })
       .select('title targetDate completionDate status completionPercentage')
       .sort({ targetDate: 1 });
-      
+
     res.status(200).json({
       success: true,
       data: {
