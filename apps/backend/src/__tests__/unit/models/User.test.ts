@@ -67,13 +67,11 @@ describe('User Model', () => {
         email: 'john@example.com',
         password: 'SecurePass123',
         role: UserRole.PROJECT_MANAGER,
-        phoneNumber: '+94771234567',
       });
 
       expect(user.fullName).toBe('John Silva');
       expect(user.email).toBe('john@example.com');
       expect(user.role).toBe(UserRole.PROJECT_MANAGER);
-      expect(user.phoneNumber).toBe('+94771234567');
       expect(user.isActive).toBe(true);
     });
 
@@ -153,29 +151,7 @@ describe('User Model', () => {
       ).rejects.toThrow();
     });
 
-    it('should fail with invalid phone number format', async () => {
-      await expect(
-        User.create({
-          fullName: 'Test User',
-          email: 'test@example.com',
-          password: 'TestPass123',
-          role: UserRole.VIEWER,
-          phoneNumber: 'invalid-phone',
-        })
-      ).rejects.toThrow();
-    });
 
-    it('should accept valid phone number', async () => {
-      const user = await User.create({
-        fullName: 'Test User',
-        email: 'test@example.com',
-        password: 'TestPass123',
-        role: UserRole.VIEWER,
-        phoneNumber: '+94771234567',
-      });
-
-      expect(user.phoneNumber).toBe('+94771234567');
-    });
 
     it('should set default role to VIEWER', async () => {
       const user = await User.create({

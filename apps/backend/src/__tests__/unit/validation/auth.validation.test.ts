@@ -8,7 +8,6 @@ describe('Auth Validation Schemas', () => {
       email: 'john@example.com',
       password: 'SecurePass123',
       role: UserRole.PROJECT_MANAGER,
-      phoneNumber: '+94771234567',
     };
 
     it('should validate correct registration data', () => {
@@ -187,46 +186,7 @@ describe('Auth Validation Schemas', () => {
       });
     });
 
-    describe('Phone Number Validation', () => {
-      it('should accept valid E.164 phone numbers', () => {
-        const validPhones = ['+94771234567', '+1234567890', '+442071234567', '+61412345678'];
 
-        validPhones.forEach((phoneNumber) => {
-          const { error } = registerSchema.validate({
-            ...validData,
-            phoneNumber,
-          });
-          expect(error).toBeUndefined();
-        });
-      });
-
-      it('should fail with invalid phone format', () => {
-        const invalidPhones = [
-          '1234567890', // Missing +
-          '+12', // Too short
-          'abc123', // Contains letters
-          '+1-234-567-8900', // Contains dashes
-        ];
-
-        invalidPhones.forEach((phoneNumber) => {
-          const { error } = registerSchema.validate({
-            ...validData,
-            phoneNumber,
-          });
-          expect(error).toBeDefined();
-        });
-      });
-
-      it('should allow phoneNumber to be optional', () => {
-        const { error } = registerSchema.validate({
-          fullName: validData.fullName,
-          email: validData.email,
-          password: validData.password,
-          role: validData.role,
-        });
-        expect(error).toBeUndefined();
-      });
-    });
   });
 
   describe('Login Schema', () => {

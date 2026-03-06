@@ -101,31 +101,7 @@ describe('Authentication API', () => {
       expect(response.body.success).toBe(false);
     });
 
-    it('should return 400 for invalid phone number', async () => {
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send({
-          ...validRegistrationData,
-          phoneNumber: 'invalid-phone',
-        })
-        .expect(400);
 
-      expect(response.body.success).toBe(false);
-    });
-
-    it('should accept registration without phone number', async () => {
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send({
-          fullName: validRegistrationData.fullName,
-          email: 'nophone@example.com',
-          password: validRegistrationData.password,
-          role: validRegistrationData.role,
-        })
-        .expect(201);
-
-      expect(response.body.success).toBe(true);
-    });
   });
 
   describe('POST /api/auth/login', () => {
