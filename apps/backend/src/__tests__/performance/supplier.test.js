@@ -2,7 +2,6 @@ import http from 'k6/http';
 import { check, sleep, group } from 'k6';
 import { authenticatedRequest, API_BASE } from './k6-config.js';
 
-// Test data
 const testSupplier = {
   companyName: 'Green Materials Ltd',
   contactPerson: 'John Doe',
