@@ -1,4 +1,3 @@
-import { useParams } from 'react-router-dom';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import ProjectStats from '@/components/projects/ProjectStats';
 import MilestoneTimeline from '@/components/projects/MilestoneTimeline';

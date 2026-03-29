@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const DocumentUploader = () => {
   const [isDragging, setIsDragging] = useState(false);
