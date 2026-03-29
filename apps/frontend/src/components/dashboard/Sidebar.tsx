@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import Logo from '../common/Logo';
 
 const Sidebar = () => {
@@ -38,10 +38,13 @@ const Sidebar = () => {
       </nav>
       
       <div className="px-6 py-4 mt-auto">
-        <button className="w-full py-3 px-4 bg-gradient-to-br from-secondary to-primary text-white rounded-lg font-bold text-sm shadow-lg shadow-emerald-950/40 flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer">
+        <Link 
+          to="/projects/new"
+          className="w-full py-3 px-4 bg-gradient-to-br from-secondary to-primary text-white rounded-lg font-bold text-sm shadow-lg shadow-emerald-950/40 flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer no-underline"
+        >
           <span className="material-symbols-outlined text-base">add_circle</span>
           New Project
-        </button>
+        </Link>
       </div>
       
       <div className="px-4 border-t border-emerald-900/50 pt-4 pb-2 space-y-1">
