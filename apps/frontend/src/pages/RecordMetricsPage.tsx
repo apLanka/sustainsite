@@ -1,5 +1,4 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import EnvironmentalAuditForm from '@/components/sustainability/EnvironmentalAuditForm';
 
@@ -48,12 +47,14 @@ const AuditSidebar = () => (
 );
 
 export default function RecordMetricsPage() {
+  const { id } = useParams();
+
   return (
     <DashboardLayout>
       <div className="max-w-[1600px] mx-auto">
         <header className="py-10 space-y-4">
           <Link 
-            to="/sustainability" 
+            to={`/projects/${id}/sustainability`} 
             className="flex items-center gap-2 text-xs font-bold text-secondary uppercase tracking-widest hover:underline transition-all group"
           >
             <span className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">arrow_back</span>

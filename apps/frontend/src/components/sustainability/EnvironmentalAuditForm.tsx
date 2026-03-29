@@ -1,6 +1,8 @@
-import React from 'react';
+import { useParams } from 'react-router-dom';
 
 const EnvironmentalAuditForm = () => {
+  const { id } = useParams();
+
   return (
     <form className="space-y-12">
       {/* SECTION: Audit Context */}
@@ -12,12 +14,11 @@ const EnvironmentalAuditForm = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Project Assignment</label>
-            <select className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 text-sm font-bold text-primary focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all appearance-none cursor-pointer">
-              <option>Eco-Hub Corporate Center</option>
-              <option>Greenwood Residential Complex</option>
-              <option>Harbor Renewables Park</option>
-            </select>
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Project Assignment (Locked)</label>
+            <div className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold text-slate-500 cursor-not-allowed flex items-center gap-2">
+              <span className="material-symbols-outlined text-xs">lock</span>
+              Project ID: {id || 'PRJ-2026-001'}
+            </div>
           </div>
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Audit Date (ISO)</label>
