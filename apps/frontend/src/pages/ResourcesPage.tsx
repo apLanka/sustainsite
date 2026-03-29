@@ -6,6 +6,9 @@ import EquipmentManagement from '@/components/resources/EquipmentManagement';
 import SupplierDirectory from '@/components/resources/SupplierDirectory';
 import CostTracker from '@/components/resources/CostTracker';
 
+import SmoothTabs from '@/components/ui/SmoothTabs';
+import { motion, AnimatePresence } from 'framer-motion';
+
 type ResourceTab = 'materials' | 'equipment' | 'suppliers' | 'finance';
 
 export default function ResourcesPage() {
@@ -36,29 +39,29 @@ export default function ResourcesPage() {
         </header>
 
         {/* Inner Tabs Navigation */}
-        <div className="mb-10 flex items-center gap-4 bg-surface-container-low p-1.5 rounded-2xl w-fit border border-slate-100/50">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                activeTab === tab.id 
-                ? 'bg-white text-primary shadow-sm border border-slate-100/50' 
-                : 'text-slate-500 hover:text-primary hover:bg-white/50'
-              }`}
-            >
-              <span className="material-symbols-outlined text-lg">{tab.icon}</span>
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <SmoothTabs 
+          tabs={tabs} 
+          activeTab={activeTab} 
+          onChange={(id) => setActiveTab(id as ResourceTab)} 
+          className="mb-10"
+        />
 
         {/* Tab Content Rendering */}
-        <div className="pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          {activeTab === 'materials' && <MaterialInventory />}
-          {activeTab === 'equipment' && <EquipmentManagement />}
-          {activeTab === 'suppliers' && <SupplierDirectory />}
-          {activeTab === 'finance' && <CostTracker />}
+        <div className="pb-20">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              {activeTab === 'materials' && <MaterialInventory />}
+              {activeTab === 'equipment' && <EquipmentManagement />}
+              {activeTab === 'suppliers' && <SupplierDirectory />}
+              {activeTab === 'finance' && <CostTracker />}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </DashboardLayout>
