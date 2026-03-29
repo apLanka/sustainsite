@@ -4,6 +4,10 @@ import type { User, AuthContextType, RegisterRequest } from '@/types/auth';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// --- Configuration ---
+const USE_MOCK_AUTH = true; // Set to true to bypass login for development
+// --------------------
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -11,6 +15,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const initAuth = async () => {
+      // If mock auth is enabled, set a default user and bypass checks
+      if (USE_MOCK_AUTH) {
+        const mockUser: User = {
+          userId: 'mock-123',
+          fullName: 'Sarah Jenkins',
+          email: 'sarah@sustainsite.com',
+          role: 'ADMIN',
+          isActive: true,
+          createdAt: new Date(),
+        };
+        setUser(mockUser);
+        setToken('mock-token');
+        setIsLoading(false);
+        return;
+      }
+
       const storedToken = tokenManager.getToken();
       const storedUser = localStorage.getItem('user');
 
@@ -23,7 +43,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(response.data);
           localStorage.setItem('user', JSON.stringify(response.data));
         } catch (error) {
-
           tokenManager.removeToken();
           localStorage.removeItem('user');
           setToken(null);
