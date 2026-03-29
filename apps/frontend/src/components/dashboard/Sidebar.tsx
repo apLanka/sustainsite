@@ -1,6 +1,19 @@
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 const Sidebar = () => {
+  const navItems = [
+    { to: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
+    { to: '/projects', label: 'Projects', icon: 'architecture' },
+    { to: '#', label: 'Sustainability', icon: 'eco' },
+    { to: '#', label: 'Documents', icon: 'description' },
+    { to: '#', label: 'Resources', icon: 'inventory_2' },
+  ];
+
+  const bottomItems = [
+    { to: '#', label: 'Settings', icon: 'settings' },
+    { to: '#', label: 'Support', icon: 'help_outline' },
+  ];
+
   return (
     <aside className="h-screen w-64 fixed left-0 top-0 overflow-y-auto bg-emerald-950 flex flex-col py-6 shadow-xl shadow-emerald-950/20 z-50">
       <div className="px-6 mb-8 flex items-center gap-3">
@@ -14,45 +27,21 @@ const Sidebar = () => {
       </div>
       
       <nav className="flex-1 px-4 space-y-1">
-        <Link 
-          to="/dashboard" 
-          className="flex items-center gap-3 px-4 py-3 bg-emerald-800/40 text-emerald-100 rounded-lg mx-2 my-1 transition-colors duration-200"
-        >
-          <span className="material-symbols-outlined text-emerald-400">dashboard</span>
-          <span className="font-headline text-sm font-medium tracking-tight">Dashboard</span>
-        </Link>
-        
-        <Link 
-          to="#" 
-          className="flex items-center gap-3 px-4 py-3 text-emerald-400/70 hover:text-emerald-50 hover:bg-emerald-800/20 rounded-lg mx-2 my-1 transition-colors duration-200"
-        >
-          <span className="material-symbols-outlined">architecture</span>
-          <span className="font-headline text-sm font-medium tracking-tight">Projects</span>
-        </Link>
-        
-        <Link 
-          to="#" 
-          className="flex items-center gap-3 px-4 py-3 text-emerald-400/70 hover:text-emerald-50 hover:bg-emerald-800/20 rounded-lg mx-2 my-1 transition-colors duration-200"
-        >
-          <span className="material-symbols-outlined">eco</span>
-          <span className="font-headline text-sm font-medium tracking-tight">Sustainability</span>
-        </Link>
-        
-        <Link 
-          to="#" 
-          className="flex items-center gap-3 px-4 py-3 text-emerald-400/70 hover:text-emerald-50 hover:bg-emerald-800/20 rounded-lg mx-2 my-1 transition-colors duration-200"
-        >
-          <span className="material-symbols-outlined">description</span>
-          <span className="font-headline text-sm font-medium tracking-tight">Documents</span>
-        </Link>
-        
-        <Link 
-          to="#" 
-          className="flex items-center gap-3 px-4 py-3 text-emerald-400/70 hover:text-emerald-50 hover:bg-emerald-800/20 rounded-lg mx-2 my-1 transition-colors duration-200"
-        >
-          <span className="material-symbols-outlined">inventory_2</span>
-          <span className="font-headline text-sm font-medium tracking-tight">Resources</span>
-        </Link>
+        {navItems.map((item) => (
+          <NavLink 
+            key={item.label}
+            to={item.to} 
+            className={({ isActive }) => `
+              flex items-center gap-3 px-4 py-3 rounded-lg mx-2 my-1 transition-all duration-200 font-headline text-sm font-medium tracking-tight
+              ${isActive && item.to !== '#' 
+                ? 'bg-emerald-800/40 text-emerald-100' 
+                : 'text-emerald-400/70 hover:text-emerald-50 hover:bg-emerald-800/20'}
+            `}
+          >
+            <span className="material-symbols-outlined">{item.icon}</span>
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
       </nav>
       
       <div className="px-6 py-4 mt-auto">
@@ -63,20 +52,21 @@ const Sidebar = () => {
       </div>
       
       <div className="px-4 border-t border-emerald-900/50 pt-4 pb-2 space-y-1">
-        <Link 
-          to="#" 
-          className="flex items-center gap-3 px-4 py-3 text-emerald-400/70 hover:text-emerald-50 hover:bg-emerald-800/20 rounded-lg mx-2 transition-colors duration-200"
-        >
-          <span className="material-symbols-outlined text-sm">settings</span>
-          <span className="font-headline text-sm font-medium tracking-tight">Settings</span>
-        </Link>
-        <Link 
-          to="#" 
-          className="flex items-center gap-3 px-4 py-3 text-emerald-400/70 hover:text-emerald-50 hover:bg-emerald-800/20 rounded-lg mx-2 transition-colors duration-200"
-        >
-          <span className="material-symbols-outlined text-sm">help_outline</span>
-          <span className="font-headline text-sm font-medium tracking-tight">Support</span>
-        </Link>
+        {bottomItems.map((item) => (
+          <NavLink 
+            key={item.label}
+            to={item.to} 
+            className={({ isActive }) => `
+              flex items-center gap-3 px-4 py-3 rounded-lg mx-2 transition-all duration-200 font-headline text-sm font-medium tracking-tight
+              ${isActive && item.to !== '#' 
+                ? 'bg-emerald-800/40 text-emerald-100' 
+                : 'text-emerald-400/70 hover:text-emerald-50 hover:bg-emerald-800/20'}
+            `}
+          >
+            <span className="material-symbols-outlined text-sm">{item.icon}</span>
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
       </div>
     </aside>
   );

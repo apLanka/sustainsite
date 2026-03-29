@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const projects = [
   {
     name: 'Eco-Hub Corporate Center',
@@ -38,7 +40,12 @@ const ProjectOverview = () => {
     <section className="lg:col-span-2 bg-surface-container-lowest rounded-2xl shadow-sm border border-slate-100/50 overflow-hidden">
       <div className="p-8 border-b border-slate-50 flex justify-between items-center">
         <h3 className="text-xl font-extrabold text-primary tracking-tighter font-headline">Project Progress Overview</h3>
-        <button className="text-xs font-bold text-secondary hover:underline uppercase tracking-widest cursor-pointer font-headline">View All Projects</button>
+        <Link 
+          to="/projects" 
+          className="text-xs font-bold text-secondary hover:underline uppercase tracking-widest cursor-pointer font-headline"
+        >
+          View All Projects
+        </Link>
       </div>
       <div className="p-8 space-y-8">
         {projects.map((project, index) => (
