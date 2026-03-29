@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sign Up | SustainSite</title>
+<!-- Google Fonts: Manrope for Display, Inter for UI -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-tint": "#3f6653",
+              "on-background": "#191c1d",
+              "on-secondary-fixed": "#002113",
+              "secondary": "#0e6c4a",
+              "primary-fixed": "#c1ecd4",
+              "outline-variant": "#c1c8c2",
+              "primary-fixed-dim": "#a5d0b9",
+              "outline": "#717973",
+              "on-secondary": "#ffffff",
+              "on-primary-container": "#86af99",
+              "inverse-on-surface": "#f0f1f2",
+              "background": "#f8f9fa",
+              "tertiary": "#3f1d00",
+              "on-tertiary-fixed-variant": "#703800",
+              "on-primary": "#ffffff",
+              "on-error-container": "#93000a",
+              "error": "#ba1a1a",
+              "tertiary-container": "#5f2f00",
+              "on-error": "#ffffff",
+              "surface-variant": "#e1e3e4",
+              "primary-container": "#1b4332",
+              "on-primary-fixed-variant": "#274e3d",
+              "on-primary-fixed": "#002114",
+              "tertiary-fixed-dim": "#ffb781",
+              "surface": "#f8f9fa",
+              "on-tertiary-container": "#fd8704",
+              "surface-container-lowest": "#ffffff",
+              "secondary-fixed-dim": "#85d7ad",
+              "surface-container-high": "#e7e8e9",
+              "inverse-primary": "#a5d0b9",
+              "on-surface-variant": "#414844",
+              "secondary-fixed": "#a0f4c8",
+              "tertiary-fixed": "#ffdcc4",
+              "surface-bright": "#f8f9fa",
+              "surface-container-highest": "#e1e3e4",
+              "surface-container-low": "#f3f4f5",
+              "on-surface": "#191c1d",
+              "on-tertiary-fixed": "#301400",
+              "surface-dim": "#d9dadb",
+              "surface-container": "#edeeef",
+              "primary": "#012d1d",
+              "secondary-container": "#a0f4c8"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .signature-gradient {
+            background: linear-gradient(135deg, #012d1d 0%, #1b4332 100%);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased overflow-hidden">
+<main class="flex h-screen w-full">
+<!-- Left Section: Visual Brand Anchor -->
+<section class="relative hidden lg:flex lg:w-1/2 h-full overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img alt="Sustainable Architecture" class="w-full h-full object-cover" data-alt="Modern sustainable building featuring vertical gardens and timber structures at dusk with warm golden lighting hitting the glass facets." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBemI1byj2zRLu-Fe9i0-F5Y_f0Z1ufhXpAasg0sKaYgr-RvIhl_DgJC91zdrmaSHLHMOHENNW_7slbCed5L1IdDZ742ybz_aVvRa8gbkKlwONl_FAXZ0jLqD6gvCq_jVI5gBD5xWHMlCaOL4lP7cKOzc3NIXeph34TSunqYxXKx4x_vZojG7vrJatQLblQ2ZKISP9nchunuD0Cf1zXdKdS9GXqLbUnzf55jl89qHl62OhqUaJ3BpKB_ccwHx95cJLx6rexnw8jhdU"/>
+<!-- Dark Emerald Overlay with slight transparency -->
+<div class="absolute inset-0 bg-primary/80 mix-blend-multiply"></div>
+<div class="absolute inset-0 signature-gradient opacity-40"></div>
+</div>
+<!-- Brand Content Overlay -->
+<div class="relative z-10 flex flex-col justify-between p-20 w-full h-full text-white">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-secondary-fixed rounded-lg flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<span class="font-headline text-2xl font-extrabold tracking-tight">SustainSite</span>
+</div>
+<div class="max-w-md">
+<h1 class="font-headline text-5xl font-extrabold tracking-tight leading-tight mb-6">
+                        Building the <span class="text-secondary-fixed">Future</span> of Green Infrastructure.
+                    </h1>
+<p class="text-lg text-primary-fixed opacity-90 leading-relaxed font-body">
+                        Join the ecosystem of contractors and architects committed to sustainable urban development through precision data and ecological harmony.
+                    </p>
+</div>
+<div class="flex items-center gap-8">
+<div class="flex flex-col">
+<span class="text-3xl font-headline font-bold text-secondary-fixed">12k+</span>
+<span class="text-xs font-label tracking-widest uppercase opacity-70">Projects Tracked</span>
+</div>
+<div class="flex flex-col">
+<span class="text-3xl font-headline font-bold text-secondary-fixed">4.8M</span>
+<span class="text-xs font-label tracking-widest uppercase opacity-70">CO2 Tons Saved</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Section: Registration Form -->
+<section class="w-full lg:w-1/2 h-full bg-surface-container-lowest overflow-y-auto flex flex-col items-center justify-center p-8 md:p-12 lg:p-20">
+<div class="w-full max-w-md">
+<!-- Mobile Logo (Hidden on Desktop) -->
+<div class="flex items-center gap-2 lg:hidden mb-12">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">eco</span>
+<span class="font-headline text-xl font-bold text-primary">SustainSite</span>
+</div>
+<div class="mb-10">
+<h2 class="font-headline text-3xl font-extrabold text-on-surface mb-2">Create Account</h2>
+<p class="text-on-surface-variant font-body">Start managing your sustainable project today.</p>
+</div>
+<form class="space-y-6">
+<!-- Full Name -->
+<div class="space-y-2">
+<label class="font-label text-xs font-bold tracking-widest uppercase text-on-surface-variant" for="name">Full Name</label>
+<div class="relative group">
+<input class="w-full h-12 px-4 bg-surface-container-highest/30 rounded-lg border-none focus:ring-0 focus:border-b-2 focus:border-primary placeholder-outline/50 text-on-surface transition-all" id="name" placeholder="Johnathan Doe" type="text"/>
+</div>
+</div>
+<!-- Email Address -->
+<div class="space-y-2">
+<label class="font-label text-xs font-bold tracking-widest uppercase text-on-surface-variant" for="email">Email Address</label>
+<input class="w-full h-12 px-4 bg-surface-container-highest/30 rounded-lg border-none focus:ring-0 focus:border-b-2 focus:border-primary placeholder-outline/50 text-on-surface transition-all" id="email" placeholder="john@company.com" type="email"/>
+</div>
+<!-- Phone Number -->
+<div class="space-y-2">
+<label class="font-label text-xs font-bold tracking-widest uppercase text-on-surface-variant" for="phone">Phone Number</label>
+<input class="w-full h-12 px-4 bg-surface-container-highest/30 rounded-lg border-none focus:ring-0 focus:border-b-2 focus:border-primary placeholder-outline/50 text-on-surface transition-all" id="phone" placeholder="+1 (555) 000-0000" type="tel"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Role Selection -->
+<div class="space-y-2">
+<label class="font-label text-xs font-bold tracking-widest uppercase text-on-surface-variant" for="role">Your Role</label>
+<div class="relative">
+<select class="w-full h-12 px-4 bg-surface-container-highest/30 rounded-lg border-none focus:ring-0 focus:border-b-2 focus:border-primary appearance-none text-on-surface cursor-pointer transition-all" id="role">
+<option disabled="" selected="" value="">Select Role</option>
+<option value="admin">Admin</option>
+<option value="pm">Project Manager</option>
+<option value="inspector">Inspector</option>
+<option value="supplier">Supplier</option>
+<option value="viewer">Viewer</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 pointer-events-none text-outline">expand_more</span>
+</div>
+</div>
+<!-- Password -->
+<div class="space-y-2">
+<label class="font-label text-xs font-bold tracking-widest uppercase text-on-surface-variant" for="password">Password</label>
+<input class="w-full h-12 px-4 bg-surface-container-highest/30 rounded-lg border-none focus:ring-0 focus:border-b-2 focus:border-primary placeholder-outline/50 text-on-surface transition-all" id="password" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<!-- Terms & Conditions -->
+<div class="flex items-start gap-3 py-2">
+<div class="flex items-center h-5">
+<input class="w-4 h-4 text-primary bg-surface-container-high border-outline-variant/20 rounded focus:ring-primary" id="terms" type="checkbox"/>
+</div>
+<label class="text-sm text-on-surface-variant leading-relaxed" for="terms">
+                            I agree to the <a class="text-secondary font-semibold hover:underline" href="#">Terms of Service</a> and <a class="text-secondary font-semibold hover:underline" href="#">Privacy Policy</a>.
+                        </label>
+</div>
+<!-- Submit Button -->
+<button class="signature-gradient w-full py-4 rounded-lg font-headline font-bold text-on-primary shadow-xl hover:shadow-primary/20 hover:scale-[1.01] active:scale-[0.98] transition-all" type="submit">
+                        Create Account
+                    </button>
+<!-- Login Redirect -->
+<div class="pt-6 text-center">
+<p class="text-on-surface-variant text-sm">
+                            Already part of the ecosystem? <a class="text-primary font-bold hover:underline" href="#">Sign In</a>
+</p>
+</div>
+</form>
+<!-- Footer Links -->
+<div class="mt-16 flex justify-center gap-6">
+<span class="text-[10px] font-label tracking-widest uppercase text-outline/60">Sustainability First</span>
+<span class="text-[10px] font-label tracking-widest uppercase text-outline/60">Data Driven</span>
+<span class="text-[10px] font-label tracking-widest uppercase text-outline/60">Carbon Neutral</span>
+</div>
+</div>
+</section>
+</main>
+</body></html>
