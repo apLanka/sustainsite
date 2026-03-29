@@ -8,6 +8,8 @@ import DashboardPage from '@/pages/DashboardPage';
 import ProjectsPage from '@/pages/ProjectsPage';
 import CreateProjectPage from '@/pages/CreateProjectPage';
 import ProjectDetailPage from '@/pages/ProjectDetailPage';
+import SustainabilityDashboardPage from '@/pages/SustainabilityDashboardPage';
+import RecordMetricsPage from '@/pages/RecordMetricsPage';
 
 export default function App() {
   return (
@@ -50,6 +52,24 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <ProjectDetailPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/sustainability"
+            element={
+              <ProtectedRoute>
+                <SustainabilityDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/sustainability/record"
+            element={
+              <ProtectedRoute>
+                <RecordMetricsPage />
               </ProtectedRoute>
             }
           />

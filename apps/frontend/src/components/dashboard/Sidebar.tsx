@@ -4,7 +4,7 @@ const Sidebar = () => {
   const navItems = [
     { to: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
     { to: '/projects', label: 'Projects', icon: 'architecture' },
-    { to: '#', label: 'Sustainability', icon: 'eco' },
+    { to: '/sustainability', label: 'Sustainability', icon: 'eco' },
     { to: '#', label: 'Documents', icon: 'description' },
     { to: '#', label: 'Resources', icon: 'inventory_2' },
   ];
