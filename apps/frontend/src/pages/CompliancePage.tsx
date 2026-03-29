@@ -68,11 +68,14 @@ export default function CompliancePage() {
           </div>
 
           <div className="flex items-center gap-3">
-              <select className="bg-surface-container-lowest border border-slate-100 rounded-xl px-6 py-3 text-sm font-bold text-primary focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all shadow-sm cursor-pointer appearance-none pr-12">
-                  {checklistTemplates.map(t => (
-                      <option key={t.id}>{t.label}</option>
-                  ))}
-              </select>
+              <div className="relative group">
+                <select className="input-standard bg-surface-container-lowest h-11 pr-12 appearance-none cursor-pointer">
+                    {checklistTemplates.map(t => (
+                        <option key={t.id}>{t.label}</option>
+                    ))}
+                </select>
+                <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-emerald-600 transition-colors">expand_more</span>
+              </div>
               <button className="px-6 py-2.5 bg-primary text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/10 hover:brightness-110 active:scale-95 transition-all cursor-pointer font-headline">
                   <span className="material-symbols-outlined text-lg">add_task</span>
                   New Inspection

@@ -11,7 +11,7 @@ const TopNav = () => {
         <div className="relative w-full max-w-md group">
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors">search</span>
           <input 
-            className="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/20 placeholder:text-slate-500 font-medium" 
+            className="input-standard w-full pl-10 pr-4 h-10" 
             placeholder="Search projects, metrics, or files..." 
             type="text"
           />

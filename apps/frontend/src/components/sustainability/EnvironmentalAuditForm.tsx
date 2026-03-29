@@ -22,7 +22,11 @@ const EnvironmentalAuditForm = () => {
           </div>
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Audit Date (ISO)</label>
-            <input type="date" defaultValue={new Date().toISOString().split('T')[0]} className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 text-sm font-bold text-primary focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all cursor-pointer" />
+            <input 
+              type="date" 
+              defaultValue={new Date().toISOString().split('T')[0]} 
+              className="input-standard w-full h-12 cursor-pointer" 
+            />
           </div>
         </div>
       </section>
@@ -37,15 +41,15 @@ const EnvironmentalAuditForm = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Electricity (kWh)</label>
-            <input type="number" placeholder="0.00" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 text-sm font-bold text-primary focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all" />
+            <input type="number" placeholder="0.00" className="input-standard w-full h-12" />
           </div>
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Diesel / Fuel (Liters)</label>
-            <input type="number" placeholder="0.00" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 text-sm font-bold text-primary focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all" />
+            <input type="number" placeholder="0.00" className="input-standard w-full h-12" />
           </div>
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Renewable Offset (%)</label>
-            <input type="number" placeholder="0" max="100" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 text-sm font-bold text-primary focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all" />
+            <input type="number" placeholder="0" max="100" className="input-standard w-full h-12" />
           </div>
         </div>
       </section>
@@ -61,24 +65,24 @@ const EnvironmentalAuditForm = () => {
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Water Consumption (Liters)</label>
             <div className="relative">
-                <input type="number" placeholder="0.00" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 text-sm font-bold text-primary focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all" />
+                <input type="number" placeholder="0.00" className="input-standard w-full h-12" />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">LITERS</span>
             </div>
           </div>
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Recyclable Waste (kg)</label>
             <div className="relative">
-                <input type="number" placeholder="0.00" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 text-sm font-bold text-primary focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all" />
+                <input type="number" placeholder="0.00" className="input-standard w-full h-12" />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">KG</span>
             </div>
           </div>
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Non-Recyclable Waste (kg)</label>
-            <input type="number" placeholder="0.00" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 text-sm font-bold text-primary focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all" />
+            <input type="number" placeholder="0.00" className="input-standard w-full h-12" />
           </div>
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Hazardous Materials (kg)</label>
-            <input type="number" placeholder="0.00" className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3.5 text-sm font-bold text-primary focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all" />
+            <input type="number" placeholder="0.00" className="input-standard w-full h-12" />
           </div>
         </div>
       </section>
@@ -89,7 +93,7 @@ const EnvironmentalAuditForm = () => {
         <textarea 
           placeholder="Describe any anomalies or mitigation efforts taken during this audit cycle..." 
           rows={5}
-          className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-medium text-primary focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all resize-none"
+          className="input-standard w-full resize-none h-40"
         ></textarea>
       </section>
 

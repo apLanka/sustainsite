@@ -15,7 +15,7 @@ const ProjectForm = () => {
             <input 
               type="text" 
               placeholder="e.g., Eco-Hub Corporate Center"
-              className="w-full px-5 py-3.5 bg-surface-container-low border-none rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 placeholder:text-slate-400 font-medium transition-all"
+              className="input-standard w-full"
             />
           </div>
           
@@ -24,7 +24,7 @@ const ProjectForm = () => {
             <textarea 
               rows={4}
               placeholder="Describe the architectural scope and sustainability goals..."
-              className="w-full px-5 py-3.5 bg-surface-container-low border-none rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 placeholder:text-slate-400 font-medium transition-all resize-none"
+              className="input-standard w-full resize-none"
             ></textarea>
           </div>
         </div>
@@ -45,7 +45,7 @@ const ProjectForm = () => {
               <input 
                 type="number" 
                 placeholder="0.00"
-                className="w-full pl-10 pr-5 py-3.5 bg-surface-container-low border-none rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 placeholder:text-slate-400 font-medium transition-all"
+                className="input-standard w-full pl-10 h-12"
               />
             </div>
           </div>
@@ -57,7 +57,7 @@ const ProjectForm = () => {
               <input 
                 type="text" 
                 placeholder="Search site address..."
-                className="w-full pl-11 pr-5 py-3.5 bg-surface-container-low border-none rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 placeholder:text-slate-400 font-medium transition-all"
+                className="input-standard w-full pl-11 h-12"
               />
             </div>
           </div>
@@ -66,7 +66,7 @@ const ProjectForm = () => {
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Start Date</label>
             <input 
               type="date" 
-              className="w-full px-5 py-3.5 bg-surface-container-low border-none rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 placeholder:text-slate-400 font-medium transition-all"
+              className="input-standard w-full h-12 cursor-pointer"
             />
           </div>
           
@@ -74,7 +74,7 @@ const ProjectForm = () => {
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Estimated Completion</label>
             <input 
               type="date" 
-              className="w-full px-5 py-3.5 bg-surface-container-low border-none rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 placeholder:text-slate-400 font-medium transition-all"
+              className="input-standard w-full h-12 cursor-pointer"
             />
           </div>
         </div>
@@ -90,7 +90,7 @@ const ProjectForm = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1.5">
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Project Manager</label>
-            <select className="w-full px-5 py-3.5 bg-surface-container-low border-none rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 text-slate-700 font-bold appearance-none cursor-pointer">
+            <select className="input-standard w-full h-12 appearance-none cursor-pointer">
               <option disabled selected>Select a Manager</option>
               <option>Sarah Jenkins</option>
               <option>Michael Chen</option>
@@ -100,7 +100,7 @@ const ProjectForm = () => {
           
           <div className="space-y-1.5">
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Status</label>
-            <select className="w-full px-5 py-3.5 bg-surface-container-low border-none rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 text-slate-700 font-bold appearance-none cursor-pointer">
+            <select className="input-standard w-full h-12 appearance-none cursor-pointer">
               <option>Planning</option>
               <option>In Progress</option>
               <option>On Hold</option>

@@ -48,7 +48,7 @@ export default function DocumentsPage() {
                   <input 
                       type="text" 
                       placeholder="Search documents..." 
-                      className="pl-11 pr-6 py-3 bg-surface-container-lowest border border-slate-100 rounded-xl text-sm font-medium focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all w-64 md:w-80 shadow-sm"
+                      className="input-standard pl-11 w-64 md:w-80 shadow-sm h-11"
                   />
                   <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-secondary transition-colors text-xl">search</span>
               </div>
@@ -165,7 +165,7 @@ export default function DocumentsPage() {
                   { v: 'v1.1', date: 'Mar 22, 2026', user: 'Admin', note: 'Structural adjustments' },
                   { v: 'v1.0', date: 'Mar 20, 2026', user: 'Lanka P.', note: 'Initial project drop' },
                 ].map((v: { v: string; date: string; user: string; note: string }) => (
-                  <div key={v.v} className="flex gap-6 items-start pb-6 border-b border-slate-50 last:border-0 last:pb-0">
+                   <div key={v.v} className="flex gap-6 items-start pb-6 border-b border-slate-50 last:border-0 last:pb-0">
                     <div className="px-3 py-1 bg-slate-100 rounded-lg text-xs font-black text-primary">{v.v}</div>
                     <div className="flex-1">
                       <p className="text-sm font-bold text-primary">{v.note}</p>
@@ -209,17 +209,17 @@ export default function DocumentsPage() {
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Document Title</label>
-                      <input type="text" placeholder="e.g. Phase 2 Permit" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-secondary/20 font-medium text-primary shadow-inner" />
+                      <input type="text" placeholder="e.g. Phase 2 Permit" className="input-standard w-full h-12" />
                     </div>
                     <div>
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Version Number</label>
-                      <input type="text" placeholder="v1.0" className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-secondary/20 font-medium text-primary shadow-inner" />
+                      <input type="text" placeholder="v1.0" className="input-standard w-full h-12" />
                     </div>
                   </div>
 
                   <div>
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Classification</label>
-                    <select className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-secondary/20 font-bold text-primary shadow-inner appearance-none cursor-pointer">
+                    <select className="input-standard w-full h-12 appearance-none cursor-pointer">
                        <option>Blueprint & Technical Drawing</option>
                        <option>Safety Compliance Report</option>
                        <option>Environmental Certification</option>
@@ -229,7 +229,7 @@ export default function DocumentsPage() {
 
                   <div>
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Engineering Notes</label>
-                    <textarea rows={3} placeholder="Initial upload for regulatory review..." className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-secondary/20 font-medium text-primary shadow-inner resize-none"></textarea>
+                    <textarea rows={3} placeholder="Initial upload for regulatory review..." className="input-standard w-full resize-none h-32"></textarea>
                   </div>
 
                   <div className="pt-4 flex gap-4">

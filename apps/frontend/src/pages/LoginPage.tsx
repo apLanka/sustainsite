@@ -12,7 +12,7 @@ export default function LoginPage() {
         <div className="space-y-2">
           <label className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant font-label" htmlFor="email">Email Address</label>
           <input 
-            className="w-full h-12 px-4 bg-surface-container-highest/30 rounded-lg border-none focus:ring-2 focus:ring-primary/20 focus:border-b-2 focus:border-primary placeholder-on-surface-variant/40 text-on-surface transition-all font-body font-medium" 
+            className="input-standard w-full h-12" 
             id="email" 
             placeholder="john@company.com" 
             type="email" 
@@ -22,7 +22,7 @@ export default function LoginPage() {
         <div className="space-y-2">
           <label className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant font-label" htmlFor="password">Password</label>
           <input 
-            className="w-full h-12 px-4 bg-surface-container-highest/30 rounded-lg border-none focus:ring-2 focus:ring-primary/20 focus:border-b-2 focus:border-primary placeholder-on-surface-variant/40 text-on-surface transition-all font-body font-medium" 
+            className="input-standard w-full h-12" 
             id="password" 
             placeholder="••••••••" 
             type="password" 
