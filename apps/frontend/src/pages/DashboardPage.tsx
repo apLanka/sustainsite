@@ -1,173 +1,80 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, User, Mail, Briefcase, Calendar } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import Sidebar from '@/components/dashboard/Sidebar';
+import TopNav from '@/components/dashboard/TopNav';
+import StatCards from '@/components/dashboard/StatCards';
+import ProjectOverview from '@/components/dashboard/ProjectOverview';
+import SecondaryColumn from '@/components/dashboard/SecondaryColumn';
 
 export default function DashboardPage() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const userName = user?.fullName || 'Sarah';
 
   if (!user) {
     return null;
   }
 
-  const getRoleBadgeColor = (role: string) => {
-    const colors: Record<string, string> = {
-      ADMIN: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-      PROJECT_MANAGER: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-      INSPECTOR: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-      SUPPLIER: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-      VIEWER: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
-    };
-    return colors[role] || colors.VIEWER;
-  };
-
-  const formatRole = (role: string) => {
-    return role
-      .split('_')
-      .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
-      .join(' ');
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {}
-      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">SustainSite</h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Sustainable Construction Management
-            </p>
+    <div className="min-h-screen bg-surface selection:bg-secondary-container selection:text-on-secondary-container">
+      {/* Side Navigation Bar */}
+      <Sidebar />
+
+      {/* Top Navigation Bar */}
+      <TopNav />
+
+      {/* Main Content Area */}
+      <main className="ml-64 pt-16 min-h-screen px-10 pb-12 transition-all duration-300">
+        <div className="max-w-[1600px] mx-auto">
+          {/* Header Section */}
+          <header className="py-10 flex flex-col md:flex-row justify-between items-end md:items-center gap-6">
+            <div>
+              <p className="text-secondary font-bold text-sm tracking-widest uppercase mb-1 font-headline">Overview Dashboard</p>
+              <h2 className="text-4xl font-extrabold text-primary tracking-tighter leading-tight font-headline">Welcome back, {userName}</h2>
+              <div className="flex items-center gap-2 mt-2 text-slate-500 text-sm font-medium">
+                <span className="material-symbols-outlined text-sm">calendar_today</span>
+                <span>Monday, October 23, 2023</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <button className="px-5 py-2.5 bg-surface-container-lowest text-primary font-bold text-sm rounded-lg flex items-center gap-2 shadow-sm border border-slate-200/50 hover:bg-slate-50 transition-all cursor-pointer font-headline translate-y-2 lg:translate-y-0">
+                <span className="material-symbols-outlined text-lg">bolt</span>
+                Quick Update
+              </button>
+              
+              <div className="relative group">
+                <button className="px-5 py-2.5 bg-primary text-white font-bold text-sm rounded-lg flex items-center gap-2 shadow-lg shadow-primary/10 hover:brightness-110 active:scale-95 transition-all outline-none cursor-pointer font-headline translate-y-2 lg:translate-y-0">
+                  <span className="material-symbols-outlined text-lg">add_circle</span>
+                  Quick Action
+                  <span className="material-symbols-outlined text-lg">expand_more</span>
+                </button>
+                {/* Dropdown Mockup (Hidden by default, shown on group-hover) */}
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-slate-100 py-2 hidden group-hover:block z-20">
+                  <a className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 font-medium font-headline" href="#">
+                    <span className="material-symbols-outlined text-lg">architecture</span> New Project
+                  </a>
+                  <a className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 font-medium font-headline" href="#">
+                    <span className="material-symbols-outlined text-lg">monitoring</span> Log Metrics
+                  </a>
+                  <a className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 font-medium font-headline" href="#">
+                    <span className="material-symbols-outlined text-lg">upload_file</span> Upload Document
+                  </a>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* ROW 1: Summary Widgets (Bento Grid) */}
+          <StatCards />
+
+          {/* ROW 2: Asymmetric Content Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            {/* Project Progress Overview (Chart/List) */}
+            <ProjectOverview />
+
+            {/* Secondary Column / Cards */}
+            <SecondaryColumn />
           </div>
-          <Button variant="outline" onClick={logout} className="flex items-center gap-2">
-            <LogOut className="h-4 w-4" />
-            Logout
-          </Button>
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Welcome back, {user.fullName}!
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400">Here's your account overview</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Profile Card */}
-          <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 shadow-lg col-span-full lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5 text-green-600" />
-                Profile Information
-              </CardTitle>
-              <CardDescription>Your account details</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Full Name */}
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                  <User className="h-5 w-5 text-gray-600 dark:text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      Full Name
-                    </p>
-                    <p className="text-base font-semibold text-gray-900 dark:text-white">
-                      {user.fullName}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                  <Mail className="h-5 w-5 text-gray-600 dark:text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Email</p>
-                    <p className="text-base font-semibold text-gray-900 dark:text-white break-all">
-                      {user.email}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Role */}
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                  <Briefcase className="h-5 w-5 text-gray-600 dark:text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Role</p>
-                    <span
-                      className={`inline-block mt-1 px-3 py-1 rounded-full text-sm font-semibold ${getRoleBadgeColor(
-                        user.role
-                      )}`}
-                    >
-                      {formatRole(user.role)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Account Created */}
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50">
-                  <Calendar className="h-5 w-5 text-gray-600 dark:text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      Member Since
-                    </p>
-                    <p className="text-base font-semibold text-gray-900 dark:text-white">
-                      {new Date(user.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Stats Card */}
-          <Card className="backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 shadow-lg">
-            <CardHeader>
-              <CardTitle>Quick Stats</CardTitle>
-              <CardDescription>Your activity overview</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-                <p className="text-sm font-medium text-green-600 dark:text-green-400">
-                  Account Status
-                </p>
-                <p className="text-2xl font-bold text-green-700 dark:text-green-300">
-                  {user.isActive ? 'Active' : 'Inactive'}
-                </p>
-              </div>
-
-              <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                  Assigned Projects
-                </p>
-                <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                  {user.assignedProjects?.length || 0}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Role-based Message */}
-        <Card className="mt-6 backdrop-blur-sm bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800">
-          <CardContent className="pt-6">
-            <p className="text-gray-700 dark:text-gray-300">
-              {user.role === 'ADMIN' && '🔐 You have full administrative access to the system.'}
-              {user.role === 'PROJECT_MANAGER' && '📋 You can manage projects and team members.'}
-              {user.role === 'INSPECTOR' && '🔍 You can inspect and verify project compliance.'}
-              {user.role === 'SUPPLIER' && '📦 You can manage supplies and inventory.'}
-              {user.role === 'VIEWER' &&
-                '👀 You have read-only access to view project information.'}
-            </p>
-          </CardContent>
-        </Card>
       </main>
     </div>
   );
