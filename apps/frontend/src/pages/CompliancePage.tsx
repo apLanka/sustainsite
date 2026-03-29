@@ -121,7 +121,7 @@ export default function CompliancePage() {
                     { date: 'Apr 02', label: 'EIA Annual Audit' },
                     { date: 'Apr 12', label: 'ISO Recertification' },
                     { date: 'May 05', label: 'Safety Drill' },
-                  ].map((item, i) => (
+                  ].map((item: { date: string; label: string }, i: number) => (
                     <li key={i} className="flex gap-4 items-start border-l border-emerald-800/50 pl-4 py-1 relative">
                         <div className="absolute -left-[4.5px] top-2 w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_rgba(14,108,74,1)]"></div>
                         <div className="text-[10px] font-black text-secondary leading-none mt-0.5 uppercase tracking-widest">{item.date}</div>
@@ -144,7 +144,7 @@ export default function CompliancePage() {
                 </div>
 
                 <div className="space-y-6">
-                  {items.map((item) => (
+                  {items.map((item: ChecklistItem) => (
                     <div key={item.id} className="p-6 bg-slate-50/50 border border-slate-100 rounded-2xl group hover:border-secondary/20 hover:bg-white transition-all shadow-sm">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                           <div className="flex-1">
@@ -209,7 +209,7 @@ export default function CompliancePage() {
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                    {inspectionHistory.map(history => (
+                    {inspectionHistory.map((history: InspectionHistory) => (
                       <tr key={history.id} className="hover:bg-slate-50 transition-colors">
                           <td className="px-6 py-5 text-xs font-black text-slate-400 font-headline">{history.id}</td>
                           <td className="px-6 py-5 text-sm font-bold text-primary">{history.date}</td>

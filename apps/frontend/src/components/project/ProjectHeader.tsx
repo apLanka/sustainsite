@@ -1,4 +1,3 @@
-import React from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 
 const TabLink = ({ to, label, icon, end }: { to: string, label: string, icon: string, end?: boolean }) => (
@@ -60,6 +59,7 @@ const ProjectHeader = () => {
                     <TabLink to={`/projects/${id}/sustainability`} label="Sustainability" icon="eco" />
                     <TabLink to={`/projects/${id}/documents`} label="Documents" icon="description" />
                     <TabLink to={`/projects/${id}/compliance`} label="Compliance" icon="fact_check" />
+                    <TabLink to={`/projects/${id}/resources`} label="Resources" icon="inventory_2" />
                 </nav>
             </div>
         </div>

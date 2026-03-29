@@ -93,7 +93,7 @@ export default function DocumentsPage() {
                    </tr>
                  </thead>
                  <tbody className="divide-y divide-slate-50">
-                   {documents.map((doc) => (
+                   {documents.map((doc: DocumentAsset) => (
                      <tr key={doc.id} className="group hover:bg-slate-50/50 transition-colors">
                        <td className="px-6 py-6">
                           <div className="flex items-center gap-3">
@@ -164,7 +164,7 @@ export default function DocumentsPage() {
                   { v: 'v1.2', date: 'Mar 24, 2026', user: 'Lanka P.', note: 'Final review approved' },
                   { v: 'v1.1', date: 'Mar 22, 2026', user: 'Admin', note: 'Structural adjustments' },
                   { v: 'v1.0', date: 'Mar 20, 2026', user: 'Lanka P.', note: 'Initial project drop' },
-                ].map((v) => (
+                ].map((v: { v: string; date: string; user: string; note: string }) => (
                   <div key={v.v} className="flex gap-6 items-start pb-6 border-b border-slate-50 last:border-0 last:pb-0">
                     <div className="px-3 py-1 bg-slate-100 rounded-lg text-xs font-black text-primary">{v.v}</div>
                     <div className="flex-1">

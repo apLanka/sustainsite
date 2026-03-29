@@ -13,6 +13,7 @@ import SustainabilityDashboardPage from '@/pages/SustainabilityDashboardPage';
 import RecordMetricsPage from '@/pages/RecordMetricsPage';
 import DocumentsPage from '@/pages/DocumentsPage';
 import CompliancePage from '@/pages/CompliancePage';
+import ResourcesPage from '@/pages/ResourcesPage';
 
 export default function App() {
   return (
@@ -93,6 +94,15 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <CompliancePage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/projects/:id/resources"
+              element={
+                <ProtectedRoute>
+                  <ResourcesPage />
                 </ProtectedRoute>
               }
             />
