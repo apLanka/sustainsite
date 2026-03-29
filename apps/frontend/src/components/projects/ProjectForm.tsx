@@ -2,7 +2,7 @@ import React from 'react';
 
 const ProjectForm = () => {
   return (
-    <form className="space-y-10 max-w-4xl">
+    <form className="space-y-10">
       {/* SECTION: General Information */}
       <section className="space-y-6">
         <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
