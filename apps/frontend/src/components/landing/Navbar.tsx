@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Leaf } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import Logo from '../common/Logo';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -15,10 +15,7 @@ const Navbar = () => {
     <nav className={`fixed top-0 w-full flex justify-between items-center px-6 lg:px-12 h-16 transition-all duration-300 z-50 font-headline tracking-tight border-b ${isScrolled ? 'bg-white/80 backdrop-blur-md border-surface-container shadow-sm' : 'bg-transparent border-transparent'}`}>
       <div className="flex items-center gap-8">
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-secondary-container group-hover:scale-105 transition-transform">
-            <Leaf className="w-5 h-5 fill-current" />
-          </div>
-          <span className="text-xl font-extrabold text-primary">SustainSite</span>
+          <Logo size="md" />
         </Link>
       </div>
 

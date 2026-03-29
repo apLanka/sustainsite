@@ -1,4 +1,5 @@
 import React from 'react';
+import Logo from './Logo';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -27,12 +28,7 @@ export default function AuthLayout({ children, title, subtitle, imageUrl }: Auth
 
         {/* Brand Content Overlay */}
         <div className="relative z-10 flex flex-col justify-between p-20 w-full h-full text-white">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-secondary-container rounded-lg flex items-center justify-center text-primary shadow-sm">
-              <span className="material-symbols-outlined !text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
-            </div>
-            <span className="font-headline text-2xl font-extrabold tracking-tight">SustainSite</span>
-          </div>
+          <Logo size="lg" variant="dark" />
 
           <div className="max-w-md">
             <h1 className="font-headline text-5xl font-extrabold tracking-tight leading-tight mb-6">
@@ -61,8 +57,7 @@ export default function AuthLayout({ children, title, subtitle, imageUrl }: Auth
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="flex items-center gap-2 lg:hidden mb-12">
-            <span className="material-symbols-outlined text-secondary !text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
-            <span className="font-headline text-2xl font-bold text-primary">SustainSite</span>
+            <Logo size="lg" />
           </div>
 
           <div className="mb-10">

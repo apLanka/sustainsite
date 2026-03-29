@@ -30,7 +30,7 @@ const Hero = () => {
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-6 pt-4">
             <button className="w-full sm:w-auto signature-gradient text-white px-12 py-5 rounded-2xl font-bold text-lg shadow-[0_20px_40px_rgba(1,45,29,0.25)] hover:shadow-none hover:translate-y-1 transition-all duration-300 cursor-pointer">
-              Start Free Trial
+              Sign Up
             </button>
             <button className="w-full sm:w-auto bg-white text-primary flex items-center justify-center gap-3 px-12 py-5 rounded-2xl font-bold text-lg border-2 border-primary/5 hover:border-primary/20 hover:bg-surface-container-low transition-all cursor-pointer">
               <PlayCircle className="w-6 h-6 fill-primary/10" />

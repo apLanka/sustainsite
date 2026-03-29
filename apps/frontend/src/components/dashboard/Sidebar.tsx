@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import Logo from '../common/Logo';
 
 const Sidebar = () => {
   const navItems = [
@@ -13,14 +14,9 @@ const Sidebar = () => {
 
   return (
     <aside className="h-screen w-64 fixed left-0 top-0 overflow-y-auto bg-emerald-950 flex flex-col py-6 shadow-xl shadow-emerald-950/20 z-50">
-      <div className="px-6 mb-8 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-secondary to-primary flex items-center justify-center text-white">
-          <span className="material-symbols-outlined !text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
-        </div>
-        <div>
-          <h1 className="text-xl font-bold text-white tracking-tighter leading-none">SustainSite</h1>
-          <p className="text-[10px] text-emerald-400/70 uppercase tracking-widest font-bold mt-1">The Digital Arboretum</p>
-        </div>
+      <div className="px-6 mb-8">
+        <Logo size="lg" variant="dark" />
+        <p className="text-[10px] text-emerald-400/70 uppercase tracking-widest font-bold mt-1 ml-[52px]">The Digital Arboretum</p>
       </div>
       
       <nav className="flex-1 px-4 space-y-1">
