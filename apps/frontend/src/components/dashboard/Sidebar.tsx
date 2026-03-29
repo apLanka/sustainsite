@@ -4,7 +4,6 @@ const Sidebar = () => {
   const navItems = [
     { to: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
     { to: '/projects', label: 'Projects', icon: 'architecture' },
-    { to: '#', label: 'Resources', icon: 'inventory_2' },
   ];
 
   const bottomItems = [
