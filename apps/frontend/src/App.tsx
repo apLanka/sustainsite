@@ -14,6 +14,7 @@ import RecordMetricsPage from '@/pages/RecordMetricsPage';
 import DocumentsPage from '@/pages/DocumentsPage';
 import CompliancePage from '@/pages/CompliancePage';
 import ResourcesPage from '@/pages/ResourcesPage';
+import SettingsPage from '@/pages/SettingsPage';
 
 export default function App() {
   return (
@@ -103,6 +104,15 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <ResourcesPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <SettingsPage />
                 </ProtectedRoute>
               }
             />
