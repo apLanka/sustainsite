@@ -34,7 +34,7 @@ const Navbar = () => {
             to="/register"
             className="signature-gradient text-white text-[11px] font-bold uppercase tracking-widest px-8 py-2.5 rounded-xl shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 transition-all"
           >
-            Launch Free Trial
+            SIgn Up
           </Link>
         </div>
       </div>
