@@ -1,0 +1,42 @@
+---
+title: Authentication
+description: Learn how to authenticate your API requests and manage user roles.
+---
+
+Sustainsite uses **JWT (JSON Web Token)** for authorization. All protected API requests must include a `Bearer` token in the `Authorization` header.
+
+<Callout type="warning">
+  Store your tokens securely. JWT tokens expire after 24 hours in our development environment.
+</Callout>
+
+### Authentication Header
+
+Every authenticated request should look like this:
+```bash
+Authorization: Bearer <your-jwt-token>
+```
+
+### User Roles & Permissions
+
+Our API enforces role-based access control (RBAC). The following roles are available:
+
+| Role | Description |
+| --- | --- |
+| `ADMIN` | Full access to all modules, projects, and users. |
+| `PROJECT_MANAGER` | Create projects, manage milestones, and record sustainability metrics. |
+| `INSPECTOR` | Conduct safety inspections and approve compliance documents. |
+| `SUPPLIER` | Manage their own resources and material statuses. |
+| `VIEWER` | Read-only access to assigned projects. |
+
+### Getting a Token
+
+<Steps>
+  ### Register
+  Send a `POST` request to `/api/auth/register` with your email and desired role.
+
+  ### Login
+  Send a `POST` request to `/api/auth/login` with your credentials.
+
+  ### Capture Token
+  The response will include a `token` field. Copy this for future requests!
+</Steps>

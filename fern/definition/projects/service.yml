@@ -1,0 +1,36 @@
+service:
+  auth: true
+  base-path: /projects
+  endpoints:
+    create:
+      path: ""
+      method: POST
+      request: CreateProjectRequest
+      response: Project
+    addMilestone:
+      path: /{id}/milestones
+      method: POST
+      path-parameters:
+        id: string
+      request: AddMilestoneRequest
+      response: Milestone
+
+types:
+  CreateProjectRequest:
+    properties:
+      projectName: string
+      budget: double
+  AddMilestoneRequest:
+    properties:
+      title: string
+      dueDate: datetime
+  Project:
+    properties:
+      projectName: string
+      budget: double
+      status: string
+      milestones: list<Milestone>
+  Milestone:
+    properties:
+      title: string
+      dueDate: datetime

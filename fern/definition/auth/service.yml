@@ -1,0 +1,29 @@
+service:
+  auth: true
+  base-path: /auth
+  endpoints:
+    register:
+      path: /register
+      method: POST
+      auth: false
+      request: RegisterRequest
+      response: AuthResponse
+    login:
+      path: /login
+      method: POST
+      auth: false
+      request: LoginRequest
+      response: AuthResponse
+
+types:
+  RegisterRequest:
+    properties:
+      email: string
+      role: string
+  LoginRequest:
+    properties:
+      email: string
+      password: string
+  AuthResponse:
+    properties:
+      token: string

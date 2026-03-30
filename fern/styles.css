@@ -1,0 +1,10 @@
+/* Custom styles for Sustainsite API documentation */
+
+/* Example: Custom color for headers */
+h1, h2, h3 {
+  color: var(--accent-primary-light);
+}
+
+.dark h1, .dark h2, .dark h3 {
+  color: var(--accent-primary-dark);
+}

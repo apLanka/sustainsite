@@ -1,0 +1,37 @@
+---
+title: Projects & Milestones
+description: Manage construction lifecycles and track progress with our projects API.
+---
+
+Projects are the backbone of Sustainsite. They allow you to group related activities, track budgets, and manage sustainability metrics in a single container.
+
+<Callout type="info">
+  Only **ADMIN** and **PROJECT_MANAGER** accounts can create or modify projects.
+</Callout>
+
+### Project Lifecycle
+
+A project typically progresses through several states:
+1. **Planning**: Initial configuration and budget allocation.
+2. **In Progress**: Active construction or data gathering.
+3. **Completed**: Final audit and metrics closed.
+4. **On Hold / Cancelled**: Paused or terminated projects.
+
+### Milestones
+
+Milestones are specific, time-bound objectives within a project (e.g., "Foundation Completed", "Safety Audit Passed"). They are essential for accurate timeline generation.
+
+#### Adding a Milestone
+You can add a milestone by sending a `POST` request to `/api/projects/{id}/milestones`.
+
+### Response Structure
+
+The core project object includes:
+- `projectName`: Descriptive name.
+- `budget`: Allocated financial resources.
+- `status`: One of the predefined lifecycle states.
+- `milestones`: List of associated objectives.
+
+<Callout type="tip">
+  Use the [Interactive API Reference](/api-reference) to test project creation with real-world scenarios.
+</Callout>

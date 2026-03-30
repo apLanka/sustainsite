@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=https://schema.buildwithfern.dev/api-yml.json
+name: api
+display-name: Sustainsite API
+error-discrimination:
+  strategy: status-code
+
+auth: BearerAuth
+
+auth-schemes:
+  BearerAuth:
+    scheme: bearer

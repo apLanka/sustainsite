@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=https://schema.buildwithfern.dev/docs-yml.json
+instances:
+  - url: sustainsite.docs.buildwithfern.com
+
+title: Sustainsite API
+
+tabs:
+  overview:
+    display-name: Overview
+    icon: home
+  api-reference:
+    display-name: API Reference
+    icon: code
+
+navigation:
+  - tab: overview
+    layout:
+      - section: Get Started
+        contents:
+          - page: Welcome
+            path: docs/pages/welcome.mdx
+      - section: Core Guides
+        contents:
+          - page: Authentication
+            path: docs/pages/authentication.mdx
+          - page: Projects
+            path: docs/pages/projects.mdx
+
+  - tab: api-reference
+    layout:
+      - api: api
+
+colors:
+  accent-primary:
+    light: "#012d1d" # Deep Forest Green (Brand Primary)
+    dark: "#012d1d" # Matching the branding across themes
+
+logo:
+  dark: docs/assets/logo.png
+  light: docs/assets/logo.png
