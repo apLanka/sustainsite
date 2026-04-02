@@ -1,155 +1,134 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
-
 export enum ComplianceCategory {
-  ENVIRONMENTAL = 'Environmental',
-  SAFETY = 'Safety',
-  BUILDING_CODE = 'Building Code',
-  SUSTAINABILITY_CERTIFICATION = 'Sustainability Certification',
+    ENVIRONMENTAL = 'Environmental',
+    SAFETY = 'Safety',
+    BUILDING_CODE = 'Building Code',
+    SUSTAINABILITY_CERTIFICATION = 'Sustainability Certification'
 }
-
 interface IComplianceItem {
-  itemId: string;
-  itemName: string;
-  description?: string;
-  isCompleted: boolean;
-  completedDate?: Date;
-  completedBy?: mongoose.Types.ObjectId;
-  attachedDocuments: mongoose.Types.ObjectId[];
-  notes?: string;
+    itemId: string;
+    itemName: string;
+    description?: string;
+    isCompleted: boolean;
+    completedDate?: Date;
+    completedBy?: mongoose.Types.ObjectId;
+    attachedDocuments: mongoose.Types.ObjectId[];
+    notes?: string;
 }
-
 export interface IComplianceChecklist extends Document {
-  projectId: mongoose.Types.ObjectId;
-  checklistName: string;
-  category?: ComplianceCategory;
-  items: IComplianceItem[];
-  totalItems: number;
-  completedItems: number;
-  complianceScore: number;
-  createdBy?: mongoose.Types.ObjectId;
-  dueDate?: Date;
-  lastReviewDate?: Date;
-  createdAt: Date;
-  updatedAt: Date;
+    projectId: mongoose.Types.ObjectId;
+    checklistName: string;
+    category?: ComplianceCategory;
+    items: IComplianceItem[];
+    totalItems: number;
+    completedItems: number;
+    complianceScore: number;
+    createdBy?: mongoose.Types.ObjectId;
+    dueDate?: Date;
+    lastReviewDate?: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }
-
-const complianceItemSchema = new Schema<IComplianceItem>(
-  {
+const complianceItemSchema = new Schema<IComplianceItem>({
     itemId: {
-      type: String,
-      required: true,
+        type: String,
+        required: true,
     },
     itemName: {
-      type: String,
-      required: [true, 'Item name is required'],
-      trim: true,
+        type: String,
+        required: [true, 'Item name is required'],
+        trim: true,
     },
     description: {
-      type: String,
-      trim: true,
+        type: String,
+        trim: true,
     },
     isCompleted: {
-      type: Boolean,
-      default: false,
+        type: Boolean,
+        default: false,
     },
     completedDate: {
-      type: Date,
+        type: Date,
     },
     completedBy: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+        type: Schema.Types.ObjectId,
+        ref: 'User',
     },
     attachedDocuments: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Document',
-      },
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Document',
+        },
     ],
     notes: {
-      type: String,
-      trim: true,
+        type: String,
+        trim: true,
     },
-  },
-  { _id: false }
-);
-
-const complianceChecklistSchema = new Schema<IComplianceChecklist>(
-  {
+}, { _id: false });
+const complianceChecklistSchema = new Schema<IComplianceChecklist>({
     projectId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Project',
-      required: [true, 'Project ID is required'],
+        type: Schema.Types.ObjectId,
+        ref: 'Project',
+        required: [true, 'Project ID is required'],
     },
     checklistName: {
-      type: String,
-      required: [true, 'Checklist name is required'],
-      trim: true,
-      minlength: [3, 'Checklist name must be at least 3 characters'],
-      maxlength: [200, 'Checklist name cannot exceed 200 characters'],
+        type: String,
+        required: [true, 'Checklist name is required'],
+        trim: true,
+        minlength: [3, 'Checklist name must be at least 3 characters'],
+        maxlength: [200, 'Checklist name cannot exceed 200 characters'],
     },
     category: {
-      type: String,
-      enum: Object.values(ComplianceCategory),
+        type: String,
+        enum: Object.values(ComplianceCategory),
     },
     items: [complianceItemSchema],
     totalItems: {
-      type: Number,
-      default: 0,
-      min: 0,
+        type: Number,
+        default: 0,
+        min: 0,
     },
     completedItems: {
-      type: Number,
-      default: 0,
-      min: 0,
+        type: Number,
+        default: 0,
+        min: 0,
     },
     complianceScore: {
-      type: Number,
-      default: 0,
-      min: [0, 'Compliance score must be between 0 and 100'],
-      max: [100, 'Compliance score must be between 0 and 100'],
+        type: Number,
+        default: 0,
+        min: [0, 'Compliance score must be between 0 and 100'],
+        max: [100, 'Compliance score must be between 0 and 100'],
     },
     createdBy: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+        type: Schema.Types.ObjectId,
+        ref: 'User',
     },
     dueDate: {
-      type: Date,
+        type: Date,
     },
     lastReviewDate: {
-      type: Date,
+        type: Date,
     },
-  },
-  {
+}, {
     timestamps: true,
-  }
-);
-
+});
 complianceChecklistSchema.index({ projectId: 1 });
 complianceChecklistSchema.index({ category: 1 });
 complianceChecklistSchema.index({ complianceScore: 1 });
-
 complianceChecklistSchema.pre('save', async function () {
-
-  this.totalItems = this.items.length;
-
-  this.completedItems = this.items.filter((item) => item.isCompleted).length;
-
-  if (this.totalItems > 0) {
-    this.complianceScore = Math.round((this.completedItems / this.totalItems) * 100);
-  } else {
-    this.complianceScore = 0;
-  }
-
-  this.items.forEach((item) => {
-    if (item.isCompleted && !item.completedDate) {
-      item.completedDate = new Date();
+    this.totalItems = this.items.length;
+    this.completedItems = this.items.filter((item) => item.isCompleted).length;
+    if (this.totalItems > 0) {
+        this.complianceScore = Math.round((this.completedItems / this.totalItems) * 100);
     }
-  });
+    else {
+        this.complianceScore = 0;
+    }
+    this.items.forEach((item) => {
+        if (item.isCompleted && !item.completedDate) {
+            item.completedDate = new Date();
+        }
+    });
 });
-
-const ComplianceChecklist: Model<IComplianceChecklist> = mongoose.model<IComplianceChecklist>(
-  'ComplianceChecklist',
-  complianceChecklistSchema
-);
-
+const ComplianceChecklist: Model<IComplianceChecklist> = mongoose.model<IComplianceChecklist>('ComplianceChecklist', complianceChecklistSchema);
 export default ComplianceChecklist;
