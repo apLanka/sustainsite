@@ -28,12 +28,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      if (token) {
-        // Sync persisted token into the axios interceptor
-        tokenManager.setToken(token);
+      // tokenManager checks both localStorage and sessionStorage
+      const storedToken = tokenManager.getToken();
+      if (storedToken) {
         try {
           const response = await authApi.getCurrentUser();
-          setAuth(response.data, token);
+          setAuth(response.data, storedToken);
         } catch {
           clearAuth();
           tokenManager.removeToken();
@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = useCallback(
-    async (email: string, password: string) => {
+    async (email: string, password: string, remember = false) => {
       setIsLoading(true);
       try {
         const response = await authApi.login({ email, password });
@@ -63,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdAt: new Date(),
         };
 
-        tokenManager.setToken(newToken);
+        tokenManager.setToken(newToken, remember);
         setAuth(userObj, newToken);
       } finally {
         setIsLoading(false);
@@ -99,10 +99,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = useCallback(() => {
     tokenManager.removeToken();
-    localStorage.removeItem('user');
-    setToken(null);
-    setUser(null);
-  }, []);
+    clearAuth();
+  }, [clearAuth]);
 
   const refreshUser = useCallback(async () => {
     if (!token) return;

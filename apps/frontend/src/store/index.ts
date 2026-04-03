@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { User } from '@/types/auth';
 
 // ---------------------------------------------------------------------------
@@ -12,17 +11,14 @@ interface AuthSlice {
   clearAuth: () => void;
 }
 
-export const useAuthStore = create<AuthSlice>()(
-  persist(
-    (set) => ({
-      user: null,
-      token: null,
-      setAuth: (user, token) => set({ user, token }),
-      clearAuth: () => set({ user: null, token: null }),
-    }),
-    { name: 'sustainsite-auth' }
-  )
-);
+// No persist — token lifecycle is owned by tokenManager (localStorage / sessionStorage).
+// AuthContext.initAuth re-hydrates this store from tokenManager on every page load.
+export const useAuthStore = create<AuthSlice>()((set) => ({
+  user: null,
+  token: null,
+  setAuth: (user, token) => set({ user, token }),
+  clearAuth: () => set({ user: null, token: null }),
+}));
 
 // ---------------------------------------------------------------------------
 // Generic app store — extend as new slices are added

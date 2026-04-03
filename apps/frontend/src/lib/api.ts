@@ -36,15 +36,24 @@ export const authApi = {
 
 export const tokenManager = {
   getToken: (): string | null => {
-    return localStorage.getItem('auth_token');
+    return localStorage.getItem('auth_token') ?? sessionStorage.getItem('auth_token');
   },
 
-  setToken: (token: string): void => {
-    localStorage.setItem('auth_token', token);
+  // remember=true  → persists across browser restarts (localStorage)
+  // remember=false → cleared when the tab/browser closes (sessionStorage)
+  setToken: (token: string, remember = true): void => {
+    if (remember) {
+      localStorage.setItem('auth_token', token);
+      sessionStorage.removeItem('auth_token');
+    } else {
+      sessionStorage.setItem('auth_token', token);
+      localStorage.removeItem('auth_token');
+    }
   },
 
   removeToken: (): void => {
     localStorage.removeItem('auth_token');
+    sessionStorage.removeItem('auth_token');
   },
 };
 

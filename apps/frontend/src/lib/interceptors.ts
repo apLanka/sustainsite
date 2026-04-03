@@ -22,7 +22,9 @@ export function attachInterceptors(instance: AxiosInstance): void {
   instance.interceptors.response.use(
     (response: AxiosResponse) => response,
     (error: AxiosError<{ message?: string; errors?: string[] }>) => {
-      if (error.response?.status === 401) {
+      // Only redirect on 401 if a token exists (expired session).
+      // If there's no token we're on an auth endpoint — let the error propagate.
+      if (error.response?.status === 401 && tokenManager.getToken()) {
         tokenManager.removeToken();
         localStorage.removeItem('user');
         window.location.href = '/login';
