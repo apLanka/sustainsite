@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { User } from '@/types/auth';
+import type { Project, Milestone, Pagination, ProjectFilters } from '@/types/project';
 
 // ---------------------------------------------------------------------------
 // Auth slice
@@ -18,6 +19,59 @@ export const useAuthStore = create<AuthSlice>()((set) => ({
   token: null,
   setAuth: (user, token) => set({ user, token }),
   clearAuth: () => set({ user: null, token: null }),
+}));
+
+// ---------------------------------------------------------------------------
+// Project slice
+// ---------------------------------------------------------------------------
+
+const DEFAULT_FILTERS: ProjectFilters = { search: '', status: '', page: 1, limit: 10 };
+
+interface ProjectSlice {
+  projects: Project[];
+  selectedProject: Project | null;
+  pagination: Pagination | null;
+  filters: ProjectFilters;
+  isLoading: boolean;
+  isDetailLoading: boolean;
+
+  setProjects: (projects: Project[], pagination: Pagination) => void;
+  setSelectedProject: (project: Project | null) => void;
+  appendMilestone: (milestone: Milestone) => void;
+  setFilters: (filters: Partial<ProjectFilters>) => void;
+  setLoading: (v: boolean) => void;
+  setDetailLoading: (v: boolean) => void;
+  resetFilters: () => void;
+}
+
+export const useProjectStore = create<ProjectSlice>()((set) => ({
+  projects: [],
+  selectedProject: null,
+  pagination: null,
+  filters: DEFAULT_FILTERS,
+  isLoading: false,
+  isDetailLoading: false,
+
+  setProjects: (projects, pagination) => set({ projects, pagination }),
+  setSelectedProject: (project) => set({ selectedProject: project }),
+
+  appendMilestone: (milestone) =>
+    set((state) => {
+      if (!state.selectedProject) return state;
+      return {
+        selectedProject: {
+          ...state.selectedProject,
+          milestones: [...(state.selectedProject.milestones ?? []), milestone],
+        },
+      };
+    }),
+
+  setFilters: (partial) =>
+    set((state) => ({ filters: { ...state.filters, ...partial } })),
+
+  setLoading: (v) => set({ isLoading: v }),
+  setDetailLoading: (v) => set({ isDetailLoading: v }),
+  resetFilters: () => set({ filters: DEFAULT_FILTERS }),
 }));
 
 // ---------------------------------------------------------------------------
