@@ -1,57 +1,18 @@
 import { Router } from 'express';
-import {
-  createChecklist,
-  getChecklists,
-  getChecklistById,
-  updateChecklist,
-  deleteChecklist,
-  updateChecklistItem,
-  getProjectComplianceScore,
-  createInspection,
-  getInspections,
-  getInspectionById,
-  updateInspection,
-  deleteInspection,
-} from '../controllers/compliance.controller';
+import { createChecklist, getChecklists, getChecklistById, updateChecklist, deleteChecklist, updateChecklistItem, getProjectComplianceScore, createInspection, getInspections, getInspectionById, updateInspection, deleteInspection, } from '../controllers/compliance.controller';
 import { authenticate, requireDataEntry, requireAdmin, authorize } from '../middleware';
 import { UserRole } from '../types';
-
 const router = Router();
-
 router.post('/checklists', authenticate, requireDataEntry(), createChecklist);
-
 router.get('/checklists', authenticate, getChecklists);
-
 router.get('/checklists/:id', authenticate, getChecklistById);
-
 router.put('/checklists/:id', authenticate, requireDataEntry(), updateChecklist);
-
 router.delete('/checklists/:id', authenticate, requireAdmin(), deleteChecklist);
-
-// T-13: Granular item update
 router.put('/checklists/:id/items/:itemId', authenticate, requireDataEntry(), updateChecklistItem);
-
-// T-14: Project-level compliance score
 router.get('/score/:projectId', authenticate, getProjectComplianceScore);
-
-router.post(
-  '/inspections',
-  authenticate,
-  authorize(UserRole.ADMIN, UserRole.INSPECTOR),
-  createInspection
-);
-
+router.post('/inspections', authenticate, authorize(UserRole.ADMIN, UserRole.INSPECTOR), createInspection);
 router.get('/inspections', authenticate, getInspections);
-
 router.get('/inspections/:id', authenticate, getInspectionById);
-
-router.put(
-  '/inspections/:id',
-  authenticate,
-  authorize(UserRole.ADMIN, UserRole.INSPECTOR),
-  updateInspection
-);
-
+router.put('/inspections/:id', authenticate, authorize(UserRole.ADMIN, UserRole.INSPECTOR), updateInspection);
 router.delete('/inspections/:id', authenticate, requireAdmin(), deleteInspection);
-
 export default router;
