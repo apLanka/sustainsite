@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Project from '../models/Project';
 import Milestone from '../models/Milestone';
 
@@ -37,19 +38,36 @@ export const getProjects = async (req: Request, res: Response): Promise<void> =>
     if (req.query.status) {
       query.status = req.query.status;
     }
-    if (req.query.search) {
-      query.projectName = { $regex: req.query.search, $options: 'i' };
-    }
     if (req.query.manager) {
       query.projectManager = req.query.manager;
     }
 
+    const searchTerm = (req.query.search as string)?.trim();
+    let isTextSearch = false;
+
+    if (searchTerm) {
+      if (mongoose.Types.ObjectId.isValid(searchTerm)) {
+        // Exact lookup by project _id
+        query._id = new mongoose.Types.ObjectId(searchTerm);
+      } else {
+        // Full-text search across projectName + description
+        query.$text = { $search: searchTerm };
+        isTextSearch = true;
+      }
+    }
+
+    const projection = isTextSearch ? { score: { $meta: 'textScore' } } : {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sort: Record<string, any> = isTextSearch
+      ? { score: { $meta: 'textScore' } }
+      : { createdAt: -1 };
+
     const total = await Project.countDocuments(query);
-    const projects = await Project.find(query)
+    const projects = await Project.find(query, projection)
       .skip(skip)
       .limit(limit)
       .populate('projectManager', 'firstName lastName email')
-      .sort({ createdAt: -1 });
+      .sort(sort);
 
     res.status(200).json({
       success: true,

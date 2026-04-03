@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import { useProjectStore } from '@/store';
 
@@ -20,6 +21,7 @@ const TabLink = ({ to, label, icon, end }: { to: string; label: string; icon: st
 const ProjectHeader = () => {
   const { id } = useParams();
   const { selectedProject, isDetailLoading } = useProjectStore();
+  const [copied, setCopied] = useState(false);
 
   const projectName = isDetailLoading
     ? 'Loading...'
@@ -28,6 +30,17 @@ const ProjectHeader = () => {
   const complianceLabel = selectedProject
     ? `${selectedProject.sustainabilityScore}% Sustainability`
     : '—';
+
+  const handleCopyId = async () => {
+    if (!id) return;
+    try {
+      await navigator.clipboard.writeText(id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard blocked — silently ignore */
+    }
+  };
 
   return (
     <div className="bg-white border-b border-slate-100 sticky top-0 z-40">
@@ -41,12 +54,52 @@ const ProjectHeader = () => {
               <span className="material-symbols-outlined text-[10px]">chevron_right</span>
               <span className="text-secondary font-bold">Construction Context</span>
             </div>
-            <h2 className="text-4xl font-extrabold text-primary tracking-tighter leading-none font-headline flex items-center gap-4">
+            <h2 className="text-4xl font-extrabold text-primary tracking-tighter leading-none font-headline flex items-center gap-4 flex-wrap">
               {projectName}
-              <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-3 py-1.5 rounded-full border border-emerald-100/50">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                PROJECT ID: {id}
-              </div>
+
+              {/* Project ID badge — click to copy */}
+              <button
+                id="copy-project-id-btn"
+                type="button"
+                onClick={handleCopyId}
+                title={copied ? 'Copied!' : 'Copy project ID'}
+                className={`
+                  group relative flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-full border
+                  transition-all duration-200 cursor-pointer select-none
+                  ${copied
+                    ? 'bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-200'
+                    : 'bg-emerald-50 text-emerald-700 border-emerald-100/50 hover:bg-emerald-100 hover:border-emerald-200'
+                  }
+                `}
+              >
+                {/* pulse dot — hide when copied */}
+                {!copied && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                )}
+
+                <span className="font-mono tracking-wider">
+                  {copied ? 'COPIED!' : `ID: ${id}`}
+                </span>
+
+                {/* icon toggle */}
+                <span
+                  className={`material-symbols-outlined text-[14px] transition-all duration-200 ${
+                    copied ? 'opacity-100 scale-100' : 'opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100'
+                  }`}
+                >
+                  {copied ? 'check_circle' : 'content_copy'}
+                </span>
+
+                {/* tooltip */}
+                <span className="
+                  pointer-events-none absolute -bottom-8 left-1/2 -translate-x-1/2
+                  bg-slate-800 text-white text-[9px] font-bold uppercase tracking-wider
+                  px-2 py-1 rounded-md whitespace-nowrap
+                  opacity-0 group-hover:opacity-100 transition-opacity duration-150
+                ">
+                  {copied ? 'Copied to clipboard' : 'Click to copy ID'}
+                </span>
+              </button>
             </h2>
           </div>
 
@@ -76,3 +129,4 @@ const ProjectHeader = () => {
 };
 
 export default ProjectHeader;
+
