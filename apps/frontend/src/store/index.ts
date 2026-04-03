@@ -38,6 +38,7 @@ interface ProjectSlice {
   setProjects: (projects: Project[], pagination: Pagination) => void;
   setSelectedProject: (project: Project | null) => void;
   appendMilestone: (milestone: Milestone) => void;
+  updateMilestoneInStore: (milestoneId: string, patch: Partial<Milestone>) => void;
   removeProject: (id: string) => void;
   updateProjectInList: (id: string, patch: Partial<Project>) => void;
   setFilters: (filters: Partial<ProjectFilters>) => void;
@@ -64,6 +65,19 @@ export const useProjectStore = create<ProjectSlice>()((set) => ({
         selectedProject: {
           ...state.selectedProject,
           milestones: [...(state.selectedProject.milestones ?? []), milestone],
+        },
+      };
+    }),
+
+  updateMilestoneInStore: (milestoneId, patch) =>
+    set((state) => {
+      if (!state.selectedProject) return state;
+      return {
+        selectedProject: {
+          ...state.selectedProject,
+          milestones: (state.selectedProject.milestones ?? []).map((m) =>
+            m._id === milestoneId ? { ...m, ...patch } : m
+          ),
         },
       };
     }),

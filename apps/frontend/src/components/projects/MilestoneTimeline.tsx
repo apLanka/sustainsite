@@ -3,12 +3,13 @@ import { MilestoneStatus } from '@/types/project';
 
 interface Props {
   milestones: Milestone[];
+  onEdit?: (milestone: Milestone) => void;
 }
 
 const fmt = (iso: string) =>
   new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
 
-const MilestoneTimeline = ({ milestones }: Props) => {
+const MilestoneTimeline = ({ milestones, onEdit }: Props) => {
   if (milestones.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -68,7 +69,7 @@ const MilestoneTimeline = ({ milestones }: Props) => {
                   : 'bg-surface-container-lowest border-slate-100/50 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-950/5'
               }`}>
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <span className={`text-[9px] font-black uppercase tracking-[0.2em] mb-1 block ${
                       isActive ? 'text-secondary-container' : 'text-slate-400'
                     }`}>
@@ -86,12 +87,32 @@ const MilestoneTimeline = ({ milestones }: Props) => {
                     )}
                   </div>
 
-                  <div className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase font-headline border ${
-                    isActive
-                      ? 'bg-white/10 border-white/20 text-white'
-                      : 'bg-slate-50 border-slate-100 text-slate-500'
-                  }`}>
-                    {fmt(milestone.targetDate)}
+                  <div className="flex items-center gap-3 shrink-0">
+                    {/* Target date pill */}
+                    <div className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase font-headline border ${
+                      isActive
+                        ? 'bg-white/10 border-white/20 text-white'
+                        : 'bg-slate-50 border-slate-100 text-slate-500'
+                    }`}>
+                      {fmt(milestone.targetDate)}
+                    </div>
+
+                    {/* Edit button */}
+                    {onEdit && (
+                      <button
+                        type="button"
+                        onClick={() => onEdit(milestone)}
+                        title="Edit milestone"
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all opacity-0 group-hover:opacity-100
+                          ${
+                            isActive
+                              ? 'text-white/60 hover:text-white hover:bg-white/10'
+                              : 'text-slate-400 hover:text-primary hover:bg-slate-100'
+                          }`}
+                      >
+                        <span className="material-symbols-outlined text-[18px]">edit</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 
