@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{base_url}}/campaigns/{{campaign_id}}/leads?page=1&limit=50"
+method: GET
+queryParams:
+  page: "1"
+  limit: "50"
+order: 7000

@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/api/resources/materials/{{materialId}}/usage"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "usedQuantity": 25,
+      "purpose": "Foundation slab pour",
+      "notes": "Used for north section"
+    }
+order: 6000

@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/api/resources/equipment/{{equipmentId}}"
+method: DELETE
+headers:
+  Authorization: Bearer {{token}}
+order: 6000

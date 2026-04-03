@@ -1,0 +1,17 @@
+$kind: http-request
+description: "Access: ADMIN, PROJECT_MANAGER, INSPECTOR"
+url: "{{baseUrl}}/api/sustainability/{{metricId}}"
+method: PUT
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "notes": "Updated notes after re-measurement",
+      "energyConsumption": {
+        "renewableEnergy": 800
+      }
+    }
+order: 4000

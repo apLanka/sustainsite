@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{base_url}}/workspaces/me"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{clerk_jwt}}"
+order: 2000

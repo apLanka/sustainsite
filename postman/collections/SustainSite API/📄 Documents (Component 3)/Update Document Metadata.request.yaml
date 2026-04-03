@@ -1,0 +1,21 @@
+$kind: http-request
+description: >-
+  Access: ADMIN, PROJECT_MANAGER, INSPECTOR
+
+
+  Updates metadata only (title, description, documentType, version, tags). Does
+  NOT replace the file.
+url: "{{baseUrl}}/api/documents/{{documentId}}"
+method: PUT
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "title": "Updated Permit Title",
+      "description": "Revised description",
+      "tags": ["permit", "revised"]
+    }
+order: 4000

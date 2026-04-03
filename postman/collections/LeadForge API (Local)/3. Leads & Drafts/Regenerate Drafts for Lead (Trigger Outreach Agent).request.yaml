@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{base_url}}/leads/{{lead_id}}/regenerate"
+method: POST
+order: 4000

@@ -29,17 +29,7 @@ const TopNav = () => {
   };
 
   return (
-    <header className="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-white/80 backdrop-blur-md flex items-center justify-between px-8 border-b border-slate-100">
-      <div className="flex items-center w-1/3">
-        <div className="relative w-full max-w-md group">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors">search</span>
-          <input 
-            className="input-standard w-full pl-10 pr-4 h-10" 
-            placeholder="Search projects, metrics, or files..." 
-            type="text"
-          />
-        </div>
-      </div>
+    <header className="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-white/80 backdrop-blur-md flex items-center justify-end px-8 border-b border-slate-100">
       
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-4">

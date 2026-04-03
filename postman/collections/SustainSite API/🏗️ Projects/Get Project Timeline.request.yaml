@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/api/projects/{{projectId}}/timeline"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+order: 8000

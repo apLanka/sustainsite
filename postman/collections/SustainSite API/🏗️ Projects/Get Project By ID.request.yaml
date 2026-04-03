@@ -1,0 +1,7 @@
+$kind: http-request
+description: "Access: Project members (manager or team member) only."
+url: "{{baseUrl}}/api/projects/{{projectId}}"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+order: 3000

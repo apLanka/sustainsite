@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/api/sustainability/projects/{{projectId}}/metrics/latest"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+order: 7000

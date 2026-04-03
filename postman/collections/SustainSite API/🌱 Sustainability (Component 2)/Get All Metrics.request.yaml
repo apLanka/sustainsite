@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/api/sustainability?page=1&limit=10"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+queryParams:
+  - key: projectId
+    value: "{{projectId}}"
+    disabled: true
+  - key: page
+    value: "1"
+  - key: limit
+    value: "10"
+order: 2000

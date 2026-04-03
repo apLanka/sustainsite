@@ -1,0 +1,48 @@
+$kind: http-request
+description: |-
+  Access: ADMIN, PROJECT_MANAGER, INSPECTOR
+
+  Use **form-data** body (not JSON). Select an actual file for the `file` field.
+
+  Status defaults to `Draft`. `documentId` is auto-saved.
+url: "{{baseUrl}}/api/documents"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+body:
+  type: formdata
+  content:
+    - type: file
+      key: file
+      src: []
+      description: Select a PDF, JPG, PNG, DOCX, XLSX, or DWG file (max 10MB)
+    - type: text
+      key: projectId
+      value: "{{projectId}}"
+    - type: text
+      key: documentType
+      value: Permit
+      description: Blueprint | Permit | Certificate | Safety Report | Contract | Other
+    - type: text
+      key: title
+      value: Building Permit 2026
+    - type: text
+      key: description
+      value: Municipal building permit for Green Tower
+    - type: text
+      key: version
+      value: "1.0"
+    - type: text
+      key: tags
+      value: '["permit","2026"]'
+      description: JSON array string
+scripts:
+  - type: afterResponse
+    code: |-
+      const res = pm.response.json();
+      if (res.data && res.data._id) {
+        pm.collectionVariables.set('documentId', res.data._id);
+        console.log('documentId saved:', res.data._id);
+      }
+    language: text/javascript
+order: 1000

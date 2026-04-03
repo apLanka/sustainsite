@@ -136,6 +136,7 @@ const projectSchema = new Schema<IProject>(
 projectSchema.index({ projectManager: 1 });
 projectSchema.index({ status: 1 });
 projectSchema.index({ startDate: -1 });
+projectSchema.index({ projectName: 'text', description: 'text' }, { weights: { projectName: 10, description: 1 } });
 
 projectSchema.virtual('daysRemaining').get(function (this: IProject) {
   if (this.status === ProjectStatus.COMPLETED) {

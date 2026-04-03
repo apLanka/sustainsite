@@ -1,0 +1,15 @@
+$kind: http-request
+description: "Statuses: `Ordered` | `In Transit` | `Delivered` | `In Stock` |
+  `Used` | `Cancelled`"
+url: "{{baseUrl}}/api/resources/materials/{{materialId}}/status"
+method: PUT
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "status": "In Transit"
+    }
+order: 5000

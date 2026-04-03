@@ -1,0 +1,5 @@
+$kind: http-request
+description: Returns all available API endpoint groups.
+url: "{{baseUrl}}/api"
+method: GET
+order: 2000
