@@ -1,0 +1,12 @@
+$kind: http-request
+description: >-
+  Access: ADMIN, INSPECTOR
+
+
+  Changes status from `Draft` / `Under Review` → `Approved`. Sets `approvedBy`
+  and `approvalDate`.
+url: "{{baseUrl}}/api/documents/{{documentId}}/approve"
+method: PUT
+headers:
+  Authorization: Bearer {{token}}
+order: 6000

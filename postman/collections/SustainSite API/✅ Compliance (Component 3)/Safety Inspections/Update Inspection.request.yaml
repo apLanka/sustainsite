@@ -1,0 +1,21 @@
+$kind: http-request
+description: |-
+  Access: ADMIN, INSPECTOR
+
+  Setting `actionStatus` to `Completed` automatically sets `isResolved: true`.
+
+  Action statuses: `Pending` | `In Progress` | `Completed`
+url: "{{baseUrl}}/api/compliance/inspections/{{inspectionId}}"
+method: PUT
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: >-
+    {
+      "actionStatus": "Completed",
+      "followUpNotes": "All scaffolding secured and verified. Harnesses distributed to all workers.",
+      "followUpDate": "2026-02-17"
+    }
+order: 4000

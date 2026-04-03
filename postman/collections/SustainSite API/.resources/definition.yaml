@@ -1,0 +1,33 @@
+$kind: collection
+description: |-
+  Sustainable Construction Project Management System — Full API collection.
+
+  ## Getting Started
+  1. Set `baseUrl` variable if needed (default: http://localhost:5001)
+  2. Run **Register** or **Login** — the token is auto-saved to `{{token}}`
+  3. Run **Create Project** — the projectId is auto-saved to `{{projectId}}`
+  4. Use any downstream request freely
+
+  ## Variables auto-set by test scripts
+  - `token` — set on Login / Register
+  - `projectId` — set on Create Project
+  - `documentId` — set on Upload Document
+  - `checklistId` — set on Create Checklist
+  - `inspectionId` — set on Create Inspection
+  - `metricId` — set on Create Metric
+  - `milestoneId` — set on Add Milestone
+  - `materialId` — set on Create Material
+  - `equipmentId` — set on Create Equipment
+  - `supplierId` — set on Create Supplier
+variables:
+  baseUrl: http://localhost:5001
+  token: ""
+  projectId: ""
+  documentId: ""
+  checklistId: ""
+  inspectionId: ""
+  metricId: ""
+  milestoneId: ""
+  materialId: ""
+  equipmentId: ""
+  supplierId: ""

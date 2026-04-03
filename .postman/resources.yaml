@@ -1,0 +1,13 @@
+# Use this workspace to collaborate
+workspace:
+  id: 70fb38e3-a488-4412-ae60-f0b0c31690e1
+
+localResources:
+  collections:
+    - ../docs/SustainSite.postman_collection.json
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+cloudResources:
+  collections:
+    ../postman/collections/SustainSite API: cb29f425-a9fc-4787-a3cd-ecc184086ea8
+    ../postman/collections/LeadForge API (Local): 8ec36db8-2e4b-467a-bd90-e5c8e9a7e7b8

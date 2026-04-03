@@ -1,0 +1,7 @@
+$kind: http-request
+description: Returns the Cloudinary file URL and logs a `download` entry in the access log.
+url: "{{baseUrl}}/api/documents/{{documentId}}/download"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+order: 9000

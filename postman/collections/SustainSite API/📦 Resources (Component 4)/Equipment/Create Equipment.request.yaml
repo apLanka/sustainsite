@@ -1,0 +1,29 @@
+$kind: http-request
+url: "{{baseUrl}}/api/resources/equipment"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "equipmentName": "Excavator CAT-320",
+      "equipmentType": "Excavator",
+      "serialNumber": "CAT-320-2026-001",
+      "manufacturer": "Caterpillar",
+      "model": "320",
+      "yearOfManufacture": 2022,
+      "purchasePrice": 12000000,
+      "rentalRatePerDay": 50000
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const res = pm.response.json();
+      if (res.data && res.data._id) {
+        pm.collectionVariables.set('equipmentId', res.data._id);
+        console.log('equipmentId saved:', res.data._id);
+      }
+    language: text/javascript
+order: 1000

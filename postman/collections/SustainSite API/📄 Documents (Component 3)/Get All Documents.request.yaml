@@ -1,0 +1,21 @@
+$kind: http-request
+description: "Filters (all optional): `projectId`, `documentType`, `status`,
+  `page`, `limit`"
+url: "{{baseUrl}}/api/documents?projectId={{projectId}}&page=1&limit=20"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+queryParams:
+  - key: projectId
+    value: "{{projectId}}"
+  - key: documentType
+    value: Permit
+    disabled: true
+  - key: status
+    value: Draft
+    disabled: true
+  - key: page
+    value: "1"
+  - key: limit
+    value: "20"
+order: 2000

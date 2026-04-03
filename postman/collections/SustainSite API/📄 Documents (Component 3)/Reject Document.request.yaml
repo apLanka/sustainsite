@@ -1,0 +1,17 @@
+$kind: http-request
+description: |-
+  Access: ADMIN, INSPECTOR
+
+  `rejectionReason` is required. Changes status → `Rejected`.
+url: "{{baseUrl}}/api/documents/{{documentId}}/reject"
+method: PUT
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "rejectionReason": "Document is missing signature on page 3"
+    }
+order: 7000

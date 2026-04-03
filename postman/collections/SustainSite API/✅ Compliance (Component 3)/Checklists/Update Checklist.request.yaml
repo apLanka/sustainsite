@@ -1,0 +1,32 @@
+$kind: http-request
+description: >-
+  Access: ADMIN, PROJECT_MANAGER, INSPECTOR
+
+
+  Can update metadata (`checklistName`, `category`, `dueDate`) or item
+  completion status. Score is recalculated automatically.
+url: "{{baseUrl}}/api/compliance/checklists/{{checklistId}}"
+method: PUT
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "items": [
+        {
+          "itemId": "item-003",
+          "itemName": "Air Quality Monitoring",
+          "description": "Monthly air quality readings submitted",
+          "isCompleted": true
+        },
+        {
+          "itemId": "item-004",
+          "itemName": "Noise Level Assessment",
+          "description": "Noise measurements within permitted limits",
+          "isCompleted": false
+        }
+      ]
+    }
+order: 4000

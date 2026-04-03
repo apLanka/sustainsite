@@ -1,0 +1,19 @@
+$kind: http-request
+description: >-
+  Access: ADMIN, PROJECT_MANAGER, INSPECTOR
+
+
+  Pushes current version to `previousVersions`, increments version number (1.0 →
+  1.1), resets status to `Draft`.
+url: "{{baseUrl}}/api/documents/{{documentId}}/version"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+body:
+  type: formdata
+  content:
+    - type: file
+      key: file
+      src: []
+      description: The replacement file (max 10MB)
+order: 8000

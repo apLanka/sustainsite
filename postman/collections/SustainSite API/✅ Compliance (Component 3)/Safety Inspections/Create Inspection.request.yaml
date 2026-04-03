@@ -1,0 +1,52 @@
+$kind: http-request
+description: |-
+  Access: ADMIN, INSPECTOR
+
+  Types: `Safety` | `Environmental` | `Quality` | `Structural`
+  Risk Levels: `Low` | `Medium` | `High` | `Critical`
+
+  `inspector` is auto-set to the logged-in user. `inspectionId` is auto-saved.
+url: "{{baseUrl}}/api/compliance/inspections"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: >-
+    {
+      "projectId": "{{projectId}}",
+      "inspectionType": "Safety",
+      "inspectionDate": "2026-02-15",
+      "findings": "Scaffolding not properly secured on 5th floor. Workers observed without harnesses.",
+      "riskLevel": "High",
+      "issuesIdentified": [
+        {
+          "issue": "Scaffolding not secured",
+          "severity": "Major",
+          "location": "5th floor, north wing"
+        },
+        {
+          "issue": "Missing safety harnesses",
+          "severity": "Major",
+          "location": "5th floor"
+        }
+      ],
+      "actionRequired": "Immediate rectification required within 24 hours",
+      "recommendedActions": [
+        "Secure all scaffolding joints immediately",
+        "Issue harnesses to all workers on elevated levels",
+        "Conduct safety briefing before next shift"
+      ],
+      "actionDeadline": "2026-02-16"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const res = pm.response.json();
+      if (res.data && res.data._id) {
+        pm.collectionVariables.set('inspectionId', res.data._id);
+        console.log('inspectionId saved:', res.data._id);
+      }
+    language: text/javascript
+order: 1000

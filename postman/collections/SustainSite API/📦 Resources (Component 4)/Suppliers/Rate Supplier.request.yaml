@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/api/resources/suppliers/{{supplierId}}/rating"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "rating": 5,
+      "comment": "On-time delivery and excellent quality"
+    }
+order: 4000

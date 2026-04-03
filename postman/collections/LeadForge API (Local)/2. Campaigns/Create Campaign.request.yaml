@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{base_url}}/campaigns"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: >-
+    {
+      "name": "Q1 Exec Outreach",
+      "valueProp": "We help VP of Sales increase their pipeline by 30% using AI automation.",
+      "targetLeads": 10,
+      "icpConfig": {
+        "titles": ["VP of Sales", "Director of Sales"],
+        "industry": ["SaaS", "Software"],
+        "location": ["United States"]
+      }
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{clerk_jwt}}"
+order: 1000
