@@ -1,15 +1,16 @@
-import axios, { type AxiosInstance } from 'axios';
-import type { AuthResponse, UserResponse } from '@/types/auth';
+import axios, {type AxiosInstance} from 'axios';
+import type {AuthResponse, UserResponse} from '@/types/auth';
 import type {
-  Project,
-  Milestone,
-  ProjectFilters,
-  CreateProjectPayload,
-  UpdateProjectPayload,
   CreateMilestonePayload,
+  CreateProjectPayload,
+  Milestone,
+  Project,
+  ProjectFilters,
   UpdateMilestonePayload,
+  UpdateProjectPayload,
 } from '@/types/project';
-import { attachInterceptors } from './interceptors';
+import type {EquipmentAsset, MaterialAsset, ResourceSummary, Supplier,} from '@/types/resources';
+import {attachInterceptors} from './interceptors';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -130,6 +131,83 @@ export const projectApi = {
 
   getTimeline: async (id: string): Promise<SingleResponse<{ project: Partial<Project>; milestones: Milestone[] }>> => {
     const response = await api.get(`/projects/${id}/timeline`);
+    return response.data;
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Resources API
+// ---------------------------------------------------------------------------
+
+export const resourcesApi = {
+  getMaterials: async (
+      projectId: string,
+      page = 1,
+      limit = 10
+  ): Promise<PaginatedResponse<MaterialAsset>> => {
+    const params = new URLSearchParams({
+      projectId,
+      page: String(page),
+      limit: String(limit),
+    });
+    const response = await api.get<PaginatedResponse<MaterialAsset>>(
+        `/resources/materials?${params.toString()}`
+    );
+    return response.data;
+  },
+
+  getEquipment: async (
+      projectId: string,
+      status?: string,
+      page = 1,
+      limit = 10
+  ): Promise<PaginatedResponse<EquipmentAsset>> => {
+    const params = new URLSearchParams({
+      projectId,
+      page: String(page),
+      limit: String(limit),
+    });
+    if (status) params.set('status', status);
+    const response = await api.get<PaginatedResponse<EquipmentAsset>>(
+        `/resources/equipment?${params.toString()}`
+    );
+    return response.data;
+  },
+
+  getAvailableEquipment: async (
+      page = 1,
+      limit = 10
+  ): Promise<PaginatedResponse<EquipmentAsset>> => {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
+    const response = await api.get<PaginatedResponse<EquipmentAsset>>(
+        `/resources/equipment/list/available?${params.toString()}`
+    );
+    return response.data;
+  },
+
+  getSuppliers: async (
+      isActive = true,
+      page = 1,
+      limit = 10
+  ): Promise<PaginatedResponse<Supplier>> => {
+    const params = new URLSearchParams({
+      isActive: String(isActive),
+      page: String(page),
+      limit: String(limit),
+    });
+    const response = await api.get<PaginatedResponse<Supplier>>(
+        `/resources/suppliers?${params.toString()}`
+    );
+    return response.data;
+  },
+
+  getCostSummary: async (projectId: string): Promise<SingleResponse<ResourceSummary>> => {
+    const response = await api.get<SingleResponse<ResourceSummary>>(
+        `/resources/materials/${projectId}/cost-summary`
+    );
     return response.data;
   },
 };
