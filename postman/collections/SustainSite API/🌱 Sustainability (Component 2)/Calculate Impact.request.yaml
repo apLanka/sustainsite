@@ -1,0 +1,23 @@
+$kind: http-request
+description: Calculates impact without saving. Returns totalCarbon,
+  treesEquivalent, renewablePercentage.
+url: "{{baseUrl}}/api/sustainability/calculate-impact"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "carbonEmissions": {
+        "transportation": 2,
+        "equipment": 2,
+        "materials": 2
+      },
+      "energyConsumption": {
+        "electricity": 1000,
+        "renewableEnergy": 500
+      }
+    }
+order: 10000

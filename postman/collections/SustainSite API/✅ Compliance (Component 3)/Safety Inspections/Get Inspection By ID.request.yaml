@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/api/compliance/inspections/{{inspectionId}}"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+order: 3000

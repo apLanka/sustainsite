@@ -1,0 +1,25 @@
+$kind: http-request
+description: "Filters: `projectId`, `riskLevel`, `isResolved`, `inspectionType`,
+  `page`, `limit`"
+url: "{{baseUrl}}/api/compliance/inspections?projectId={{projectId}}&page=1&lim\
+  it=20"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+queryParams:
+  - key: projectId
+    value: "{{projectId}}"
+  - key: riskLevel
+    value: High
+    disabled: true
+  - key: isResolved
+    value: "false"
+    disabled: true
+  - key: inspectionType
+    value: Safety
+    disabled: true
+  - key: page
+    value: "1"
+  - key: limit
+    value: "20"
+order: 2000

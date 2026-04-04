@@ -1,0 +1,15 @@
+$kind: collection
+description: Postman collection for LeadForge MVP backend. Remember to set your
+  `clerk_jwt` token in the collection variables before running requests.
+variables:
+  base_url: http://localhost:4000
+  clerk_jwt: YOUR_CLERK_SESSION_JWT_HERE
+  campaign_id: ""
+  lead_id: ""
+  draft_id: ""
+auth:
+  - id: ""
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{clerk_jwt}}"

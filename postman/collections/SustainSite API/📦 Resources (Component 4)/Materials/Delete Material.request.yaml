@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/api/resources/materials/{{materialId}}"
+method: DELETE
+headers:
+  Authorization: Bearer {{token}}
+order: 7000

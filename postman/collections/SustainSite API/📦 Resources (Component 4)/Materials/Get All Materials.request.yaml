@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{baseUrl}}/api/resources/materials"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+queryParams:
+  - key: projectId
+    value: "{{projectId}}"
+    disabled: true
+order: 2000

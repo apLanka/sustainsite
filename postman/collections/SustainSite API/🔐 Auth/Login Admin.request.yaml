@@ -1,0 +1,23 @@
+$kind: http-request
+description: Login and receive a JWT token. Token is auto-saved to `{{token}}`.
+url: "{{baseUrl}}/api/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "x@nishara.me",
+      "password": "@Sustain.12"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const res = pm.response.json();
+      if (res.data && res.data.token) {
+        pm.collectionVariables.set('token', res.data.token);
+        console.log('Token saved:', res.data.token);
+      }
+    language: text/javascript
+order: 4000

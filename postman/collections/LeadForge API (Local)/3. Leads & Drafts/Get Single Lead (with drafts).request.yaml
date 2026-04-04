@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{base_url}}/leads/{{lead_id}}"
+method: GET
+order: 1000

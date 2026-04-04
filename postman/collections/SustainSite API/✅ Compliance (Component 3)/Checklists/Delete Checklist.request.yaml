@@ -1,0 +1,7 @@
+$kind: http-request
+description: "Access: ADMIN only."
+url: "{{baseUrl}}/api/compliance/checklists/{{checklistId}}"
+method: DELETE
+headers:
+  Authorization: Bearer {{token}}
+order: 5000

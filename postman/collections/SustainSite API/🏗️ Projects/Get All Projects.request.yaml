@@ -1,0 +1,18 @@
+$kind: http-request
+description: "Filters (all optional): `status`, `search`, `page`, `limit`"
+url: "{{baseUrl}}/api/projects?page=1&limit=10"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+queryParams:
+  - key: status
+    value: In Progress
+    disabled: true
+  - key: search
+    value: Green
+    disabled: true
+  - key: page
+    value: "1"
+  - key: limit
+    value: "10"
+order: 2000

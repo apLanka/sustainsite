@@ -1,0 +1,61 @@
+$kind: http-request
+description: >-
+  Access: ADMIN, PROJECT_MANAGER, INSPECTOR
+
+
+  Categories: `Environmental` | `Safety` | `Building Code` | `Sustainability
+  Certification`
+
+
+  `complianceScore` is auto-calculated (50% here — 2 of 4 items completed).
+  `checklistId` is auto-saved.
+url: "{{baseUrl}}/api/compliance/checklists"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "projectId": "{{projectId}}",
+      "checklistName": "Environmental Compliance Q1 2026",
+      "category": "Environmental",
+      "dueDate": "2026-03-31",
+      "items": [
+        {
+          "itemId": "item-001",
+          "itemName": "Environmental Impact Assessment",
+          "description": "Complete EIA report submitted to authorities",
+          "isCompleted": true
+        },
+        {
+          "itemId": "item-002",
+          "itemName": "Waste Management Plan",
+          "description": "Approved waste disposal plan in place",
+          "isCompleted": true
+        },
+        {
+          "itemId": "item-003",
+          "itemName": "Air Quality Monitoring",
+          "description": "Monthly air quality readings submitted",
+          "isCompleted": false
+        },
+        {
+          "itemId": "item-004",
+          "itemName": "Noise Level Assessment",
+          "description": "Noise measurements within permitted limits",
+          "isCompleted": false
+        }
+      ]
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const res = pm.response.json();
+      if (res.data && res.data._id) {
+        pm.collectionVariables.set('checklistId', res.data._id);
+        console.log('checklistId saved:', res.data._id);
+      }
+    language: text/javascript
+order: 1000

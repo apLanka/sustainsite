@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{baseUrl}}/api/resources/equipment/{{equipmentId}}/maintenance"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "maintenanceDate": "2026-04-01",
+      "maintenanceType": "Routine",
+      "description": "Oil change and filter replacement",
+      "cost": 25000,
+      "performedBy": "Lanka Service Co."
+    }
+order: 5000

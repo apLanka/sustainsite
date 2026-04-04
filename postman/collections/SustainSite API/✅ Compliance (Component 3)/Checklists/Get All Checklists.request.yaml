@@ -1,0 +1,17 @@
+$kind: http-request
+description: "Filters: `projectId`, `category`, `page`, `limit`"
+url: "{{baseUrl}}/api/compliance/checklists?projectId={{projectId}}&page=1&limit=20"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+queryParams:
+  - key: projectId
+    value: "{{projectId}}"
+  - key: category
+    value: Environmental
+    disabled: true
+  - key: page
+    value: "1"
+  - key: limit
+    value: "20"
+order: 2000

@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{base_url}}/campaigns/{{campaign_id}}/activate"
+method: PATCH
+order: 5000

@@ -1,0 +1,7 @@
+$kind: http-request
+description: Also logs a `view` entry in the document's access log.
+url: "{{baseUrl}}/api/documents/{{documentId}}"
+method: GET
+headers:
+  Authorization: Bearer {{token}}
+order: 3000
