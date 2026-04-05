@@ -1,18 +1,20 @@
-export enum DocumentType {
-  BLUEPRINT     = 'Blueprint',
-  PERMIT        = 'Permit',
-  CERTIFICATE   = 'Certificate',
-  SAFETY_REPORT = 'Safety Report',
-  CONTRACT      = 'Contract',
-  OTHER         = 'Other',
-}
+export const DocumentType = {
+  BLUEPRINT:     'Blueprint',
+  PERMIT:        'Permit',
+  CERTIFICATE:   'Certificate',
+  SAFETY_REPORT: 'Safety Report',
+  CONTRACT:      'Contract',
+  OTHER:         'Other',
+} as const;
+export type DocumentType = typeof DocumentType[keyof typeof DocumentType];
 
-export enum DocumentStatus {
-  DRAFT        = 'Draft',
-  UNDER_REVIEW = 'Under Review',
-  APPROVED     = 'Approved',
-  REJECTED     = 'Rejected',
-}
+export const DocumentStatus = {
+  DRAFT:        'Draft',
+  UNDER_REVIEW: 'Under Review',
+  APPROVED:     'Approved',
+  REJECTED:     'Rejected',
+} as const;
+export type DocumentStatus = typeof DocumentStatus[keyof typeof DocumentStatus];
 
 export interface PopulatedUser {
   _id: string;

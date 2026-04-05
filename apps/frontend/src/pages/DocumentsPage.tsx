@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import ProjectHeader from '@/components/project/ProjectHeader';
@@ -76,7 +76,7 @@ export default function DocumentsPage() {
   // ── Upload modal ──────────────────────────────────────────────────────────
   const [showUploadModal, setShowUploadModal]   = useState(false);
   const [selectedFile, setSelectedFile]         = useState<File | null>(null);
-  const [uploadForm, setUploadForm]             = useState({
+  const [uploadForm, setUploadForm]             = useState<{ title: string; documentType: DocumentType; description: string; version: string; tags: string }>({
     title: '',
     documentType: DocumentType.OTHER,
     description: '',

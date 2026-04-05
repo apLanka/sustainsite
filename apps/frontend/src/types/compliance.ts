@@ -1,35 +1,40 @@
-export enum ComplianceCategory {
-  ENVIRONMENTAL               = 'Environmental',
-  SAFETY                      = 'Safety',
-  BUILDING_CODE               = 'Building Code',
-  SUSTAINABILITY_CERTIFICATION = 'Sustainability Certification',
-}
+export const ComplianceCategory = {
+  ENVIRONMENTAL:                'Environmental',
+  SAFETY:                       'Safety',
+  BUILDING_CODE:                'Building Code',
+  SUSTAINABILITY_CERTIFICATION: 'Sustainability Certification',
+} as const;
+export type ComplianceCategory = typeof ComplianceCategory[keyof typeof ComplianceCategory];
 
-export enum InspectionType {
-  SAFETY        = 'Safety',
-  ENVIRONMENTAL = 'Environmental',
-  QUALITY       = 'Quality',
-  STRUCTURAL    = 'Structural',
-}
+export const InspectionType = {
+  SAFETY:        'Safety',
+  ENVIRONMENTAL: 'Environmental',
+  QUALITY:       'Quality',
+  STRUCTURAL:    'Structural',
+} as const;
+export type InspectionType = typeof InspectionType[keyof typeof InspectionType];
 
-export enum RiskLevel {
-  LOW      = 'Low',
-  MEDIUM   = 'Medium',
-  HIGH     = 'High',
-  CRITICAL = 'Critical',
-}
+export const RiskLevel = {
+  LOW:      'Low',
+  MEDIUM:   'Medium',
+  HIGH:     'High',
+  CRITICAL: 'Critical',
+} as const;
+export type RiskLevel = typeof RiskLevel[keyof typeof RiskLevel];
 
-export enum ActionStatus {
-  PENDING     = 'Pending',
-  IN_PROGRESS = 'In Progress',
-  COMPLETED   = 'Completed',
-}
+export const ActionStatus = {
+  PENDING:     'Pending',
+  IN_PROGRESS: 'In Progress',
+  COMPLETED:   'Completed',
+} as const;
+export type ActionStatus = typeof ActionStatus[keyof typeof ActionStatus];
 
-export enum IssueSeverity {
-  MINOR    = 'Minor',
-  MODERATE = 'Moderate',
-  MAJOR    = 'Major',
-}
+export const IssueSeverity = {
+  MINOR:    'Minor',
+  MODERATE: 'Moderate',
+  MAJOR:    'Major',
+} as const;
+export type IssueSeverity = typeof IssueSeverity[keyof typeof IssueSeverity];
 
 // ── Shared ────────────────────────────────────────────────────────────────────
 

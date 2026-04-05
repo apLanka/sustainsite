@@ -116,7 +116,7 @@ export default function CompliancePage() {
     actionDeadline: '',
   });
   const [inspIssues, setInspIssues]     = useState<IssueIdentified[]>([]);
-  const [newIssue, setNewIssue]         = useState({ issue: '', severity: IssueSeverity.MINOR, location: '' });
+  const [newIssue, setNewIssue]         = useState<{ issue: string; severity: IssueSeverity; location: string }>({ issue: '', severity: IssueSeverity.MINOR, location: '' });
   const [recAction, setRecAction]       = useState('');
   const [isCreatingInsp, setIsCreatingInsp] = useState(false);
   const [inspError, setInspError]       = useState<string | null>(null);
@@ -195,12 +195,6 @@ export default function CompliancePage() {
     [checklists]
   );
 
-  const highRiskCount = useMemo(() =>
-    inspections.filter(
-      (i) => (i.riskLevel === RiskLevel.HIGH || i.riskLevel === RiskLevel.CRITICAL) && !i.isResolved
-    ).length,
-    [inspections]
-  );
 
   // ── Switch checklist ──────────────────────────────────────────────────────
   const handleSelectChecklist = async (id: string) => {
