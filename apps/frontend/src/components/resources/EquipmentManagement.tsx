@@ -1,42 +1,69 @@
-import type { EquipmentAsset } from '@/types/resources';
+import {useEffect, useState} from 'react';
+import {useProject} from '@/contexts/ProjectContext';
+import {resourcesApi} from '@/lib/api';
+import type {EquipmentAsset} from '@/types/resources';
+import type {StatusType} from '@/components/common/StatusBadge';
 import StatusBadge from '@/components/common/StatusBadge';
-import type { StatusType } from '@/components/common/StatusBadge';
-
-const mockEquipment: EquipmentAsset[] = [
-  {
-    id: 'e1',
-    projectId: 'p1',
-    name: 'Caterpillar 320 Excavator',
-    type: 'Heavy Machinery',
-    serialNumber: 'CAT320-9921',
-    status: 'In Use',
-    lastMaintenance: '2026-02-15',
-    nextMaintenance: '2026-05-15',
-    operator: 'John Doe'
-  },
-  {
-    id: 'e2',
-    projectId: 'p1',
-    name: 'Liebherr LTM 1100 Crane',
-    type: 'Crane',
-    serialNumber: 'LTM1100-4410',
-    status: 'Available',
-    lastMaintenance: '2026-03-01',
-    nextMaintenance: '2026-06-01'
-  },
-  {
-    id: 'e3',
-    projectId: 'p1',
-    name: 'Volvo A40G Dump Truck',
-    type: 'Transport',
-    serialNumber: 'VOLA40-7732',
-    status: 'Maintenance',
-    lastMaintenance: '2026-01-20',
-    nextMaintenance: '2026-04-20'
-  }
-];
 
 export default function EquipmentManagement() {
+  const {activeProjectId} = useProject();
+  const [equipment, setEquipment] = useState<EquipmentAsset[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!activeProjectId) return;
+
+    const fetchEquipment = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await resourcesApi.getEquipment(activeProjectId);
+        setEquipment(res.data);
+      } catch (err) {
+        console.error('Failed to load equipment:', err);
+        setError('Failed to load equipment');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEquipment();
+  }, [activeProjectId]);
+
+  const availableCount = equipment.filter(e => e.status === 'Available').length;
+  const inUseCount = equipment.filter(e => e.status === 'In Use').length;
+  const maintenanceCount = equipment.filter(e => e.status === 'Under Maintenance').length;
+
+  if (!activeProjectId) {
+    return (
+        <div className="flex items-center justify-center h-64 text-slate-400">
+          <p className="text-sm">Select a project to view equipment</p>
+        </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+        <div className="space-y-8 animate-pulse">
+          <div className="h-20 bg-slate-100 rounded-3xl"/>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3].map(i => (
+                <div key={i} className="bg-slate-100 h-64 rounded-[32px]"/>
+            ))}
+          </div>
+        </div>
+    );
+  }
+
+  if (error) {
+    return (
+        <div className="flex items-center justify-center h-64 text-rose-500">
+          <p className="text-sm">{error}</p>
+        </div>
+    );
+  }
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex items-center justify-between">
@@ -51,7 +78,7 @@ export default function EquipmentManagement() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {mockEquipment.map((item) => (
+        {equipment.map((item) => (
           <div key={item.id} className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group relative overflow-hidden">
             {/* Background Accent */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-[100px] -z-10 group-hover:bg-primary/5 transition-colors"></div>
@@ -59,16 +86,17 @@ export default function EquipmentManagement() {
             <div className="flex justify-between items-start mb-6">
               <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500">
                 <span className="material-symbols-outlined text-2xl">
-                  {item.type === 'Crane' ? 'construction' : item.type === 'Transport' ? 'local_shipping' : 'precision_manufacturing'}
+                  {item.equipmentType === 'Crane' ? 'construction' : item.equipmentType === 'Loader' ? 'forklift' : 'precision_manufacturing'}
                 </span>
               </div>
               <StatusBadge status={item.status as StatusType} />
             </div>
 
             <div className="mb-6">
-              <h4 className="text-primary font-black text-xl mb-1 tracking-tight">{item.name}</h4>
+              <h4 className="text-primary font-black text-xl mb-1 tracking-tight">{item.equipmentName}</h4>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{item.type}</span>
+                <span
+                    className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{item.equipmentType}</span>
                 <span className="text-[10px] text-slate-400 font-bold tabular-nums">#{item.serialNumber}</span>
               </div>
             </div>
@@ -77,27 +105,27 @@ export default function EquipmentManagement() {
               <div className="bg-slate-50/50 rounded-2xl p-4 space-y-3">
                 <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
                   <span className="text-slate-400">Previous Service</span>
-                  <span className="text-primary">{item.lastMaintenance}</span>
+                  <span className="text-primary">{item.lastMaintenanceDate}</span>
                 </div>
                 <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
                   <span className="text-slate-400">Next Service</span>
                   <span className={
-                    new Date(item.nextMaintenance).getTime() < new Date().getTime() + 1000 * 60 * 60 * 24 * 30 
+                    new Date(item.nextScheduledMaintenance || '').getTime() < new Date().getTime() + 1000 * 60 * 60 * 24 * 30
                     ? 'text-rose-500 underline underline-offset-4' : 'text-emerald-600'
                   }>
-                    {item.nextMaintenance}
+                    {item.nextScheduledMaintenance}
                   </span>
                 </div>
               </div>
 
-              {item.operator && (
+              {item.assignedTo && (
                 <div className="flex items-center gap-3 px-2">
                   <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                     <span className="material-symbols-outlined text-sm">person</span>
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Operator</p>
-                    <p className="text-xs font-bold text-primary">{item.operator}</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned To</p>
+                    <p className="text-xs font-bold text-primary">{item.assignedTo}</p>
                   </div>
                 </div>
               )}

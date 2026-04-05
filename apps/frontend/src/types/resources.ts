@@ -13,18 +13,25 @@ export interface MaterialAsset {
   lastUpdated: string;
 }
 
-export type EquipmentStatus = 'Available' | 'In Use' | 'Maintenance' | 'Refurbishing';
+export type EquipmentStatus = 'Available' | 'In Use' | 'Under Maintenance' | 'Damaged' | 'Retired';
+
+export type EquipmentType = 'Excavator' | 'Crane' | 'Bulldozer' | 'Mixer' | 'Loader' | 'Other';
 
 export interface EquipmentAsset {
   id: string;
-  projectId: string;
-  name: string;
-  type: string;
-  serialNumber: string;
+  currentProjectId: string;
+  equipmentName: string;
+  equipmentType: EquipmentType;
+  serialNumber?: string;
+  assetId?: string;
+  manufacturer?: string;
+  equipmentModel?: string;
   status: EquipmentStatus;
-  lastMaintenance: string;
-  nextMaintenance: string;
-  operator?: string;
+  lastMaintenanceDate?: string;
+  nextScheduledMaintenance?: string;
+  assignedTo?: string;
+  currentLocation?: string;
+  notes?: string;
 }
 
 export interface Supplier {
