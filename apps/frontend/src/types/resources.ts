@@ -108,6 +108,22 @@ export interface Supplier {
   completedOrders: number;
 }
 
+export interface CreateSupplierPayload {
+    companyName: string;
+    contactPerson: string;
+    email: string;
+    phoneNumber: string;
+    address?: {
+        street?: string;
+        city?: string;
+        state?: string;
+        country?: string;
+        postalCode?: string;
+    };
+    materialsSupplied: string[];
+    isSustainabilityCertified?: boolean;
+}
+
 export interface ResourceExpense {
   id: string;
   projectId: string;

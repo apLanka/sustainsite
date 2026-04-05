@@ -1,21 +1,22 @@
 import axios, {type AxiosInstance} from 'axios';
 import type {AuthResponse, UserResponse} from '@/types/auth';
 import type {
-  CreateMilestonePayload,
-  CreateProjectPayload,
-  Milestone,
-  Project,
-  ProjectFilters,
-  UpdateMilestonePayload,
-  UpdateProjectPayload,
+    CreateMilestonePayload,
+    CreateProjectPayload,
+    Milestone,
+    Project,
+    ProjectFilters,
+    UpdateMilestonePayload,
+    UpdateProjectPayload,
 } from '@/types/project';
 import type {
-  CreateEquipmentPayload,
-  CreateMaterialPayload,
-  EquipmentAsset,
-  MaterialAsset,
-  ResourceSummary,
-  Supplier,
+    CreateEquipmentPayload,
+    CreateMaterialPayload,
+    CreateSupplierPayload,
+    EquipmentAsset,
+    MaterialAsset,
+    ResourceSummary,
+    Supplier,
 } from '@/types/resources';
 import {attachInterceptors} from './interceptors';
 
@@ -235,6 +236,11 @@ export const resourcesApi = {
     );
     return response.data;
   },
+
+    createSupplier: async (data: CreateSupplierPayload): Promise<SingleResponse<Supplier>> => {
+        const response = await api.post<SingleResponse<Supplier>>('/resources/suppliers', data);
+        return response.data;
+    },
 
   getCostSummary: async (projectId: string): Promise<SingleResponse<ResourceSummary>> => {
     const response = await api.get<SingleResponse<ResourceSummary>>(
