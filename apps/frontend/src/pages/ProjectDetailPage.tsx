@@ -17,7 +17,6 @@ export default function ProjectDetailPage() {
     selectedProject,
     isDetailLoading,
     setSelectedProject,
-    setDetailLoading,
     appendMilestone,
     updateMilestoneInStore,
   } = useProjectStore();
@@ -45,23 +44,10 @@ export default function ProjectDetailPage() {
     { id: 'team',       label: 'Team & Stakeholders'  },
   ];
 
-  // ── Fetch project ─────────────────────────────────────────────────────────
+  // Clear selected project on unmount so navigating away doesn't show stale data
   useEffect(() => {
-    if (!id) return;
-    const fetchProject = async () => {
-      setDetailLoading(true);
-      try {
-        const res = await projectApi.getProjectById(id);
-        setSelectedProject(res.data);
-      } catch (err) {
-        console.error('Failed to load project:', err);
-      } finally {
-        setDetailLoading(false);
-      }
-    };
-    fetchProject();
     return () => { setSelectedProject(null); };
-  }, [id, setSelectedProject, setDetailLoading]);
+  }, [id, setSelectedProject]);
 
   // ── Add milestone ─────────────────────────────────────────────────────────
   const handleAddMilestone = async () => {

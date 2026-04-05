@@ -39,8 +39,8 @@ const ProjectForm = () => {
     getValues,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<ProjectFormData>({
-    resolver: zodResolver(projectSchema),
+  } = useForm<ProjectFormData, unknown, ProjectFormData>({
+    resolver: zodResolver(projectSchema) as never,
     defaultValues: { status: ProjectStatus.PLANNING },
   });
 
