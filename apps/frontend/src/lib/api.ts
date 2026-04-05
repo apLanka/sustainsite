@@ -9,6 +9,13 @@ import type {
   CreateMilestonePayload,
   UpdateMilestonePayload,
 } from '@/types/project';
+import type {
+  ProjectDocument,
+  DocumentFilters,
+  UploadDocumentPayload,
+  UpdateDocumentPayload,
+  DocumentPagination,
+} from '@/types/document';
 import { attachInterceptors } from './interceptors';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -67,7 +74,7 @@ export const tokenManager = {
 };
 
 // ---------------------------------------------------------------------------
-// Project API
+// Shared response shapes
 // ---------------------------------------------------------------------------
 
 interface PaginatedResponse<T> {
@@ -76,10 +83,20 @@ interface PaginatedResponse<T> {
   pagination: { page: number; limit: number; total: number; totalPages: number };
 }
 
+interface DocumentPaginatedResponse {
+  success: boolean;
+  data: ProjectDocument[];
+  pagination: DocumentPagination;
+}
+
 interface SingleResponse<T> {
   success: boolean;
   data: T;
 }
+
+// ---------------------------------------------------------------------------
+// Project API
+// ---------------------------------------------------------------------------
 
 export const projectApi = {
   getProjects: async (filters: Partial<ProjectFilters> = {}): Promise<PaginatedResponse<Project>> => {
@@ -132,6 +149,77 @@ export const projectApi = {
     const response = await api.get(`/projects/${id}/timeline`);
     return response.data;
   },
+};
+
+// ---------------------------------------------------------------------------
+// Document API
+// ---------------------------------------------------------------------------
+
+export const documentApi = {
+  upload: async (payload: UploadDocumentPayload): Promise<SingleResponse<ProjectDocument>> => {
+    const form = new FormData();
+    form.append('file', payload.file);
+    form.append('projectId', payload.projectId);
+    form.append('documentType', payload.documentType);
+    form.append('title', payload.title);
+    if (payload.description) form.append('description', payload.description);
+    if (payload.version)     form.append('version', payload.version);
+    if (payload.tags?.length) form.append('tags', JSON.stringify(payload.tags));
+    const response = await api.post<SingleResponse<ProjectDocument>>('/documents', form, {
+      headers: { 'Content-Type': undefined },
+    });
+    return response.data;
+  },
+
+  getDocuments: async (filters: Partial<DocumentFilters>): Promise<DocumentPaginatedResponse> => {
+    const params: Record<string, string> = {};
+    if (filters.projectId)    params.projectId    = filters.projectId;
+    if (filters.documentType) params.documentType = filters.documentType;
+    if (filters.status)       params.status       = filters.status;
+    if (filters.tag)          params.tag          = filters.tag;
+    if (filters.page)         params.page         = String(filters.page);
+    if (filters.limit)        params.limit        = String(filters.limit);
+    const response = await api.get<DocumentPaginatedResponse>('/documents', { params });
+    return response.data;
+  },
+
+  getById: async (id: string): Promise<SingleResponse<ProjectDocument>> => {
+    const response = await api.get<SingleResponse<ProjectDocument>>(`/documents/${id}`);
+    return response.data;
+  },
+
+  update: async (id: string, payload: UpdateDocumentPayload): Promise<SingleResponse<ProjectDocument>> => {
+    const response = await api.put<SingleResponse<ProjectDocument>>(`/documents/${id}`, payload);
+    return response.data;
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/documents/${id}`);
+  },
+
+  approve: async (id: string): Promise<SingleResponse<ProjectDocument>> => {
+    const response = await api.put<SingleResponse<ProjectDocument>>(`/documents/${id}/approve`);
+    return response.data;
+  },
+
+  reject: async (id: string, rejectionReason: string): Promise<SingleResponse<ProjectDocument>> => {
+    const response = await api.put<SingleResponse<ProjectDocument>>(`/documents/${id}/reject`, { rejectionReason });
+    return response.data;
+  },
+
+  createVersion: async (id: string, file: File): Promise<SingleResponse<ProjectDocument>> => {
+    const form = new FormData();
+    form.append('file', file);
+    const response = await api.post<SingleResponse<ProjectDocument>>(`/documents/${id}/version`, form, {
+      headers: { 'Content-Type': undefined },
+    });
+    return response.data;
+  },
+
+  // Download: backend sends a 302 redirect to Cloudinary URL.
+  // Use window.open() — do not call through axios.
+  getDownloadUrl: (id: string): string =>
+    `${API_BASE_URL}/documents/${id}/download`,
 };
 
 export default api;
