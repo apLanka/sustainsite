@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import ProjectHeader from '@/components/project/ProjectHeader';
@@ -108,8 +108,9 @@ export default function DocumentsPage() {
   const [deletingId, setDeletingId]                     = useState<string | null>(null);
   const [isDeleting, setIsDeleting]                     = useState(false);
 
-  // ── Search (client-side filter on title) ─────────────────────────────────
-  const [searchQuery, setSearchQuery] = useState('');
+  // ── Search (debounced client-side filter on title) ───────────────────────
+  const [searchQuery, setSearchQuery]       = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
   const canModerate =
     user?.role === UserRole.ADMIN || user?.role === UserRole.INSPECTOR;
@@ -136,10 +137,18 @@ export default function DocumentsPage() {
     fetch();
   }, [docFilters, setDocuments, setDocLoading]);
 
+  // ── Debounce search input (300 ms) ────────────────────────────────────────
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 300);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
+
   // ── Filtered list (client-side title search) ──────────────────────────────
-  const visibleDocs = searchQuery.trim()
-    ? documents.filter((d) => d.title.toLowerCase().includes(searchQuery.toLowerCase()))
-    : documents;
+  const visibleDocs = useMemo(() => {
+    const q = debouncedSearch.toLowerCase();
+    if (!q) return documents;
+    return documents.filter((d) => d.title.toLowerCase().includes(q));
+  }, [documents, debouncedSearch]);
 
   // ── Upload ────────────────────────────────────────────────────────────────
   const handleUpload = async () => {
@@ -294,14 +303,23 @@ export default function DocumentsPage() {
             <div className="relative group">
               <input
                 type="text"
-                placeholder="Search documents..."
-                className="input-standard pl-11 w-64 md:w-80 shadow-sm h-11"
+                placeholder="Search by document name..."
+                className="input-standard pl-11 pr-9 w-64 md:w-80 shadow-sm h-11"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-secondary transition-colors text-xl">
                 search
               </span>
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors"
+                >
+                  <span className="material-symbols-outlined text-lg">close</span>
+                </button>
+              )}
             </div>
 
             {/* Type filter */}
@@ -379,9 +397,15 @@ export default function DocumentsPage() {
               </div>
             ) : visibleDocs.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 text-center">
-                <span className="material-symbols-outlined text-5xl text-slate-200 mb-4">folder_open</span>
-                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">No documents found</p>
-                <p className="text-xs text-slate-300 mt-1">Upload the first document to get started</p>
+                <span className="material-symbols-outlined text-5xl text-slate-200 mb-4">
+                  {debouncedSearch ? 'search_off' : 'folder_open'}
+                </span>
+                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                  {debouncedSearch ? `No results for "${debouncedSearch}"` : 'No documents found'}
+                </p>
+                <p className="text-xs text-slate-300 mt-1">
+                  {debouncedSearch ? 'Try a different name' : 'Upload the first document to get started'}
+                </p>
               </div>
             ) : (
               <div className="bg-surface-container-lowest rounded-3xl p-2 border border-slate-100/50 shadow-sm overflow-hidden">
