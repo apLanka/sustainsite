@@ -9,7 +9,14 @@ import type {
   UpdateMilestonePayload,
   UpdateProjectPayload,
 } from '@/types/project';
-import type {CreateMaterialPayload, EquipmentAsset, MaterialAsset, ResourceSummary, Supplier,} from '@/types/resources';
+import type {
+  CreateEquipmentPayload,
+  CreateMaterialPayload,
+  EquipmentAsset,
+  MaterialAsset,
+  ResourceSummary,
+  Supplier,
+} from '@/types/resources';
 import {attachInterceptors} from './interceptors';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -173,6 +180,11 @@ export const resourcesApi = {
 
   createMaterial: async (data: CreateMaterialPayload): Promise<SingleResponse<MaterialAsset>> => {
     const response = await api.post<SingleResponse<MaterialAsset>>('/resources/materials', data);
+    return response.data;
+  },
+
+  createEquipment: async (data: CreateEquipmentPayload): Promise<SingleResponse<EquipmentAsset>> => {
+    const response = await api.post<SingleResponse<EquipmentAsset>>('/resources/equipment', data);
     return response.data;
   },
 

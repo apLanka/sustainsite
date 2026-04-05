@@ -47,18 +47,39 @@ export type EquipmentStatus = 'Available' | 'In Use' | 'Under Maintenance' | 'Da
 export type EquipmentType = 'Excavator' | 'Crane' | 'Bulldozer' | 'Mixer' | 'Loader' | 'Other';
 
 export interface EquipmentAsset {
-  id: string;
-  currentProjectId: string;
+  _id: string;
+  currentProjectId?: string;
   equipmentName: string;
   equipmentType: EquipmentType;
   serialNumber?: string;
   assetId?: string;
   manufacturer?: string;
   equipmentModel?: string;
+  yearOfManufacture?: number;
   status: EquipmentStatus;
   lastMaintenanceDate?: string;
   nextScheduledMaintenance?: string;
   assignedTo?: string;
+  currentLocation?: string;
+  notes?: string;
+  purchasePrice?: number;
+  currentValue?: number;
+  depreciationRate?: number;
+  rentalRatePerDay?: number;
+}
+
+export interface CreateEquipmentPayload {
+  equipmentName: string;
+  equipmentType: EquipmentType;
+  serialNumber?: string;
+  assetId?: string;
+  manufacturer?: string;
+  equipmentModel?: string;
+  yearOfManufacture?: number;
+  purchasePrice?: number;
+  currentValue?: number;
+  depreciationRate?: number;
+  rentalRatePerDay?: number;
   currentLocation?: string;
   notes?: string;
 }
