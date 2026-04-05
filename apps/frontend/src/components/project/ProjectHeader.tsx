@@ -200,7 +200,25 @@ const ProjectMenu = () => {
 
 const ProjectHeader = () => {
   const { id } = useParams();
-  const { selectedProject, isDetailLoading } = useProjectStore();
+  const { selectedProject, isDetailLoading, setSelectedProject, setDetailLoading } = useProjectStore();
+
+  // Fetch the project if this header is rendered on a sub-page that didn't load it
+  useEffect(() => {
+    if (!id) return;
+    if (selectedProject?._id === id) return; // already loaded
+    const fetch = async () => {
+      setDetailLoading(true);
+      try {
+        const res = await projectApi.getProjectById(id);
+        setSelectedProject(res.data);
+      } catch (err) {
+        console.error('ProjectHeader: failed to load project', err);
+      } finally {
+        setDetailLoading(false);
+      }
+    };
+    fetch();
+  }, [id, selectedProject?._id, setSelectedProject, setDetailLoading]);
   const [copied, setCopied] = useState(false);
 
   const projectName = isDetailLoading
