@@ -1,16 +1,45 @@
-export type MaterialStatus = 'In Stock' | 'Low Stock' | 'Out of Stock' | 'In Transit' | 'On Site';
+export type MaterialStatus = 'Ordered' | 'In Transit' | 'Delivered' | 'In Stock' | 'Used' | 'Cancelled';
+
+export type MaterialCategory = 'Cement' | 'Steel' | 'Wood' | 'Aggregates' | 'Bricks' | 'Equipment' | 'Other';
 
 export interface MaterialAsset {
-  id: string;
+  _id: string;
   projectId: string;
-  name: string;
-  category: string;
+  materialName: string;
+  category: MaterialCategory;
+  description?: string;
   quantity: number;
   unit: string;
+  unitPrice: number;
+  totalCost: number;
+  supplier: string;
   status: MaterialStatus;
-  supplierName: string;
-  minThreshold: number;
+  currentStock: number;
+  minimumThreshold: number;
+  sustainabilityRating?: number;
+  isEcoFriendly: boolean;
+  recycledContent: number;
+  certifications: string[];
+  orderDate: string;
+  expectedDeliveryDate?: string;
+  actualDeliveryDate?: string;
   lastUpdated: string;
+}
+
+export interface CreateMaterialPayload {
+  projectId: string;
+  materialName: string;
+  category: MaterialCategory;
+  quantity: number;
+  unit: string;
+  unitPrice: number;
+  supplier: string;
+  minimumThreshold?: number;
+  orderDate: string;
+  expectedDeliveryDate?: string;
+  isEcoFriendly?: boolean;
+  recycledContent?: number;
+  description?: string;
 }
 
 export type EquipmentStatus = 'Available' | 'In Use' | 'Under Maintenance' | 'Damaged' | 'Retired';
