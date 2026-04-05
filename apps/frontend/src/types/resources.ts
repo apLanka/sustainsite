@@ -35,14 +35,27 @@ export interface EquipmentAsset {
 }
 
 export interface Supplier {
-  id: string;
-  name: string;
-  category: string;
-  rating: number; // 1-5
-  isGreen: boolean;
-  contactEmail: string;
-  contactPhone: string;
-  address: string;
+  _id: string;
+  companyName: string;
+  contactPerson: string;
+  email: string;
+  phoneNumber: string;
+  address: {
+    street?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+  };
+  materialsSupplied: string[];
+  averageRating: number;
+  isSustainabilityCertified: boolean;
+  sustainabilityScore?: number;
+  isActive: boolean;
+  isPreferred: boolean;
+  onTimeDeliveryRate: number;
+  totalOrders: number;
+  completedOrders: number;
 }
 
 export interface ResourceExpense {
