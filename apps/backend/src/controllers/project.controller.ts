@@ -1,7 +1,8 @@
-import { Request, Response } from 'express';
+import {Request, Response} from 'express';
 import mongoose from 'mongoose';
 import Project from '../models/Project';
 import Milestone from '../models/Milestone';
+import Material from '../models/Material';
 
 export const createProject = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -243,6 +244,64 @@ export const getProjectTimeline = async (req: Request, res: Response): Promise<v
       data: {
         project,
         milestones,
+      },
+    });
+  } catch (error: unknown) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Server error',
+    });
+  }
+};
+
+export const getFinancialSummary = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const {id} = req.params;
+
+    const project = await Project.findById(id);
+    if (!project) {
+      res.status(404).json({success: false, error: 'Project not found'});
+      return;
+    }
+
+    const materials = await Material.find({projectId: id});
+
+    const totalMaterialCost = materials.reduce((sum, mat) => sum + mat.totalCost, 0);
+    const remainingValue = materials.reduce((sum, mat) => sum + (mat.currentStock * mat.unitPrice), 0);
+
+    // Calculate allocation by category
+    const allocationByCategory: Record<string, number> = {};
+    materials.forEach(mat => {
+      if (!allocationByCategory[mat.category]) {
+        allocationByCategory[mat.category] = 0;
+      }
+      allocationByCategory[mat.category] += mat.totalCost;
+    });
+
+    // Convert to percentage breakdown
+    const totalSpend = totalMaterialCost;
+    const allocationMix = Object.entries(allocationByCategory).map(([category, cost]) => ({
+      category,
+      cost,
+      percentage: totalSpend > 0 ? (cost / totalSpend) * 100 : 0,
+    }));
+
+    const budget = project.budget || 0;
+    const remainingBudget = budget - totalSpend;
+    const spendPercentage = budget > 0 ? (totalSpend / budget) * 100 : 0;
+
+    res.status(200).json({
+      success: true,
+      data: {
+        projectId: id,
+        projectName: project.projectName,
+        budget,
+        totalSpend,
+        remainingBudget,
+        spendPercentage,
+        remainingValue,
+        materialCount: materials.length,
+        allocationMix,
       },
     });
   } catch (error: unknown) {

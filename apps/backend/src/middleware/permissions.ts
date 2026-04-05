@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
-import mongoose, { Model } from 'mongoose';
+import {NextFunction, Request, Response} from 'express';
+import mongoose, {Model} from 'mongoose';
 import Project from '../models/Project';
-import { UserRole } from '../types';
+import {UserRole} from '../types';
 
 export const checkOwnership = (
   resourceModel: Model<any>,
@@ -116,6 +116,11 @@ export const checkProjectMembership = (projectIdField: string) => {
       const teamMemberIds = project.teamMembers.map((id) => id.toString());
 
       const isMember = projectManagerId === userId || teamMemberIds.includes(userId);
+
+      if (req.user.role === UserRole.ADMIN) {
+        next();
+        return;
+      }
 
       if (!isMember) {
         res.status(403).json({

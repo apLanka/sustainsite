@@ -133,6 +133,21 @@ export const projectApi = {
     const response = await api.get(`/projects/${id}/timeline`);
     return response.data;
   },
+
+  getFinancialSummary: async (id: string): Promise<SingleResponse<{
+    projectId: string;
+    projectName: string;
+    budget: number;
+    totalSpend: number;
+    remainingBudget: number;
+    spendPercentage: number;
+    remainingValue: number;
+    materialCount: number;
+    allocationMix: { category: string; cost: number; percentage: number }[];
+  }>> => {
+    const response = await api.get(`/projects/${id}/financial-summary`);
+    return response.data;
+  },
 };
 
 // ---------------------------------------------------------------------------
