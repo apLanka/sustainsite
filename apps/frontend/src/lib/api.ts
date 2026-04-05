@@ -16,6 +16,17 @@ import type {
   UpdateDocumentPayload,
   DocumentPagination,
 } from '@/types/document';
+import type {
+  ComplianceChecklist,
+  SafetyInspection,
+  ChecklistFilters,
+  InspectionFilters,
+  CreateChecklistPayload,
+  UpdateChecklistPayload,
+  CreateInspectionPayload,
+  UpdateInspectionPayload,
+  CompliancePagination,
+} from '@/types/compliance';
 import { attachInterceptors } from './interceptors';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -220,6 +231,84 @@ export const documentApi = {
   // Use window.open() — do not call through axios.
   getDownloadUrl: (id: string): string =>
     `${API_BASE_URL}/documents/${id}/download`,
+};
+
+// ---------------------------------------------------------------------------
+// Compliance API
+// ---------------------------------------------------------------------------
+
+interface CompliancePaginatedResponse<T> {
+  success: boolean;
+  data: T[];
+  pagination: CompliancePagination;
+}
+
+export const complianceApi = {
+  // ── Checklists ────────────────────────────────────────────────────────────
+
+  createChecklist: async (payload: CreateChecklistPayload): Promise<SingleResponse<ComplianceChecklist>> => {
+    const res = await api.post<SingleResponse<ComplianceChecklist>>('/compliance/checklists', payload);
+    return res.data;
+  },
+
+  getChecklists: async (filters: Partial<ChecklistFilters>): Promise<CompliancePaginatedResponse<ComplianceChecklist>> => {
+    const params: Record<string, string> = {};
+    if (filters.projectId) params.projectId = filters.projectId;
+    if (filters.category)  params.category  = filters.category;
+    if (filters.page)      params.page       = String(filters.page);
+    if (filters.limit)     params.limit      = String(filters.limit);
+    const res = await api.get<CompliancePaginatedResponse<ComplianceChecklist>>('/compliance/checklists', { params });
+    return res.data;
+  },
+
+  getChecklistById: async (id: string): Promise<SingleResponse<ComplianceChecklist>> => {
+    const res = await api.get<SingleResponse<ComplianceChecklist>>(`/compliance/checklists/${id}`);
+    return res.data;
+  },
+
+  updateChecklist: async (id: string, payload: UpdateChecklistPayload): Promise<SingleResponse<ComplianceChecklist>> => {
+    const res = await api.put<SingleResponse<ComplianceChecklist>>(`/compliance/checklists/${id}`, payload);
+    return res.data;
+  },
+
+  deleteChecklist: async (id: string): Promise<void> => {
+    await api.delete(`/compliance/checklists/${id}`);
+  },
+
+  // ── Inspections ───────────────────────────────────────────────────────────
+
+  createInspection: async (payload: CreateInspectionPayload): Promise<SingleResponse<SafetyInspection>> => {
+    const res = await api.post<SingleResponse<SafetyInspection>>('/compliance/inspections', payload);
+    return res.data;
+  },
+
+  getInspections: async (filters: Partial<InspectionFilters>): Promise<CompliancePaginatedResponse<SafetyInspection>> => {
+    const params: Record<string, string> = {};
+    if (filters.projectId)      params.projectId      = filters.projectId;
+    if (filters.riskLevel)      params.riskLevel      = filters.riskLevel;
+    if (filters.actionStatus)   params.actionStatus   = filters.actionStatus;
+    if (filters.inspectionType) params.inspectionType = filters.inspectionType;
+    if (filters.isResolved !== undefined && filters.isResolved !== '')
+      params.isResolved = String(filters.isResolved);
+    if (filters.page)  params.page  = String(filters.page);
+    if (filters.limit) params.limit = String(filters.limit);
+    const res = await api.get<CompliancePaginatedResponse<SafetyInspection>>('/compliance/inspections', { params });
+    return res.data;
+  },
+
+  getInspectionById: async (id: string): Promise<SingleResponse<SafetyInspection>> => {
+    const res = await api.get<SingleResponse<SafetyInspection>>(`/compliance/inspections/${id}`);
+    return res.data;
+  },
+
+  updateInspection: async (id: string, payload: UpdateInspectionPayload): Promise<SingleResponse<SafetyInspection>> => {
+    const res = await api.put<SingleResponse<SafetyInspection>>(`/compliance/inspections/${id}`, payload);
+    return res.data;
+  },
+
+  deleteInspection: async (id: string): Promise<void> => {
+    await api.delete(`/compliance/inspections/${id}`);
+  },
 };
 
 export default api;
