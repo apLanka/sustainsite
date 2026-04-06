@@ -2,17 +2,12 @@ import { Link } from 'react-router-dom';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import ProjectForm from '@/components/projects/ProjectForm';
 import BlueprintSidebar from '@/components/projects/BlueprintSidebar';
-
 export default function CreateProjectPage() {
-  return (
-    <DashboardLayout>
+    return (<DashboardLayout>
       <div className="max-w-[1600px] mx-auto">
-        {/* Breadcrumbs & Header */}
+        
         <header className="py-10 space-y-4">
-          <Link 
-            to="/projects" 
-            className="flex items-center gap-2 text-xs font-bold text-secondary uppercase tracking-widest hover:underline transition-all group"
-          >
+          <Link to="/projects" className="flex items-center gap-2 text-xs font-bold text-secondary uppercase tracking-widest hover:underline transition-all group">
             <span className="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">arrow_back</span>
             Back to Project Inventory
           </Link>
@@ -27,17 +22,16 @@ export default function CreateProjectPage() {
         </header>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-10 pb-20">
-          {/* Form Container (Left) */}
+          
           <div className="xl:col-span-2 bg-surface-container-lowest rounded-3xl p-10 shadow-sm border border-slate-100/50">
             <ProjectForm />
           </div>
 
-          {/* Sidebar Container (Right) */}
+          
           <div className="xl:col-span-1">
             <BlueprintSidebar />
           </div>
         </div>
       </div>
-    </DashboardLayout>
-  );
+    </DashboardLayout>);
 }

@@ -3,14 +3,11 @@ import DashboardLayout from '@/components/common/DashboardLayout';
 import ProjectFilters from '@/components/projects/ProjectFilters';
 import ProjectsGrid from '@/components/projects/ProjectsGrid';
 import { useProjectStore } from '@/store';
-
 export default function ProjectsPage() {
-  const pagination = useProjectStore((s) => s.pagination);
-  const total = pagination?.total ?? 0;
-
-  return (
-    <DashboardLayout>
-      {/* Header Section */}
+    const pagination = useProjectStore((s) => s.pagination);
+    const total = pagination?.total ?? 0;
+    return (<DashboardLayout>
+      
       <header className="py-10 flex flex-col md:flex-row justify-between items-end md:items-center gap-6">
         <div>
           <p className="text-secondary font-bold text-sm tracking-widest uppercase mb-1 font-headline">Operations Centre</p>
@@ -21,20 +18,16 @@ export default function ProjectsPage() {
           </div>
         </div>
 
-        <Link 
-          to="/projects/new"
-          className="px-6 py-2.5 bg-primary text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/10 hover:brightness-110 active:scale-95 transition-all cursor-pointer font-headline"
-        >
+        <Link to="/projects/new" className="px-6 py-2.5 bg-primary text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/10 hover:brightness-110 active:scale-95 transition-all cursor-pointer font-headline">
           <span className="material-symbols-outlined text-lg">add_circle</span>
           Create New Project
         </Link>
       </header>
 
-      {/* Filters Section */}
+      
       <ProjectFilters />
 
-      {/* Projects Grid Section */}
+      
       <ProjectsGrid />
-    </DashboardLayout>
-  );
+    </DashboardLayout>);
 }
