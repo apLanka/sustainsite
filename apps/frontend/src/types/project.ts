@@ -95,7 +95,7 @@ export interface Project {
 export interface CreateProjectPayload {
   projectName: string;
   description?: string;
-  location: { address: string };
+  location: { address: string; latitude?: number; longitude?: number };
   startDate: string;
   endDate: string;
   budget: number;
