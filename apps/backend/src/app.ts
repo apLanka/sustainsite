@@ -1,5 +1,4 @@
 import express, { Application, Request, RequestHandler, Response } from 'express';
-import { createRequire } from 'node:module';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -10,7 +9,9 @@ import logger from './utils/logger';
 
 dotenv.config();
 
-const require = createRequire(__filename);
+type RequireFn = (moduleId: string) => unknown;
+const requireFn: RequireFn = module.require;
+
 type SwaggerUiModule = {
   serve: RequestHandler | RequestHandler[];
   setup: (spec: object, ...args: unknown[]) => RequestHandler;
@@ -18,8 +19,8 @@ type SwaggerUiModule = {
 let swaggerUi: SwaggerUiModule | null = null;
 let swaggerSpec: object | null = null;
 try {
-  swaggerUi = require('swagger-ui-express') as SwaggerUiModule;
-  swaggerSpec = (require('./config/swagger') as { swaggerSpec: object }).swaggerSpec;
+  swaggerUi = requireFn('swagger-ui-express') as SwaggerUiModule;
+  swaggerSpec = (requireFn('./config/swagger') as { swaggerSpec: object }).swaggerSpec;
 } catch {
   swaggerUi = null;
   swaggerSpec = null;
