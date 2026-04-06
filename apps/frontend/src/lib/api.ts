@@ -1,41 +1,42 @@
 import axios, {type AxiosInstance} from 'axios';
 import type {AuthResponse, UserResponse} from '@/types/auth';
 import type {
-    CreateMilestonePayload,
-    CreateProjectPayload,
-    Milestone,
-    Project,
-    ProjectFilters,
-    UpdateMilestonePayload,
-    UpdateProjectPayload,
+  CreateMilestonePayload,
+  CreateProjectPayload,
+  Milestone,
+  Project,
+  ProjectFilters,
+  UpdateMilestonePayload,
+  UpdateProjectPayload,
 } from '@/types/project';
 import type {
-  ProjectDocument,
   DocumentFilters,
-  UploadDocumentPayload,
-  UpdateDocumentPayload,
   DocumentPagination,
+  ProjectDocument,
+  UpdateDocumentPayload,
+  UploadDocumentPayload,
 } from '@/types/document';
 import type {
-  ComplianceChecklist,
-  SafetyInspection,
   ChecklistFilters,
-  InspectionFilters,
-  CreateChecklistPayload,
-  UpdateChecklistPayload,
-  CreateInspectionPayload,
-  UpdateInspectionPayload,
+  ComplianceChecklist,
   CompliancePagination,
+  CreateChecklistPayload,
+  CreateInspectionPayload,
+  InspectionFilters,
+  SafetyInspection,
+  UpdateChecklistPayload,
+  UpdateInspectionPayload,
 } from '@/types/compliance';
 import type {
-    CreateEquipmentPayload,
-    CreateMaterialPayload,
-    CreateSupplierPayload,
-    EquipmentAsset,
-    MaterialAsset,
-    ResourceSummary,
-    Supplier,
+  CreateEquipmentPayload,
+  CreateMaterialPayload,
+  CreateSupplierPayload,
+  EquipmentAsset,
+  MaterialAsset,
+  ResourceSummary,
+  Supplier,
 } from '@/types/resources';
+import type {SustainabilityMetric, SustainabilityScore, SustainabilityTrend} from '@/types/sustainability';
 import {attachInterceptors} from './interceptors';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -273,6 +274,54 @@ export const resourcesApi = {
   getCostSummary: async (projectId: string): Promise<SingleResponse<ResourceSummary>> => {
     const response = await api.get<SingleResponse<ResourceSummary>>(
         `/resources/materials/${projectId}/cost-summary`
+    );
+    return response.data;
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Sustainability API
+// ---------------------------------------------------------------------------
+
+export const sustainabilityApi = {
+  createMetric: async (data: {
+    projectId: string;
+    carbonEmissions: { transportation: number; equipment: number; materials: number };
+    energyConsumption: { electricity: number; diesel: number; renewableEnergy: number };
+    wasteManagement: { recyclable: number; nonRecyclable: number; hazardous: number };
+    waterUsage: { municipal: number; recycled: number };
+    recordedDate: string;
+    notes?: string;
+  }): Promise<SingleResponse<SustainabilityMetric>> => {
+    const response = await api.post<SingleResponse<SustainabilityMetric>>('/sustainability', data);
+    return response.data;
+  },
+
+  getProjectScore: async (projectId: string): Promise<SingleResponse<SustainabilityScore>> => {
+    const response = await api.get<SingleResponse<SustainabilityScore>>(
+        `/sustainability/projects/${projectId}/score`
+    );
+    return response.data;
+  },
+
+  getProjectTrends: async (projectId: string): Promise<SingleResponse<SustainabilityTrend[]>> => {
+    const response = await api.get<SingleResponse<SustainabilityTrend[]>>(
+        `/sustainability/projects/${projectId}/trends`
+    );
+    return response.data;
+  },
+
+  getLatestMetric: async (projectId: string): Promise<SingleResponse<SustainabilityMetric>> => {
+    const response = await api.get<SingleResponse<SustainabilityMetric>>(
+        `/sustainability/projects/${projectId}/metrics/latest`
+    );
+    return response.data;
+  },
+
+  getProjectMetrics: async (projectId: string): Promise<PaginatedResponse<SustainabilityMetric>> => {
+    const params = new URLSearchParams({projectId});
+    const response = await api.get<PaginatedResponse<SustainabilityMetric>>(
+        `/sustainability/projects/${projectId}/metrics?${params.toString()}`
     );
     return response.data;
   },
