@@ -1,33 +1,43 @@
-import axios, { type AxiosInstance } from 'axios';
-import type { AuthResponse, UserResponse } from '@/types/auth';
+import axios, {type AxiosInstance} from 'axios';
+import type {AuthResponse, UserResponse} from '@/types/auth';
 import type {
-  Project,
-  Milestone,
-  ProjectFilters,
-  CreateProjectPayload,
-  UpdateProjectPayload,
   CreateMilestonePayload,
+  CreateProjectPayload,
+  Milestone,
+  Project,
+  ProjectFilters,
   UpdateMilestonePayload,
+  UpdateProjectPayload,
 } from '@/types/project';
 import type {
-  ProjectDocument,
   DocumentFilters,
-  UploadDocumentPayload,
-  UpdateDocumentPayload,
   DocumentPagination,
+  ProjectDocument,
+  UpdateDocumentPayload,
+  UploadDocumentPayload,
 } from '@/types/document';
 import type {
-  ComplianceChecklist,
-  SafetyInspection,
   ChecklistFilters,
-  InspectionFilters,
-  CreateChecklistPayload,
-  UpdateChecklistPayload,
-  CreateInspectionPayload,
-  UpdateInspectionPayload,
+  ComplianceChecklist,
   CompliancePagination,
+  CreateChecklistPayload,
+  CreateInspectionPayload,
+  InspectionFilters,
+  SafetyInspection,
+  UpdateChecklistPayload,
+  UpdateInspectionPayload,
 } from '@/types/compliance';
-import { attachInterceptors } from './interceptors';
+import type {
+  CreateEquipmentPayload,
+  CreateMaterialPayload,
+  CreateSupplierPayload,
+  EquipmentAsset,
+  MaterialAsset,
+  ResourceSummary,
+  Supplier,
+} from '@/types/resources';
+import type {SustainabilityMetric, SustainabilityScore, SustainabilityTrend} from '@/types/sustainability';
+import {attachInterceptors} from './interceptors';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -158,6 +168,161 @@ export const projectApi = {
 
   getTimeline: async (id: string): Promise<SingleResponse<{ project: Partial<Project>; milestones: Milestone[] }>> => {
     const response = await api.get(`/projects/${id}/timeline`);
+    return response.data;
+  },
+
+  getFinancialSummary: async (id: string): Promise<SingleResponse<{
+    projectId: string;
+    projectName: string;
+    budget: number;
+    totalSpend: number;
+    remainingBudget: number;
+    spendPercentage: number;
+    remainingValue: number;
+    materialCount: number;
+    allocationMix: { category: string; cost: number; percentage: number }[];
+  }>> => {
+    const response = await api.get(`/projects/${id}/financial-summary`);
+    return response.data;
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Resources API
+// ---------------------------------------------------------------------------
+
+export const resourcesApi = {
+  getMaterials: async (
+      projectId: string,
+      page = 1,
+      limit = 10
+  ): Promise<PaginatedResponse<MaterialAsset>> => {
+    const params = new URLSearchParams({
+      projectId,
+      page: String(page),
+      limit: String(limit),
+    });
+    const response = await api.get<PaginatedResponse<MaterialAsset>>(
+        `/resources/materials?${params.toString()}`
+    );
+    return response.data;
+  },
+
+  createMaterial: async (data: CreateMaterialPayload): Promise<SingleResponse<MaterialAsset>> => {
+    const response = await api.post<SingleResponse<MaterialAsset>>('/resources/materials', data);
+    return response.data;
+  },
+
+  createEquipment: async (data: CreateEquipmentPayload): Promise<SingleResponse<EquipmentAsset>> => {
+    const response = await api.post<SingleResponse<EquipmentAsset>>('/resources/equipment', data);
+    return response.data;
+  },
+
+  getEquipment: async (
+      projectId: string,
+      status?: string,
+      page = 1,
+      limit = 10
+  ): Promise<PaginatedResponse<EquipmentAsset>> => {
+    const params = new URLSearchParams({
+      projectId,
+      page: String(page),
+      limit: String(limit),
+    });
+    if (status) params.set('status', status);
+    const response = await api.get<PaginatedResponse<EquipmentAsset>>(
+        `/resources/equipment?${params.toString()}`
+    );
+    return response.data;
+  },
+
+  getAvailableEquipment: async (
+      page = 1,
+      limit = 10
+  ): Promise<PaginatedResponse<EquipmentAsset>> => {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
+    const response = await api.get<PaginatedResponse<EquipmentAsset>>(
+        `/resources/equipment/list/available?${params.toString()}`
+    );
+    return response.data;
+  },
+
+  getSuppliers: async (
+      isActive = true,
+      page = 1,
+      limit = 10
+  ): Promise<PaginatedResponse<Supplier>> => {
+    const params = new URLSearchParams({
+      isActive: String(isActive),
+      page: String(page),
+      limit: String(limit),
+    });
+    const response = await api.get<PaginatedResponse<Supplier>>(
+        `/resources/suppliers?${params.toString()}`
+    );
+    return response.data;
+  },
+
+    createSupplier: async (data: CreateSupplierPayload): Promise<SingleResponse<Supplier>> => {
+        const response = await api.post<SingleResponse<Supplier>>('/resources/suppliers', data);
+        return response.data;
+    },
+
+  getCostSummary: async (projectId: string): Promise<SingleResponse<ResourceSummary>> => {
+    const response = await api.get<SingleResponse<ResourceSummary>>(
+        `/resources/materials/${projectId}/cost-summary`
+    );
+    return response.data;
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Sustainability API
+// ---------------------------------------------------------------------------
+
+export const sustainabilityApi = {
+  createMetric: async (data: {
+    projectId: string;
+    carbonEmissions: { transportation: number; equipment: number; materials: number };
+    energyConsumption: { electricity: number; diesel: number; renewableEnergy: number };
+    wasteManagement: { recyclable: number; nonRecyclable: number; hazardous: number };
+    waterUsage: { municipal: number; recycled: number };
+    recordedDate: string;
+    notes?: string;
+  }): Promise<SingleResponse<SustainabilityMetric>> => {
+    const response = await api.post<SingleResponse<SustainabilityMetric>>('/sustainability', data);
+    return response.data;
+  },
+
+  getProjectScore: async (projectId: string): Promise<SingleResponse<SustainabilityScore>> => {
+    const response = await api.get<SingleResponse<SustainabilityScore>>(
+        `/sustainability/projects/${projectId}/score`
+    );
+    return response.data;
+  },
+
+  getProjectTrends: async (projectId: string): Promise<SingleResponse<SustainabilityTrend[]>> => {
+    const response = await api.get<SingleResponse<SustainabilityTrend[]>>(
+        `/sustainability/projects/${projectId}/trends`
+    );
+    return response.data;
+  },
+
+  getLatestMetric: async (projectId: string): Promise<SingleResponse<SustainabilityMetric>> => {
+    const response = await api.get<SingleResponse<SustainabilityMetric>>(
+        `/sustainability/projects/${projectId}/metrics/latest`
+    );
+    return response.data;
+  },
+
+  getProjectMetrics: async (projectId: string): Promise<PaginatedResponse<SustainabilityMetric>> => {
+    const params = new URLSearchParams({projectId});
+    const response = await api.get<PaginatedResponse<SustainabilityMetric>>(
+        `/sustainability/projects/${projectId}/metrics?${params.toString()}`
+    );
     return response.data;
   },
 };

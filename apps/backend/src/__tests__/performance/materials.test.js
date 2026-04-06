@@ -2,7 +2,6 @@ import http from 'k6/http';
 import { check, sleep, group } from 'k6';
 import { authenticatedRequest, getAuthHeaders, API_BASE } from './k6-config.js';
 
-// Test data
 const testMaterial = {
   projectId: 'test-project-id',
   materialName: 'Concrete Mix',
@@ -17,14 +16,12 @@ const testMaterial = {
 
 export const options = {
   scenarios: {
-    // Functional test with moderate load
     functional: {
       executor: 'constant-vus',
       vus: 5,
       duration: '1m',
       tags: { test_type: 'functional' },
     },
-    // High load test
     high_load: {
       executor: 'ramping-vus',
       startVUs: 0,
@@ -129,7 +126,6 @@ export function handleSummary(data) {
   };
 }
 
-// Simple text summary function
 function textSummary(data, options = {}) {
   const indent = options.indent || '';
   const colors = options.enableColors ? true : false;

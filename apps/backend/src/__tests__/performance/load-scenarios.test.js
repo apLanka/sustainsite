@@ -53,7 +53,6 @@ export const options = {
   },
 };
 
-// Get auth token
 function getToken() {
   const loginRes = http.post(`${API_BASE}/auth/login`, JSON.stringify({
     email: 'admin@example.com',
@@ -77,14 +76,12 @@ export default function () {
     Authorization: `Bearer ${token}`,
   };
 
-  // Test read-heavy endpoints
   const endpoints = [
     '/resources/materials',
     '/resources/equipment',
     '/resources/suppliers',
   ];
 
-  // Random endpoint selection for varied load
   const endpoint = endpoints[Math.floor(Math.random() * endpoints.length)];
 
   const response = http.get(`${API_BASE}${endpoint}?page=1&limit=10`, { headers });

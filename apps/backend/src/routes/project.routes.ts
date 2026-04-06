@@ -1,23 +1,24 @@
-import { Router } from 'express';
+import {Router} from 'express';
 import {
-  createProject,
-  getProjects,
-  getProjectById,
-  updateProject,
-  deleteProject,
   addMilestone,
-  updateMilestone,
+  createProject,
+  deleteProject,
+  getFinancialSummary,
+  getProjectById,
+  getProjects,
   getProjectTimeline,
+  updateMilestone,
+  updateProject,
 } from '../controllers/project.controller';
 import {
   authenticate,
   authorize,
-  requireManager,
-  requireAdmin,
-  checkProjectMembership,
   checkProjectManager,
+  checkProjectMembership,
+  requireAdmin,
+  requireManager,
 } from '../middleware';
-import { UserRole } from '../types';
+import {UserRole} from '../types';
 
 const router = Router();
 
@@ -46,5 +47,7 @@ router.put(
 );
 
 router.get('/:id/timeline', authenticate, checkProjectMembership('params.id'), getProjectTimeline);
+
+router.get('/:id/financial-summary', authenticate, checkProjectMembership('params.id'), getFinancialSummary);
 
 export default router;

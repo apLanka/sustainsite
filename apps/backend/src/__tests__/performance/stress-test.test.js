@@ -2,10 +2,8 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { BASE_URL, API_BASE } from './k6-config.js';
 
-// Stress test - push the system to breaking point
 export const options = {
   scenarios: {
-    // Stress test - gradual increase to find breaking point
     stress: {
       executor: 'ramping-vus',
       startVUs: 0,
@@ -21,13 +19,11 @@ export const options = {
     },
   },
   thresholds: {
-    // More lenient thresholds for stress testing
     http_req_duration: ['p(95)<2000', 'p(99)<5000'],
     http_req_failed: ['rate<0.10'],
   },
 };
 
-// Get auth token
 function getToken() {
   const loginRes = http.post(`${API_BASE}/auth/login`, JSON.stringify({
     email: 'admin@example.com',
@@ -51,7 +47,6 @@ export default function () {
     Authorization: `Bearer ${token}`,
   };
 
-  // Test all major endpoints
   const endpoints = [
     '/resources/materials',
     '/resources/equipment',
