@@ -142,9 +142,6 @@ export default function MaterialInventory() {
               <p className="text-xs opacity-80">Some essential materials are below thresholds. Immediate procurement recommended.</p>
             </div>
           </div>
-          <button className="px-4 py-1.5 bg-rose-600 text-white rounded-lg text-xs font-bold hover:bg-rose-700 transition-colors shadow-sm">
-            Quick Reorder
-          </button>
         </div>
       )}
 

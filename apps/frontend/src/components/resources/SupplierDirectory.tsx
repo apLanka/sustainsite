@@ -207,10 +207,6 @@ export default function SupplierDirectory() {
               </div>
             </div>
 
-            <button className="w-full py-4 bg-slate-900 text-white rounded-[20px] text-[10px] font-black uppercase tracking-widest hover:bg-primary transition-all flex items-center justify-center gap-2 group/btn shadow-xl shadow-slate-900/10">
-              Procurement Profile
-              <span className="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
-            </button>
           </div>
         ))}
       </div>

@@ -208,14 +208,6 @@ export default function EquipmentManagement() {
               )}
             </div>
 
-            <div className="flex gap-3 mt-auto">
-              <button className="flex-1 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary transition-colors shadow-lg shadow-slate-900/10">
-                Operations Log
-              </button>
-              <button className="w-12 h-12 border border-slate-100 rounded-xl text-slate-400 hover:bg-slate-50 transition-all flex items-center justify-center">
-                <span className="material-symbols-outlined text-xl">settings</span>
-              </button>
-            </div>
           </div>
         ))}
 
