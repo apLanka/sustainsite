@@ -1,5 +1,13 @@
 import { Router } from 'express';
-import { createSupplier, getSuppliers, getSupplierById, updateSupplier, deleteSupplier, rateSupplier, getSupplierPerformance, } from '../controllers/resource.controller';
+import {
+  createSupplier,
+  getSuppliers,
+  getSupplierById,
+  updateSupplier,
+  deleteSupplier,
+  rateSupplier,
+  getSupplierPerformance,
+} from '../controllers/resource.controller';
 import { authenticate, requireManager, requireAdmin } from '../middleware';
 const router = Router();
 router.post('/', authenticate, requireManager(), createSupplier);

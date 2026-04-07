@@ -1,5 +1,15 @@
 import { Router } from 'express';
-import { createEquipment, getEquipment, getEquipmentById, updateEquipment, deleteEquipment, assignEquipment, scheduleMaintenanceForEquipment, updateEquipmentStatus, getAvailableEquipment, } from '../controllers/resource.controller';
+import {
+  createEquipment,
+  getEquipment,
+  getEquipmentById,
+  updateEquipment,
+  deleteEquipment,
+  assignEquipment,
+  scheduleMaintenanceForEquipment,
+  updateEquipmentStatus,
+  getAvailableEquipment,
+} from '../controllers/resource.controller';
 import { authenticate, requireManager, requireAdmin } from '../middleware';
 const router = Router();
 router.post('/', authenticate, requireManager(), createEquipment);
