@@ -21,71 +21,139 @@ import SafetyPage from '@/pages/SafetyPage';
 import AdminUsersPage from '@/pages/AdminUsersPage';
 import SupplierMaterialsPage from '@/pages/SupplierMaterialsPage';
 export default function App() {
-    return (<BrowserRouter>
+  return (
+    <BrowserRouter>
       <AuthProvider>
         <ProjectProvider>
-          <Toaster position="top-right" richColors closeButton/>
+          <Toaster position="top-right" richColors closeButton />
           <Routes>
-            <Route path="/" element={<LandingPage />}/>
-            <Route path="/login" element={<LoginPage />}/>
-            <Route path="/register" element={<RegisterPage />}/>
-            
-            <Route path="/dashboard" element={<ProtectedRoute>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
                   <DashboardPage />
-                </ProtectedRoute>}/>
+                </ProtectedRoute>
+              }
+            />
 
-            <Route path="/projects" element={<ProtectedRoute>
+            <Route
+              path="/projects"
+              element={
+                <ProtectedRoute>
                   <ProjectsPage />
-                </ProtectedRoute>}/>
+                </ProtectedRoute>
+              }
+            />
 
-            <Route path="/projects/new" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.PROJECT_MANAGER]}>
+            <Route
+              path="/projects/new"
+              element={
+                <ProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.PROJECT_MANAGER]}>
                   <CreateProjectPage />
-                </ProtectedRoute>}/>
+                </ProtectedRoute>
+              }
+            />
 
-            <Route path="/projects/:id" element={<ProtectedRoute>
+            <Route
+              path="/projects/:id"
+              element={
+                <ProtectedRoute>
                   <ProjectDetailPage />
-                </ProtectedRoute>}/>
+                </ProtectedRoute>
+              }
+            />
 
-            
-            <Route path="/projects/:id/sustainability" element={<ProtectedRoute>
+            <Route
+              path="/projects/:id/sustainability"
+              element={
+                <ProtectedRoute>
                   <SustainabilityDashboardPage />
-                </ProtectedRoute>}/>
+                </ProtectedRoute>
+              }
+            />
 
-            <Route path="/projects/:id/sustainability/record" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.PROJECT_MANAGER, UserRole.INSPECTOR]}>
+            <Route
+              path="/projects/:id/sustainability/record"
+              element={
+                <ProtectedRoute
+                  allowedRoles={[UserRole.ADMIN, UserRole.PROJECT_MANAGER, UserRole.INSPECTOR]}
+                >
                   <RecordMetricsPage />
-                </ProtectedRoute>}/>
-            
-            <Route path="/projects/:id/documents" element={<ProtectedRoute>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/projects/:id/documents"
+              element={
+                <ProtectedRoute>
                   <DocumentsPage />
-                </ProtectedRoute>}/>
-            
-            <Route path="/projects/:id/compliance" element={<ProtectedRoute>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/projects/:id/compliance"
+              element={
+                <ProtectedRoute>
                   <CompliancePage />
-                </ProtectedRoute>}/>
+                </ProtectedRoute>
+              }
+            />
 
-            <Route path="/projects/:id/resources" element={<ProtectedRoute>
+            <Route
+              path="/projects/:id/resources"
+              element={
+                <ProtectedRoute>
                   <ResourcesPage />
-                </ProtectedRoute>}/>
+                </ProtectedRoute>
+              }
+            />
 
-            <Route path="/projects/:id/safety" element={<ProtectedRoute>
+            <Route
+              path="/projects/:id/safety"
+              element={
+                <ProtectedRoute>
                   <SafetyPage />
-                </ProtectedRoute>}/>
+                </ProtectedRoute>
+              }
+            />
 
-            <Route path="/settings" element={<ProtectedRoute>
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
                   <SettingsPage />
-                </ProtectedRoute>}/>
+                </ProtectedRoute>
+              }
+            />
 
-            <Route path="/admin/users" element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
                   <AdminUsersPage />
-                </ProtectedRoute>}/>
+                </ProtectedRoute>
+              }
+            />
 
-            <Route path="/supplier/materials" element={<ProtectedRoute allowedRoles={[UserRole.SUPPLIER]}>
+            <Route
+              path="/supplier/materials"
+              element={
+                <ProtectedRoute allowedRoles={[UserRole.SUPPLIER]}>
                   <SupplierMaterialsPage />
-                </ProtectedRoute>}/>
+                </ProtectedRoute>
+              }
+            />
 
-            <Route path="*" element={<Navigate to="/" replace/>}/>
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </ProjectProvider>
       </AuthProvider>
-    </BrowserRouter>);
+    </BrowserRouter>
+  );
 }
