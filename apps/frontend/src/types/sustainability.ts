@@ -4,14 +4,12 @@ export interface CarbonEmissions {
     materials: number;
     total: number;
 }
-
 export interface EnergyConsumption {
     electricity: number;
     diesel: number;
     renewableEnergy: number;
     total: number;
 }
-
 export interface WasteManagement {
     recyclable: number;
     nonRecyclable: number;
@@ -19,13 +17,11 @@ export interface WasteManagement {
     total: number;
     diversionRate: number;
 }
-
 export interface WaterUsage {
     municipal: number;
     recycled: number;
     total: number;
 }
-
 export interface SustainabilityMetric {
     _id: string;
     projectId: string;
@@ -37,10 +33,12 @@ export interface SustainabilityMetric {
     treesEquivalent: number;
     scoreCategory: 'Red' | 'Yellow' | 'Green';
     recordedDate: string;
-    recordedBy?: { firstName: string; lastName: string };
+    recordedBy?: {
+        firstName: string;
+        lastName: string;
+    };
     notes?: string;
 }
-
 export interface SustainabilityScore {
     projectId: string;
     projectName: string;
@@ -49,11 +47,13 @@ export interface SustainabilityScore {
     scoreCategory: 'Red' | 'Yellow' | 'Green';
     lastUpdated: string;
     trend: 'improving' | 'declining' | 'stable';
-    benchmarkComparison: { industryAverage: number; difference: number };
+    benchmarkComparison: {
+        industryAverage: number;
+        difference: number;
+    };
     recommendations: string[];
     scoreBreakdown: Record<string, number> | null;
 }
-
 export interface SustainabilityTrend {
     _id: string;
     sustainabilityScore: number;
@@ -63,7 +63,6 @@ export interface SustainabilityTrend {
     };
     recordedDate: string;
 }
-
 export interface SustainabilityTrendsResponse {
     projectId: string;
     period: string;
@@ -76,7 +75,6 @@ export interface SustainabilityTrendsResponse {
         totalWasteRecorded: number;
     };
 }
-
 export interface IndustryComparisonResponse {
     projectId: string;
     projectName: string;
@@ -88,7 +86,6 @@ export interface IndustryComparisonResponse {
     areasBelowAverage: string[];
     benchmarks: Record<string, number>;
 }
-
 export interface ImpactCalculationResponse {
     totalCarbon: number;
     treesEquivalent: number;
