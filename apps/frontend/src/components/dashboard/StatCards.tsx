@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useDashboardStore } from '@/store';
 
 const CIRC_R   = 54;
@@ -8,7 +9,8 @@ const Skeleton = ({ className }: { className: string }) => (
 );
 
 const StatCards = ({ isLoading }: { isLoading: boolean }) => {
-  const { activeCount, avgSustainability, pendingApprovals, highRiskCount } = useDashboardStore();
+  const { activeCount, avgSustainability, pendingApprovals, highRiskCount, projects } = useDashboardStore();
+  const firstProjectId = projects[0]?._id;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
@@ -16,8 +18,8 @@ const StatCards = ({ isLoading }: { isLoading: boolean }) => {
       {/* Active Projects */}
       <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col justify-between group hover:shadow-md transition-shadow">
         <div className="flex justify-between items-start mb-4">
-          <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-secondary">
-            <span className="material-symbols-outlined !text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>foundation</span>
+          <div className="w-14 h-14 bg-emerald-50 rounded-xl flex items-center justify-center text-secondary">
+            <span className="material-symbols-outlined !text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>foundation</span>
           </div>
         </div>
         <div>
@@ -27,11 +29,6 @@ const StatCards = ({ isLoading }: { isLoading: boolean }) => {
             <h3 className="text-3xl font-extrabold text-primary tracking-tighter">{activeCount}</h3>
           )}
           <p className="text-sm font-semibold text-slate-500 mt-1 uppercase tracking-wider font-headline">In Progress</p>
-        </div>
-        <div className="mt-4 pt-4 border-t border-slate-50">
-          <svg className="w-full h-8 stroke-secondary fill-none stroke-2" viewBox="0 0 100 20">
-            <path d="M0,15 Q10,5 20,10 T40,5 T60,15 T80,5 T100,10" />
-          </svg>
         </div>
       </div>
 
@@ -68,8 +65,8 @@ const StatCards = ({ isLoading }: { isLoading: boolean }) => {
       {/* Pending Approvals */}
       <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col justify-between group hover:shadow-md transition-shadow">
         <div className="flex justify-between items-start">
-          <div className="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-700">
-            <span className="material-symbols-outlined !text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>pending_actions</span>
+          <div className="w-14 h-14 bg-amber-50 rounded-xl flex items-center justify-center text-amber-700">
+            <span className="material-symbols-outlined !text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>pending_actions</span>
           </div>
         </div>
         <div className="mt-4">
@@ -80,18 +77,18 @@ const StatCards = ({ isLoading }: { isLoading: boolean }) => {
           )}
           <p className="text-sm font-semibold text-slate-500 mt-1 uppercase tracking-wider font-headline">Pending Approvals</p>
         </div>
-        {!isLoading && pendingApprovals > 0 && (
-          <a className="mt-4 inline-flex items-center text-xs font-bold text-amber-700 hover:underline group-hover:gap-2 transition-all gap-1 cursor-pointer" href="#">
+        {!isLoading && pendingApprovals > 0 && firstProjectId && (
+          <Link to={`/projects/${firstProjectId}/documents?status=Under Review`} className="mt-4 inline-flex items-center text-xs font-bold text-amber-700 hover:underline group-hover:gap-2 transition-all gap-1 cursor-pointer">
             Review Now <span className="material-symbols-outlined !text-sm">arrow_forward</span>
-          </a>
+          </Link>
         )}
       </div>
 
       {/* High-Risk Inspections */}
       <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col justify-between group hover:shadow-md transition-shadow">
         <div className="flex justify-between items-start mb-4">
-          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${highRiskCount > 0 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-secondary'}`}>
-            <span className="material-symbols-outlined !text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+          <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${highRiskCount > 0 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-secondary'}`}>
+            <span className="material-symbols-outlined !text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
               {highRiskCount > 0 ? 'warning' : 'verified_user'}
             </span>
           </div>
