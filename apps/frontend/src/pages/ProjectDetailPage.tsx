@@ -56,7 +56,6 @@ export default function ProjectDetailPage() {
   const [showTeamModal, setShowTeamModal] = useState(false);
   const [teamUsers, setTeamUsers] = useState<Array<{ _id: string; fullName: string; email: string; role: string }>>([]);
   const [teamUsersLoading, setTeamUsersLoading] = useState(false);
-  const [isUpdatingTeam, setIsUpdatingTeam] = useState(false);
   const canEditAsManager = isAssignedProjectManager(selectedProject, user?.userId);
   const canDeleteProj = canDeleteProject(user?.role);
   const tabs = [
@@ -212,7 +211,6 @@ export default function ProjectDetailPage() {
 
   const updateTeamMembers = async (managerId: string | undefined, memberIds: string[]) => {
     if (!id) return;
-    setIsUpdatingTeam(true);
     try {
       const updateData: Record<string, unknown> = {};
       if (managerId !== undefined) {
@@ -222,7 +220,7 @@ export default function ProjectDetailPage() {
         updateData.teamMembers = memberIds;
       }
       await projectApi.updateProject(id, updateData);
-      const updated = await projectApi.getById(id);
+      const updated = await projectApi.getProjectById(id);
       setSelectedProject(updated.data);
       setShowTeamModal(false);
       toast.success('Team updated successfully');
@@ -231,8 +229,6 @@ export default function ProjectDetailPage() {
         (err as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ??
         'Failed to update team.';
       toast.error(msg);
-    } finally {
-      setIsUpdatingTeam(false);
     }
   };
 
@@ -881,7 +877,7 @@ export default function ProjectDetailPage() {
                   >
                     <option value="">Select project manager</option>
                     {teamUsers
-                      .filter((u) => [UserRole.ADMIN, UserRole.PROJECT_MANAGER].includes(u.role as UserRole))
+                      .filter((u) => u.role === UserRole.ADMIN || u.role === UserRole.PROJECT_MANAGER)
                       .map((user) => (
                         <option key={user._id} value={user._id}>
                           {user.fullName} ({user.role})
