@@ -117,7 +117,7 @@ export default function App() {
             <Route
               path="/projects/:id/safety"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.INSPECTOR]}>
                   <SafetyPage />
                 </ProtectedRoute>
               }

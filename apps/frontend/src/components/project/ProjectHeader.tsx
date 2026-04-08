@@ -6,6 +6,7 @@ import { projectApi } from '@/lib/api';
 import { ProjectStatus } from '@/types/project';
 import { useAuth } from '@/contexts/AuthContext';
 import { canDeleteProject, canManageProjectSettings } from '@/lib/rbac';
+import { UserRole } from '@/types/auth';
 const statusConfig: Record<
   ProjectStatus,
   {
@@ -226,8 +227,10 @@ const ProjectMenu = () => {
 };
 const ProjectHeader = () => {
   const { id } = useParams();
+  const { user } = useAuth();
   const { selectedProject, isDetailLoading, setSelectedProject, setDetailLoading } =
     useProjectStore();
+  const canSeeSafety = user?.role === UserRole.ADMIN || user?.role === UserRole.INSPECTOR;
   useEffect(() => {
     if (!id) return;
     if (selectedProject?._id === id) return;
@@ -345,7 +348,7 @@ const ProjectHeader = () => {
           <TabLink to={`/projects/${id}/sustainability`} label="Sustainability" icon="eco" />
           <TabLink to={`/projects/${id}/documents`} label="Documents" icon="description" />
           <TabLink to={`/projects/${id}/compliance`} label="Compliance" icon="fact_check" />
-          <TabLink to={`/projects/${id}/safety`} label="Safety" icon="health_and_safety" />
+          {canSeeSafety && <TabLink to={`/projects/${id}/safety`} label="Safety" icon="health_and_safety" />}
           <TabLink to={`/projects/${id}/resources`} label="Resources" icon="inventory_2" />
         </nav>
       </div>

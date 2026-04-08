@@ -493,7 +493,7 @@ export default function DocumentsPage() {
                         Status
                       </th>
                       <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">
-                        Owner / Date
+                        Date
                       </th>
                       <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">
                         Actions
@@ -558,10 +558,7 @@ export default function DocumentsPage() {
                         </td>
 
                         <td className="px-6 py-5 text-right">
-                          <p className="text-xs font-bold text-primary">
-                            {doc.uploadedBy?.name ?? '—'}
-                          </p>
-                          <p className="text-[10px] font-medium text-slate-400 mt-0.5 uppercase tracking-tight">
+                          <p className="text-[10px] font-medium text-slate-400 uppercase tracking-tight">
                             {fmt(doc.createdAt)}
                           </p>
                         </td>

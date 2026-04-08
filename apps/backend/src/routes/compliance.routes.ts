@@ -13,14 +13,14 @@ import {
   updateInspection,
   deleteInspection,
 } from '../controllers/compliance.controller';
-import { authenticate, requireDataEntry, requireAdmin, authorize } from '../middleware';
+import { authenticate, requireDataEntry, authorize } from '../middleware';
 import { UserRole } from '../types';
 const router = Router();
 router.post('/checklists', authenticate, requireDataEntry(), createChecklist);
 router.get('/checklists', authenticate, getChecklists);
 router.get('/checklists/:id', authenticate, getChecklistById);
 router.put('/checklists/:id', authenticate, requireDataEntry(), updateChecklist);
-router.delete('/checklists/:id', authenticate, requireAdmin(), deleteChecklist);
+router.delete('/checklists/:id', authenticate, requireDataEntry(), deleteChecklist);
 router.put('/checklists/:id/items/:itemId', authenticate, requireDataEntry(), updateChecklistItem);
 router.get('/score/:projectId', authenticate, getProjectComplianceScore);
 router.post(
@@ -37,5 +37,5 @@ router.put(
   authorize(UserRole.ADMIN, UserRole.INSPECTOR),
   updateInspection
 );
-router.delete('/inspections/:id', authenticate, requireAdmin(), deleteInspection);
+router.delete('/inspections/:id', authenticate, authorize(UserRole.ADMIN, UserRole.INSPECTOR), deleteInspection);
 export default router;

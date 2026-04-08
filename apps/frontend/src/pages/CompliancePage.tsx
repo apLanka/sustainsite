@@ -8,16 +8,13 @@ import { useComplianceStore } from '@/store';
 import { useAuthStore } from '@/store';
 import {
   ComplianceCategory,
-  InspectionType,
   RiskLevel,
   ActionStatus,
   IssueSeverity,
 } from '@/types/compliance';
 import type {
   ComplianceItem,
-  IssueIdentified,
   CreateChecklistPayload,
-  CreateInspectionPayload,
 } from '@/types/compliance';
 import { UserRole } from '@/types/auth';
 const fmt = (iso?: string) =>
@@ -52,8 +49,6 @@ const actionConfig: Record<
 };
 const ALL_CATEGORIES = Object.values(ComplianceCategory);
 const ALL_RISK_LEVELS = Object.values(RiskLevel);
-const ALL_INS_TYPES = Object.values(InspectionType);
-const ALL_SEVERITIES = Object.values(IssueSeverity);
 const ALL_ACT_STATUSES = Object.values(ActionStatus);
 const CIRC_R = 88;
 const CIRC_LEN = 2 * Math.PI * CIRC_R;
@@ -102,7 +97,6 @@ export default function CompliancePage() {
     updateChecklistInStore,
     removeChecklist,
     setInspections,
-    appendInspection,
     updateInspectionInStore,
     removeInspection,
     setChecklistLoading,
@@ -111,7 +105,10 @@ export default function CompliancePage() {
     resetComplianceFilters,
   } = useComplianceStore();
   const canInspect = user?.role === UserRole.ADMIN || user?.role === UserRole.INSPECTOR;
-  const isAdmin = user?.role === UserRole.ADMIN;
+  const canManageChecklist =
+    user?.role === UserRole.ADMIN ||
+    user?.role === UserRole.PROJECT_MANAGER ||
+    user?.role === UserRole.INSPECTOR;
   const [showChecklistModal, setShowChecklistModal] = useState(false);
   const [checklistForm, setChecklistForm] = useState<Omit<CreateChecklistPayload, 'projectId'>>({
     checklistName: '',
@@ -128,26 +125,6 @@ export default function CompliancePage() {
   const [newItemDraft, setNewItemDraft] = useState({ itemName: '', description: '' });
   const [isCreatingChecklist, setIsCreatingChecklist] = useState(false);
   const [checklistError, setChecklistError] = useState<string | null>(null);
-  const [showInspectionModal, setShowInspectionModal] = useState(false);
-  const [inspForm, setInspForm] = useState<Omit<CreateInspectionPayload, 'projectId'>>({
-    inspectionDate: '',
-    findings: '',
-    riskLevel: RiskLevel.LOW,
-    inspectionType: undefined,
-    inspectorNotes: '',
-    actionRequired: '',
-    recommendedActions: [],
-    actionDeadline: '',
-  });
-  const [inspIssues, setInspIssues] = useState<IssueIdentified[]>([]);
-  const [newIssue, setNewIssue] = useState<{
-    issue: string;
-    severity: IssueSeverity;
-    location: string;
-  }>({ issue: '', severity: IssueSeverity.MINOR, location: '' });
-  const [recAction, setRecAction] = useState('');
-  const [isCreatingInsp, setIsCreatingInsp] = useState(false);
-  const [inspError, setInspError] = useState<string | null>(null);
   const [detailInspection, setDetailInspection] = useState<string | null>(null);
   const inspectionDetail = useMemo(
     () => inspections.find((i) => i._id === detailInspection) ?? null,
@@ -296,51 +273,6 @@ export default function CompliancePage() {
       setIsCreatingChecklist(false);
     }
   };
-  const handleCreateInspection = async () => {
-    if (!projectId || !inspForm.inspectionDate || !inspForm.findings || !inspForm.riskLevel) {
-      setInspError('Inspection date, findings, and risk level are required.');
-      return;
-    }
-    setInspError(null);
-    setIsCreatingInsp(true);
-    try {
-      const res = await complianceApi.createInspection({
-        projectId,
-        inspectionDate: inspForm.inspectionDate,
-        findings: inspForm.findings.trim(),
-        riskLevel: inspForm.riskLevel,
-        inspectionType: inspForm.inspectionType || undefined,
-        inspectorNotes: inspForm.inspectorNotes?.trim() || undefined,
-        actionRequired: inspForm.actionRequired?.trim() || undefined,
-        recommendedActions: inspForm.recommendedActions?.filter(Boolean),
-        actionDeadline: inspForm.actionDeadline || undefined,
-        issuesIdentified: inspIssues,
-      });
-      appendInspection(res.data);
-      setShowInspectionModal(false);
-      setInspForm({
-        inspectionDate: '',
-        findings: '',
-        riskLevel: RiskLevel.LOW,
-        inspectionType: undefined,
-        inspectorNotes: '',
-        actionRequired: '',
-        recommendedActions: [],
-        actionDeadline: '',
-      });
-      setInspIssues([]);
-    } catch (err: unknown) {
-      setInspError(
-        (
-          err as {
-            message?: string;
-          }
-        )?.message ?? 'Failed to create inspection.'
-      );
-    } finally {
-      setIsCreatingInsp(false);
-    }
-  };
   const handleUpdateActionStatus = async (inspId: string, actionStatus: ActionStatus) => {
     try {
       const res = await complianceApi.updateInspection(inspId, { actionStatus });
@@ -424,18 +356,6 @@ export default function CompliancePage() {
               New Checklist
             </button>
 
-            {canInspect && (
-              <button
-                onClick={() => {
-                  setInspError(null);
-                  setShowInspectionModal(true);
-                }}
-                className="px-5 py-2.5 bg-primary text-white font-bold text-xs rounded-xl flex items-center gap-2 shadow-lg shadow-primary/10 hover:brightness-110 active:scale-95 transition-all cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-base">add_task</span>
-                New Inspection
-              </button>
-            )}
           </div>
         </header>
 
@@ -578,7 +498,7 @@ export default function CompliancePage() {
                     {isSavingItems && (
                       <span className="w-4 h-4 border-2 border-slate-200 border-t-secondary rounded-full animate-spin" />
                     )}
-                    {isAdmin && (
+                    {canManageChecklist && (
                       <button
                         onClick={() => setDeletingChecklistId(selectedChecklist._id)}
                         className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
@@ -786,7 +706,7 @@ export default function CompliancePage() {
                           >
                             <span className="material-symbols-outlined text-lg">open_in_new</span>
                           </button>
-                          {isAdmin && (
+                          {canInspect && (
                             <button
                               onClick={() => setDeletingInspectionId(insp._id)}
                               className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
@@ -996,287 +916,6 @@ export default function CompliancePage() {
                   className="flex-[2] py-4 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all cursor-pointer disabled:opacity-60"
                 >
                   {isCreatingChecklist ? 'Creating…' : 'Create Checklist'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showInspectionModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-          <div
-            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
-            onClick={() => setShowInspectionModal(false)}
-          />
-          <div className="bg-white rounded-[40px] w-full max-w-2xl relative overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
-            <div className="bg-primary p-8 text-white">
-              <h3 className="text-2xl font-black tracking-tighter leading-none">New Inspection</h3>
-              <p className="text-white/40 text-xs font-bold uppercase tracking-widest mt-2">
-                Log a safety or compliance inspection
-              </p>
-            </div>
-            <div className="p-10 space-y-5 max-h-[72vh] overflow-y-auto">
-              {inspError && (
-                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-600 font-medium">
-                  {inspError}
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-5">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    Inspection Date *
-                  </label>
-                  <input
-                    type="date"
-                    className="input-standard w-full h-12 cursor-pointer"
-                    value={inspForm.inspectionDate}
-                    onChange={(e) => setInspForm((f) => ({ ...f, inspectionDate: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    Type
-                  </label>
-                  <select
-                    className="input-standard w-full h-12 py-0 cursor-pointer"
-                    value={inspForm.inspectionType ?? ''}
-                    onChange={(e) =>
-                      setInspForm((f) => ({
-                        ...f,
-                        inspectionType: (e.target.value as InspectionType) || undefined,
-                      }))
-                    }
-                  >
-                    <option value="">— Select type —</option>
-                    {ALL_INS_TYPES.map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  Risk Level *
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  {ALL_RISK_LEVELS.map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setInspForm((f) => ({ ...f, riskLevel: r }))}
-                      className={`py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider border transition-all ${
-                        inspForm.riskLevel === r
-                          ? `${riskConfig[r].bg} ${riskConfig[r].text} border-current shadow-sm`
-                          : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  Findings *
-                </label>
-                <textarea
-                  rows={3}
-                  className="input-standard w-full resize-none"
-                  placeholder="Describe the inspection findings..."
-                  value={inspForm.findings}
-                  onChange={(e) => setInspForm((f) => ({ ...f, findings: e.target.value }))}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  Inspector Notes
-                </label>
-                <textarea
-                  rows={2}
-                  className="input-standard w-full resize-none"
-                  placeholder="Additional notes from the inspector..."
-                  value={inspForm.inspectorNotes ?? ''}
-                  onChange={(e) => setInspForm((f) => ({ ...f, inspectorNotes: e.target.value }))}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-5">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    Action Required
-                  </label>
-                  <input
-                    type="text"
-                    className="input-standard w-full h-12"
-                    placeholder="Describe required actions..."
-                    value={inspForm.actionRequired ?? ''}
-                    onChange={(e) => setInspForm((f) => ({ ...f, actionRequired: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    Action Deadline
-                  </label>
-                  <input
-                    type="date"
-                    className="input-standard w-full h-12 cursor-pointer"
-                    value={inspForm.actionDeadline ?? ''}
-                    onChange={(e) => setInspForm((f) => ({ ...f, actionDeadline: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  Recommended Actions
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    className="input-standard flex-1 h-10"
-                    placeholder="Add a recommended action…"
-                    value={recAction}
-                    onChange={(e) => setRecAction(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && recAction.trim()) {
-                        setInspForm((f) => ({
-                          ...f,
-                          recommendedActions: [...(f.recommendedActions ?? []), recAction.trim()],
-                        }));
-                        setRecAction('');
-                      }
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (recAction.trim()) {
-                        setInspForm((f) => ({
-                          ...f,
-                          recommendedActions: [...(f.recommendedActions ?? []), recAction.trim()],
-                        }));
-                        setRecAction('');
-                      }
-                    }}
-                    className="px-3 h-10 bg-slate-100 text-primary rounded-xl text-xs font-bold hover:bg-slate-200 transition-all"
-                  >
-                    Add
-                  </button>
-                </div>
-                {(inspForm.recommendedActions ?? []).length > 0 && (
-                  <ul className="space-y-1 mt-2">
-                    {(inspForm.recommendedActions ?? []).map((a, i) => (
-                      <li
-                        key={i}
-                        className="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-lg text-xs font-medium text-slate-600"
-                      >
-                        <span>{a}</span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setInspForm((f) => ({
-                              ...f,
-                              recommendedActions: f.recommendedActions?.filter((_, j) => j !== i),
-                            }))
-                          }
-                          className="text-slate-400 hover:text-rose-500"
-                        >
-                          <span className="material-symbols-outlined text-sm">close</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  Issues Identified
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  <input
-                    type="text"
-                    className="input-standard h-10 col-span-2"
-                    placeholder="Issue description"
-                    value={newIssue.issue}
-                    onChange={(e) => setNewIssue((n) => ({ ...n, issue: e.target.value }))}
-                  />
-                  <input
-                    type="text"
-                    className="input-standard h-10"
-                    placeholder="Location (optional)"
-                    value={newIssue.location}
-                    onChange={(e) => setNewIssue((n) => ({ ...n, location: e.target.value }))}
-                  />
-                  <select
-                    className="input-standard h-10 py-0 cursor-pointer"
-                    value={newIssue.severity}
-                    onChange={(e) =>
-                      setNewIssue((n) => ({ ...n, severity: e.target.value as IssueSeverity }))
-                    }
-                  >
-                    {ALL_SEVERITIES.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (newIssue.issue.trim()) {
-                      setInspIssues((prev) => [...prev, { ...newIssue }]);
-                      setNewIssue({ issue: '', severity: IssueSeverity.MINOR, location: '' });
-                    }
-                  }}
-                  className="px-3 h-10 bg-slate-100 text-primary rounded-xl text-xs font-bold hover:bg-slate-200 transition-all w-full"
-                >
-                  Add Issue
-                </button>
-                {inspIssues.length > 0 && (
-                  <ul className="space-y-1 mt-1">
-                    {inspIssues.map((issue, i) => (
-                      <li
-                        key={i}
-                        className="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-lg text-xs font-medium text-slate-600"
-                      >
-                        <span>
-                          {issue.issue} <span className="text-slate-400">— {issue.severity}</span>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setInspIssues((prev) => prev.filter((_, j) => j !== i))}
-                          className="text-slate-400 hover:text-rose-500"
-                        >
-                          <span className="material-symbols-outlined text-sm">close</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              <div className="flex gap-4 pt-2">
-                <button
-                  onClick={() => setShowInspectionModal(false)}
-                  className="flex-1 py-4 bg-slate-100 text-primary font-bold rounded-2xl hover:bg-slate-200 transition-all cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleCreateInspection}
-                  disabled={isCreatingInsp}
-                  className="flex-[2] py-4 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all cursor-pointer disabled:opacity-60"
-                >
-                  {isCreatingInsp ? 'Submitting…' : 'Submit Inspection'}
                 </button>
               </div>
             </div>

@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "11390e5e-882a-4bb1-b518-f39be189228a",
     "name": "SustainSite API",
-    "description": "Sustainable Construction Project Management System — Full API collection.\n\n## Getting Started\n1. Set `baseUrl` variable if needed (default: http://localhost:5001)\n2. Run **Register** or **Login** — the token is auto-saved to `{{token}}`\n3. Run **Create Project** — the projectId is auto-saved to `{{projectId}}`\n4. Use any downstream request freely\n\n## Variables auto-set by test scripts\n- `token` — set on Login / Register\n- `projectId` — set on Create Project\n- `documentId` — set on Upload Document\n- `checklistId` — set on Create Checklist\n- `inspectionId` — set on Create Inspection\n- `metricId` — set on Create Metric\n- `milestoneId` — set on Add Milestone\n- `materialId` — set on Create Material\n- `equipmentId` — set on Create Equipment\n- `supplierId` — set on Create Supplier",
+    "description": "Sustainable Construction Project Management System — Full API collection.\n\n## Getting Started\n1. Set `baseUrl` variable if needed (default: http://localhost:5001)\n2. Run **Register** or **Login** — the token is auto-saved to `{{token}}`\n3. Run **Create Project** — the projectId is auto-saved to `{{projectId}}`\n4. Use any downstream request freely\n\n## Variables auto-set by test scripts\n- `token` — set on Login / Register\n- `projectId` — set on Create Project\n- `documentId` — set on Upload Document\n- `checklistId` — set on Create Checklist\n- `inspectionId` — set on Create Inspection (Compliance)\n- `safetyInspectionId` — set on Create Safety Inspection\n- `metricId` — set on Create Metric\n- `milestoneId` — set on Add Milestone\n- `materialId` — set on Create Material\n- `equipmentId` — set on Create Equipment\n- `supplierId` — set on Create Supplier\n- `userId` — set on Get All Users",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -37,7 +37,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"John Silva\",\n  \"email\": \"john@test.com\",\n  \"password\": \"TestPass123\",\n  \"role\": \"PROJECT_MANAGER\",\n  \"phoneNumber\": \"+94771234567\"\n}"
+              "raw": "{\n  \"fullName\": \"John Silva\",\n  \"email\": \"john@test.com\",\n  \"password\": \"TestPass123\",\n  \"role\": \"PROJECT_MANAGER\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
@@ -115,32 +115,6 @@
           "response": []
         },
         {
-          "name": "Get Current User",
-          "id": "023d6394-9751-49f7-a1ce-feebb1f25edd",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "me"
-              ]
-            },
-            "description": "Returns the profile of the currently authenticated user."
-          },
-          "response": []
-        },
-        {
           "name": "Login Admin",
           "event": [
             {
@@ -199,9 +173,245 @@
             "description": "Login and receive a JWT token. Token is auto-saved to `{{token}}`."
           },
           "response": []
+        },
+        {
+          "name": "Get Current User",
+          "id": "023d6394-9751-49f7-a1ce-feebb1f25edd",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Returns the profile of the currently authenticated user."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "id": "a1b2c3d4-0001-0001-0001-000000000001",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"John Silva Updated\",\n  \"email\": \"john@test.com\",\n  \"jobTitle\": \"Senior Project Manager\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "profile"
+              ]
+            },
+            "description": "Update the current user's profile. Fields: fullName (required), email (required), jobTitle (optional)."
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "id": "a1b2c3d4-0001-0001-0001-000000000002",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"TestPass123\",\n  \"newPassword\": \"NewPass456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "change-password"
+              ]
+            },
+            "description": "Change the current user's password. `newPassword` must have at least 8 chars with uppercase, lowercase, and number."
+          },
+          "response": []
         }
       ],
       "id": "12f6f090-5b60-4f43-ba64-db85ab1ae96e"
+    },
+    {
+      "name": "👥 Users (Admin)",
+      "item": [
+        {
+          "name": "Get All Users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.users && res.data.users.length > 0) {",
+                  "  pm.collectionVariables.set('userId', res.data.users[0]._id);",
+                  "  console.log('userId saved:', res.data.users[0]._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "a1b2c3d4-0002-0001-0001-000000000001",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Access: ADMIN only. Returns all registered users. `userId` is auto-saved from the first result."
+          },
+          "response": []
+        },
+        {
+          "name": "Get User By ID",
+          "id": "a1b2c3d4-0002-0001-0001-000000000002",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Access: ADMIN only."
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "id": "a1b2c3d4-0002-0001-0001-000000000003",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"INSPECTOR\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Access: ADMIN only. Update a user's role or active status."
+          },
+          "response": []
+        },
+        {
+          "name": "Deactivate User",
+          "id": "a1b2c3d4-0002-0001-0001-000000000004",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Access: ADMIN only. Deactivates (soft-deletes) the user account."
+          },
+          "response": []
+        }
+      ],
+      "id": "a1b2c3d4-0002-0000-0000-000000000000"
     },
     {
       "name": "🏗️ Projects",
@@ -296,6 +506,33 @@
               ]
             },
             "description": "Filters (all optional): `status`, `search`, `page`, `limit`"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Projects By Status",
+          "id": "a1b2c3d4-0003-0001-0001-000000000001",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/status/In Progress",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "status",
+                "In Progress"
+              ]
+            },
+            "description": "Shortcut route to filter projects by status. Statuses: `Planning` | `In Progress` | `On Hold` | `Completed` | `Cancelled`"
           },
           "response": []
         },
@@ -499,12 +736,39 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Get Financial Summary",
+          "id": "a1b2c3d4-0003-0001-0001-000000000002",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}/financial-summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "{{projectId}}",
+                "financial-summary"
+              ]
+            },
+            "description": "Access: Project members only. Returns budget, spent, and resource cost breakdown."
+          },
+          "response": []
         }
       ],
       "id": "b8b4a4e6-7b34-4db5-a1d7-9a7e0f5f65dd"
     },
     {
-      "name": "📄 Documents (Component 3)",
+      "name": "📄 Documents",
       "item": [
         {
           "name": "Upload Document",
@@ -639,6 +903,49 @@
           "response": []
         },
         {
+          "name": "Search Documents",
+          "id": "a1b2c3d4-0004-0001-0001-000000000001",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/search?q=permit&projectId={{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "permit",
+                  "description": "Search term (title, description, tags)"
+                },
+                {
+                  "key": "projectId",
+                  "value": "{{projectId}}",
+                  "disabled": true
+                },
+                {
+                  "key": "documentType",
+                  "value": "Permit",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Full-text search across document title, description, and tags."
+          },
+          "response": []
+        },
+        {
           "name": "Get Document By ID",
           "id": "d48ce479-e34e-4458-9b12-4d39de2fac12",
           "request": {
@@ -699,28 +1006,37 @@
           "response": []
         },
         {
-          "name": "Delete Document",
-          "id": "d45ead8d-e44e-4190-b1e0-b646356a6f8f",
+          "name": "Update Document Status",
+          "id": "a1b2c3d4-0004-0001-0001-000000000002",
           "request": {
-            "method": "DELETE",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
                 "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Under Review\"\n}"
+            },
             "url": {
-              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}/status",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "documents",
-                "{{documentId}}"
+                "{{documentId}}",
+                "status"
               ]
             },
-            "description": "Access: Document owner (uploadedBy) or ADMIN.\n\nAlso deletes the file from Cloudinary."
+            "description": "Update document status directly. Statuses: `Draft` | `Under Review` | `Approved` | `Rejected` | `Archived`"
           },
           "response": []
         },
@@ -850,12 +1166,38 @@
             "description": "Returns the Cloudinary file URL and logs a `download` entry in the access log."
           },
           "response": []
+        },
+        {
+          "name": "Delete Document",
+          "id": "d45ead8d-e44e-4190-b1e0-b646356a6f8f",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/documents/{{documentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "documents",
+                "{{documentId}}"
+              ]
+            },
+            "description": "Access: Document owner (uploadedBy) or ADMIN.\n\nAlso deletes the file from Cloudinary."
+          },
+          "response": []
         }
       ],
       "id": "3759bcfd-41f7-41df-b893-6a7163fab8ed"
     },
     {
-      "name": "✅ Compliance (Component 3)",
+      "name": "✅ Compliance",
       "item": [
         {
           "name": "Checklists",
@@ -1016,6 +1358,43 @@
               "response": []
             },
             {
+              "name": "Update Checklist Item",
+              "id": "a1b2c3d4-0005-0001-0001-000000000001",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"isCompleted\": true,\n  \"notes\": \"Verified and signed off by inspector\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/compliance/checklists/{{checklistId}}/items/item-003",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "compliance",
+                    "checklists",
+                    "{{checklistId}}",
+                    "items",
+                    "item-003"
+                  ]
+                },
+                "description": "Access: ADMIN, PROJECT_MANAGER, INSPECTOR\n\nUpdate a single checklist item by its `itemId` (e.g. `item-003`). Compliance score is recalculated automatically."
+              },
+              "response": []
+            },
+            {
               "name": "Delete Checklist",
               "id": "8a4c8bb5-e1be-4dd3-8cdf-f48f29c6ab51",
               "request": {
@@ -1046,7 +1425,7 @@
           "id": "9ee42e5b-7c49-4878-a94b-f9d0d354d968"
         },
         {
-          "name": "Safety Inspections",
+          "name": "Inspections",
           "item": [
             {
               "name": "Create Inspection",
@@ -1242,12 +1621,235 @@
             }
           ],
           "id": "46b3cf93-32a8-4c78-b762-3a32beb57a4e"
+        },
+        {
+          "name": "Get Project Compliance Score",
+          "id": "a1b2c3d4-0005-0002-0001-000000000001",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/compliance/score/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "compliance",
+                "score",
+                "{{projectId}}"
+              ]
+            },
+            "description": "Returns aggregated compliance score for the project across all checklists."
+          },
+          "response": []
         }
       ],
       "id": "bb84fa86-081c-45b6-9b41-faa969a2283b"
     },
     {
-      "name": "🌱 Sustainability (Component 2)",
+      "name": "🦺 Safety Inspections",
+      "item": [
+        {
+          "name": "Create Safety Inspection",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data._id) {",
+                  "  pm.collectionVariables.set('safetyInspectionId', res.data._id);",
+                  "  console.log('safetyInspectionId saved:', res.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "id": "a1b2c3d4-0006-0001-0001-000000000001",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectId\": \"{{projectId}}\",\n  \"inspectionType\": \"Safety\",\n  \"inspectionDate\": \"2026-02-20\",\n  \"findings\": \"Fire extinguisher missing on ground floor. Emergency exit partially blocked.\",\n  \"riskLevel\": \"High\",\n  \"issuesIdentified\": [\n    {\n      \"issue\": \"Missing fire extinguisher\",\n      \"severity\": \"Major\",\n      \"location\": \"Ground floor\"\n    },\n    {\n      \"issue\": \"Blocked emergency exit\",\n      \"severity\": \"Critical\",\n      \"location\": \"East wing\"\n    }\n  ],\n  \"actionRequired\": \"Install extinguisher and clear exit immediately\",\n  \"recommendedActions\": [\n    \"Install fire extinguisher at ground floor station\",\n    \"Remove obstructions from emergency exit\"\n  ],\n  \"actionDeadline\": \"2026-02-21\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/safety/inspection",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "safety",
+                "inspection"
+              ]
+            },
+            "description": "Access: ADMIN, INSPECTOR\n\nCreates a safety inspection record. `safetyInspectionId` is auto-saved.\n\nRisk Levels: `Low` | `Medium` | `High` | `Critical`"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Safety Inspections By Project",
+          "id": "a1b2c3d4-0006-0001-0001-000000000002",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/safety/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "safety",
+                "{{projectId}}"
+              ]
+            },
+            "description": "Get all safety inspections for a specific project."
+          },
+          "response": []
+        },
+        {
+          "name": "Get High Risk Inspections",
+          "id": "a1b2c3d4-0006-0001-0001-000000000003",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/safety/{{projectId}}/high-risk",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "safety",
+                "{{projectId}}",
+                "high-risk"
+              ]
+            },
+            "description": "Returns all unresolved High or Critical risk safety inspections for the project."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Safety Inspection By ID",
+          "id": "a1b2c3d4-0006-0001-0001-000000000004",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/safety/inspection/{{safetyInspectionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "safety",
+                "inspection",
+                "{{safetyInspectionId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Safety Inspection",
+          "id": "a1b2c3d4-0006-0001-0001-000000000005",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actionStatus\": \"Completed\",\n  \"followUpNotes\": \"Fire extinguisher installed and emergency exit cleared.\",\n  \"followUpDate\": \"2026-02-22\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/safety/inspection/{{safetyInspectionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "safety",
+                "inspection",
+                "{{safetyInspectionId}}"
+              ]
+            },
+            "description": "Access: ADMIN, INSPECTOR\n\nAction statuses: `Pending` | `In Progress` | `Completed`"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Safety Inspection",
+          "id": "a1b2c3d4-0006-0001-0001-000000000006",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/safety/inspection/{{safetyInspectionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "safety",
+                "inspection",
+                "{{safetyInspectionId}}"
+              ]
+            },
+            "description": "Access: ADMIN only."
+          },
+          "response": []
+        }
+      ],
+      "id": "a1b2c3d4-0006-0000-0000-000000000000"
+    },
+    {
+      "name": "🌱 Sustainability",
       "item": [
         {
           "name": "Create Metric",
@@ -1532,6 +2134,34 @@
           "response": []
         },
         {
+          "name": "Compare With Industry",
+          "id": "a1b2c3d4-0007-0001-0001-000000000001",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sustainability/projects/{{projectId}}/compare",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sustainability",
+                "projects",
+                "{{projectId}}",
+                "compare"
+              ]
+            },
+            "description": "Access: Project members only. Compares project sustainability metrics against industry benchmarks."
+          },
+          "response": []
+        },
+        {
           "name": "Calculate Impact",
           "id": "d1fa995c-b9c5-469a-9427-642d019007c8",
           "request": {
@@ -1569,7 +2199,7 @@
       "id": "de91a474-ace1-4e24-8bfc-1c8bc2c992a7"
     },
     {
-      "name": "📦 Resources (Component 4)",
+      "name": "📦 Resources",
       "item": [
         {
           "name": "Materials",
@@ -1651,6 +2281,34 @@
                     }
                   ]
                 }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Low Stock Materials",
+              "id": "a1b2c3d4-0008-0001-0001-000000000001",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/materials/list/low-stock",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "materials",
+                    "list",
+                    "low-stock"
+                  ]
+                },
+                "description": "Returns all materials where current quantity is at or below `minimumThreshold`."
               },
               "response": []
             },
@@ -1786,6 +2444,34 @@
               "response": []
             },
             {
+              "name": "Get Material Cost Summary",
+              "id": "a1b2c3d4-0008-0001-0001-000000000002",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/materials/{{projectId}}/cost-summary",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "materials",
+                    "{{projectId}}",
+                    "cost-summary"
+                  ]
+                },
+                "description": "Returns total material cost, cost by category, and per-item breakdown for the project."
+              },
+              "response": []
+            },
+            {
               "name": "Delete Material",
               "id": "af40439a-c079-4fe3-8417-db19335191fc",
               "request": {
@@ -1891,6 +2577,34 @@
               "response": []
             },
             {
+              "name": "Get Available Equipment",
+              "id": "a1b2c3d4-0008-0002-0001-000000000001",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/equipment/list/available",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "equipment",
+                    "list",
+                    "available"
+                  ]
+                },
+                "description": "Returns all equipment with status `Available` (not currently assigned to a project)."
+              },
+              "response": []
+            },
+            {
               "name": "Get Equipment By ID",
               "id": "4540b1b1-50ef-47c1-9cc1-636dbb53bdb7",
               "request": {
@@ -1913,6 +2627,77 @@
                     "{{equipmentId}}"
                   ]
                 }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Equipment",
+              "id": "a1b2c3d4-0008-0002-0001-000000000002",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"rentalRatePerDay\": 55000,\n  \"notes\": \"Rate updated after annual review\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/equipment/{{equipmentId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "equipment",
+                    "{{equipmentId}}"
+                  ]
+                },
+                "description": "Access: ADMIN, PROJECT_MANAGER. Update equipment details."
+              },
+              "response": []
+            },
+            {
+              "name": "Update Equipment Status",
+              "id": "a1b2c3d4-0008-0002-0001-000000000003",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"Under Maintenance\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/equipment/{{equipmentId}}/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "equipment",
+                    "{{equipmentId}}",
+                    "status"
+                  ]
+                },
+                "description": "Access: ADMIN, PROJECT_MANAGER. Statuses: `Available` | `In Use` | `Under Maintenance` | `Out of Service`"
               },
               "response": []
             },
@@ -2118,6 +2903,41 @@
               "response": []
             },
             {
+              "name": "Update Supplier",
+              "id": "a1b2c3d4-0008-0003-0001-000000000001",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"contactPerson\": \"Kamal Perera\",\n  \"phoneNumber\": \"+94112345999\",\n  \"paymentTerms\": \"Net 45\",\n  \"sustainabilityScore\": 9\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/suppliers/{{supplierId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "suppliers",
+                    "{{supplierId}}"
+                  ]
+                },
+                "description": "Access: ADMIN, PROJECT_MANAGER. Update supplier details."
+              },
+              "response": []
+            },
+            {
               "name": "Rate Supplier",
               "id": "0501a4e6-23d4-47d2-8194-e7e84e8bb0e7",
               "request": {
@@ -2149,6 +2969,34 @@
                     "rating"
                   ]
                 }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Supplier Performance",
+              "id": "a1b2c3d4-0008-0003-0001-000000000002",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/resources/suppliers/{{supplierId}}/performance",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "resources",
+                    "suppliers",
+                    "{{supplierId}}",
+                    "performance"
+                  ]
+                },
+                "description": "Returns delivery performance, average rating, and materials supplied summary for the supplier."
               },
               "response": []
             },
@@ -2283,6 +3131,16 @@
     {
       "id": "4b9d0b2e-c4e4-40a9-a6da-a733deaf1dc1",
       "key": "supplierId",
+      "value": ""
+    },
+    {
+      "id": "a1b2c3d4-0009-0001-0001-000000000001",
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "id": "a1b2c3d4-0009-0001-0001-000000000002",
+      "key": "safetyInspectionId",
       "value": ""
     }
   ]

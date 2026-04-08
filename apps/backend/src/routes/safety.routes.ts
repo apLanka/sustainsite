@@ -7,7 +7,7 @@ import {
   deleteInspection,
   getHighRiskInspections,
 } from '../controllers/compliance.controller';
-import { authenticate, authorize, requireAdmin } from '../middleware';
+import { authenticate, authorize } from '../middleware';
 import { UserRole } from '../types';
 const router = Router();
 router.post(
@@ -20,7 +20,11 @@ router.get(
   '/:projectId',
   authenticate,
   (req, _res, next) => {
-    req.query.projectId = req.params.projectId;
+    Object.defineProperty(req, 'query', {
+      value: { ...req.query, projectId: req.params.projectId },
+      writable: true,
+      configurable: true,
+    });
     next();
   },
   getInspections
@@ -33,5 +37,5 @@ router.put(
   authorize(UserRole.ADMIN, UserRole.INSPECTOR),
   updateInspection
 );
-router.delete('/inspection/:id', authenticate, requireAdmin(), deleteInspection);
+router.delete('/inspection/:id', authenticate, authorize(UserRole.ADMIN, UserRole.INSPECTOR), deleteInspection);
 export default router;
