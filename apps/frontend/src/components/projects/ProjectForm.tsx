@@ -4,6 +4,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { projectApi, userApi } from '@/lib/api';
+import type { CreateProjectPayload } from '@/types/project';
 import { ProjectStatus } from '@/types/project';
 import { useProjectStore } from '@/store';
 import { UserRole } from '@/types/auth';
@@ -99,7 +100,7 @@ const ProjectForm = () => {
         projectData.teamMembers = data.teamMembers;
       }
 
-      const res = await projectApi.createProject(projectData);
+      const res = await projectApi.createProject(projectData as unknown as CreateProjectPayload);
       setSelectedProject(res.data);
       navigate(`/projects/${res.data._id}`);
     } catch (err: unknown) {
@@ -297,7 +298,7 @@ const ProjectForm = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {users
-                        .filter((u) => [UserRole.ADMIN, UserRole.PROJECT_MANAGER].includes(u.role))
+                        .filter((u) => u.role === UserRole.ADMIN || u.role === UserRole.PROJECT_MANAGER)
                         .map((user) => (
                           <SelectItem key={user._id} value={user._id}>
                             {user.fullName} ({user.role.replace('_', ' ')})
