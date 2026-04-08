@@ -1,49 +1,71 @@
-const StatCards = () => {
+import { useDashboardStore } from '@/store';
+
+const CIRC_R   = 54;
+const CIRC_LEN = 2 * Math.PI * CIRC_R;
+
+const Skeleton = ({ className }: { className: string }) => (
+  <div className={`animate-pulse bg-slate-100 rounded-xl ${className}`} />
+);
+
+const StatCards = ({ isLoading }: { isLoading: boolean }) => {
+  const { activeCount, avgSustainability, pendingApprovals, highRiskCount } = useDashboardStore();
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+
       {/* Active Projects */}
       <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col justify-between group hover:shadow-md transition-shadow">
         <div className="flex justify-between items-start mb-4">
           <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-secondary">
             <span className="material-symbols-outlined !text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>foundation</span>
           </div>
-          <span className="text-[10px] font-bold text-secondary px-2 py-1 bg-secondary-container/30 rounded-full">+12% vs LY</span>
         </div>
         <div>
-          <h3 className="text-3xl font-extrabold text-primary tracking-tighter">14</h3>
-          <p className="text-sm font-semibold text-slate-500 mt-1 uppercase tracking-wider font-headline">Active Projects</p>
+          {isLoading ? (
+            <Skeleton className="h-9 w-16 mb-2" />
+          ) : (
+            <h3 className="text-3xl font-extrabold text-primary tracking-tighter">{activeCount}</h3>
+          )}
+          <p className="text-sm font-semibold text-slate-500 mt-1 uppercase tracking-wider font-headline">In Progress</p>
         </div>
         <div className="mt-4 pt-4 border-t border-slate-50">
           <svg className="w-full h-8 stroke-secondary fill-none stroke-2" viewBox="0 0 100 20">
-            <path d="M0,15 Q10,5 20,10 T40,5 T60,15 T80,5 T100,10"></path>
+            <path d="M0,15 Q10,5 20,10 T40,5 T60,15 T80,5 T100,10" />
           </svg>
         </div>
       </div>
 
       {/* Sustainability Score */}
       <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col items-center justify-center text-center group hover:shadow-md transition-shadow">
-        <div className="relative w-24 h-24 flex items-center justify-center mb-2">
-          <svg className="w-full h-full -rotate-90">
-            <circle className="stroke-slate-100 fill-none" cx="48" cy="48" r="40" strokeWidth="8"></circle>
-            <circle 
-              className="stroke-secondary fill-none transition-all duration-1000" 
-              cx="48" 
-              cy="48" 
-              r="40" 
-              strokeDasharray="251.2" 
-              strokeDashoffset="18" 
-              strokeWidth="8"
-            ></circle>
+        <div className="relative w-36 h-36 flex items-center justify-center mb-3">
+          <svg className="w-full h-full -rotate-90" viewBox="0 0 144 144">
+            <circle className="stroke-slate-100 fill-none" cx="72" cy="72" r={CIRC_R} strokeWidth="10" />
+            <circle
+              className="stroke-secondary fill-none transition-all duration-1000"
+              cx="72" cy="72" r={CIRC_R}
+              strokeDasharray={CIRC_LEN}
+              strokeDashoffset={isLoading ? CIRC_LEN : CIRC_LEN * (1 - avgSustainability / 100)}
+              strokeWidth="10"
+              strokeLinecap="round"
+            />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-xl font-extrabold text-primary leading-none">92.4%</span>
-            <span className="text-[8px] font-bold text-secondary uppercase tracking-widest mt-1">LEED Gold</span>
+            {isLoading ? (
+              <Skeleton className="h-6 w-12" />
+            ) : (
+              <>
+                <span className="text-2xl font-extrabold text-primary leading-none">{avgSustainability}%</span>
+                <span className="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1">
+                  {avgSustainability >= 80 ? 'Excellent' : avgSustainability >= 50 ? 'Good' : 'Needs Work'}
+                </span>
+              </>
+            )}
           </div>
         </div>
         <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider font-headline">Sustainability Score</h3>
       </div>
 
-      {/* Document Approvals */}
+      {/* Pending Approvals */}
       <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col justify-between group hover:shadow-md transition-shadow">
         <div className="flex justify-between items-start">
           <div className="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-700">
@@ -51,43 +73,46 @@ const StatCards = () => {
           </div>
         </div>
         <div className="mt-4">
-          <h3 className="text-3xl font-extrabold text-primary tracking-tighter">8</h3>
+          {isLoading ? (
+            <Skeleton className="h-9 w-12 mb-2" />
+          ) : (
+            <h3 className="text-3xl font-extrabold text-primary tracking-tighter">{pendingApprovals}</h3>
+          )}
           <p className="text-sm font-semibold text-slate-500 mt-1 uppercase tracking-wider font-headline">Pending Approvals</p>
         </div>
-        <a className="mt-4 inline-flex items-center text-xs font-bold text-amber-700 hover:underline group-hover:gap-2 transition-all gap-1 cursor-pointer" href="#">
-          Review Now <span className="material-symbols-outlined !text-sm">arrow_forward</span>
-        </a>
+        {!isLoading && pendingApprovals > 0 && (
+          <a className="mt-4 inline-flex items-center text-xs font-bold text-amber-700 hover:underline group-hover:gap-2 transition-all gap-1 cursor-pointer" href="#">
+            Review Now <span className="material-symbols-outlined !text-sm">arrow_forward</span>
+          </a>
+        )}
       </div>
 
-      {/* Low Stock Alerts */}
-      <div className="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-slate-100/50 flex flex-col group hover:shadow-md transition-shadow">
-        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2 font-headline">
-          <span className="material-symbols-outlined text-error !text-sm">warning</span> Low Stock Alerts
-        </h3>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-error"></div>
-              <span className="text-xs font-medium text-slate-700">Recycled Steel</span>
-            </div>
-            <span className="text-xs font-bold text-primary">12 tons</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-              <span className="text-xs font-medium text-slate-700">Timber Slabs</span>
-            </div>
-            <span className="text-xs font-bold text-primary">4 units</span>
-          </div>
-          <div className="flex items-center justify-between opacity-60 transition-opacity hover:opacity-100">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-slate-300"></div>
-              <span className="text-xs font-medium text-slate-700">Glass Panels</span>
-            </div>
-            <span className="text-xs font-bold text-primary">45 sqft</span>
+      {/* High-Risk Inspections */}
+      <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col justify-between group hover:shadow-md transition-shadow">
+        <div className="flex justify-between items-start mb-4">
+          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${highRiskCount > 0 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-secondary'}`}>
+            <span className="material-symbols-outlined !text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+              {highRiskCount > 0 ? 'warning' : 'verified_user'}
+            </span>
           </div>
         </div>
+        <div>
+          {isLoading ? (
+            <Skeleton className="h-9 w-12 mb-2" />
+          ) : (
+            <h3 className={`text-3xl font-extrabold tracking-tighter ${highRiskCount > 0 ? 'text-rose-600' : 'text-primary'}`}>
+              {highRiskCount}
+            </h3>
+          )}
+          <p className="text-sm font-semibold text-slate-500 mt-1 uppercase tracking-wider font-headline">High-Risk Findings</p>
+        </div>
+        {!isLoading && (
+          <p className={`mt-4 text-xs font-bold uppercase tracking-widest ${highRiskCount > 0 ? 'text-rose-500' : 'text-emerald-600'}`}>
+            {highRiskCount > 0 ? 'Requires Attention' : 'All Clear'}
+          </p>
+        )}
       </div>
+
     </div>
   );
 };
