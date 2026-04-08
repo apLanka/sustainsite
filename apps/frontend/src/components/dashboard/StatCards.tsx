@@ -28,11 +28,6 @@ const StatCards = ({ isLoading }: { isLoading: boolean }) => {
           )}
           <p className="text-sm font-semibold text-slate-500 mt-1 uppercase tracking-wider font-headline">In Progress</p>
         </div>
-        <div className="mt-4 pt-4 border-t border-slate-50">
-          <svg className="w-full h-8 stroke-secondary fill-none stroke-2" viewBox="0 0 100 20">
-            <path d="M0,15 Q10,5 20,10 T40,5 T60,15 T80,5 T100,10" />
-          </svg>
-        </div>
       </div>
 
       {/* Sustainability Score */}
