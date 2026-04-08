@@ -1,0 +1,153 @@
+---
+title: Quick Start Guide
+subtitle: Get up and running with SustainSite in minutes
+---
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+| Requirement | Version | Notes |
+|-------------|---------|-------|
+| Node.js | ≥ 18 | [Download](https://nodejs.org) |
+| npm | ≥ 9 | Comes with Node.js |
+| MongoDB Atlas | Free Tier | [Sign up](https://mongodb.com/cloud/atlas) |
+| Git | Any | For cloning |
+
+---
+
+## Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/apLanka/sustainsite.git
+cd sustainsite
+```
+
+## Step 2: Install Dependencies
+
+```bash
+npm install
+```
+
+## Step 3: Configure Environment Variables
+
+```bash
+cd apps/backend
+cp .env.example .env
+```
+
+Edit `apps/backend/.env`:
+
+```env
+NODE_ENV=development
+PORT=5000
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/sustainsite
+JWT_SECRET=your_jwt_secret_key_min_64_chars
+JWT_EXPIRE=24h
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+SENDGRID_API_KEY=your_sendgrid_key
+FROM_EMAIL=noreply@sustainsite.com
+FRONTEND_URL=http://localhost:5173
+```
+
+## Step 4: Start MongoDB Atlas
+
+1. Create a free cluster at [MongoDB Atlas](https://mongodb.com/cloud/atlas)
+2. Create database user credentials
+3. Whitelist IP address: `0.0.0.0/0`
+4. Copy connection string to `MONGODB_URI` in `.env`
+
+## Step 5: Run the Application
+
+```bash
+# From root directory
+npm run dev
+```
+
+This starts:
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:5000`
+
+---
+
+## Step 6: Test the API
+
+### Register a new user
+
+```bash
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"fullName":"John Doe","email":"john@example.com","password":"Password123","role":"VIEWER"}'
+```
+
+### Login
+
+```bash
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"john@example.com","password":"Password123"}'
+```
+
+Use the returned token for subsequent requests:
+
+```bash
+curl -X GET http://localhost:5000/api/projects \
+  -H "Authorization: Bearer <your_token>"
+```
+
+---
+
+## Project Structure
+
+```
+sustainsite/
+├── apps/
+│   ├── backend/          # Express.js API server
+│   └── frontend/        # React + Vite
+├── docs/               # Documentation
+├── fern/               # Fern docs config
+├── node_modules/
+├── package.json       # Root workspace
+└── turbo.json        # Turborepo config
+```
+
+---
+
+## Available Scripts
+
+| Command | Description |
+|--------|-------------|
+| `npm run dev` | Start all apps in development |
+| `npm run build` | Build all apps for production |
+| `npm run test` | Run backend tests |
+
+---
+
+## Next Steps
+
+Explore the API:
+
+- [API Overview](./api-overview) — Full endpoint reference
+- [Authentication](./api-auth) — User auth endpoints
+- [Projects API](./api-projects) — Project management
+
+Run tests:
+
+```bash
+cd apps/backend
+npm test
+```
+
+---
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| MongoDB connection error | Check IP whitelist in Atlas |
+| Port 5000 in use | Change PORT in `.env` |
+| Dependencies error | Run `npm install` again |
+
+Need help? Check [Testing Instructions](./testing-instructions) or [Deployment Report](./deployment-report).

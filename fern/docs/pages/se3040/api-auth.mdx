@@ -1,0 +1,246 @@
+---
+title: Authentication API
+subtitle: User registration, login, and profile management
+---
+
+## Base URL
+
+```
+http://localhost:5000/api/auth
+```
+
+## Overview
+
+The Authentication API manages user registration, login, and profile operations. All endpoints use JSON request/response format.
+
+## Endpoints
+
+### POST /register
+
+Register a new user account.
+
+- **Auth Required:** No
+- **Content-Type:** application/json
+
+**Request Body:**
+
+```json
+{
+  "fullName": "John Doe",
+  "email": "john@example.com",
+  "password": "Password123",
+  "role": "VIEWER"
+}
+```
+
+**Valid Roles:**
+- `ADMIN`
+- `PROJECT_MANAGER`
+- `INSPECTOR`
+- `SUPPLIER`
+- `VIEWER`
+
+**Example Request:**
+
+```bash
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"fullName":"John Doe","email":"john@example.com","password":"Password123","role":"VIEWER"}'
+```
+
+**Success Response (201):**
+
+```json
+{
+  "success": true,
+  "message": "Registration successful",
+  "user": {
+    "_id": "607e5f3a2b8c4d3a1b4e3d2c1",
+    "fullName": "John Doe",
+    "email": "john@example.com",
+    "role": "VIEWER",
+    "isActive": true
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Error Responses:**
+- `400` — Validation error (invalid email, weak password)
+- `409` — Duplicate email
+
+---
+
+### POST /login
+
+Authenticate and receive JWT token.
+
+- **Auth Required:** No
+
+**Request Body:**
+
+```json
+{
+  "email": "john@example.com",
+  "password": "Password123"
+}
+```
+
+**Example Request:**
+
+```bash
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"john@example.com","password":"Password123"}'
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "_id": "607e5f3a2b8c4d3a1b4e3d2c1",
+    "fullName": "John Doe",
+    "email": "john@example.com",
+    "role": "VIEWER"
+  }
+}
+```
+
+**Error Responses:**
+- `401` — Invalid credentials
+- `400` — Missing fields
+
+---
+
+### GET /me
+
+Get current authenticated user profile.
+
+- **Auth Required:** Yes
+- **Headers:** `Authorization: Bearer <token>`
+
+**Example Request:**
+
+```bash
+curl -X GET http://localhost:5000/api/auth/me \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+**Success Response (200):**
+
+```json
+{
+  "user": {
+    "_id": "607e5f3a2b8c4d3a1b4e3d2c1",
+    "fullName": "John Doe",
+    "email": "john@example.com",
+    "role": "VIEWER",
+    "jobTitle": "Observer",
+    "isActive": true,
+    "assignedProjects": [],
+    "createdAt": "2026-04-25T10:00:00.000Z"
+  }
+}
+```
+
+---
+
+### PATCH /profile
+
+Update current user profile.
+
+- **Auth Required:** Yes
+
+**Request Body:**
+
+```json
+{
+  "fullName": "John Smith",
+  "jobTitle": "Senior Engineer"
+}
+```
+
+**Example Request:**
+
+```bash
+curl -X PATCH http://localhost:5000/api/auth/profile \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"fullName":"John Smith","jobTitle":"Senior Engineer"}'
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Profile updated",
+  "user": {...}
+}
+```
+
+---
+
+### PATCH /change-password
+
+Change user password.
+
+- **Auth Required:** Yes
+
+**Request Body:**
+
+```json
+{
+  "currentPassword": "OldPassword123",
+  "newPassword": "NewPassword123"
+}
+```
+
+**Example Request:**
+
+```bash
+curl -X PATCH http://localhost:5000/api/auth/change-password \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"currentPassword":"OldPassword123","newPassword":"NewPassword123"}'
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Password changed successfully"
+}
+```
+
+---
+
+## Using the Token
+
+Include the JWT token in the `Authorization` header for all protected endpoints:
+
+```bash
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+---
+
+## Password Requirements
+
+- Minimum 8 characters
+- At least one uppercase letter
+- At least one lowercase letter
+- At least one number
+
+---
+
+## Related Documentation
+
+- [Projects API](./api-projects)
+- [Testing Instructions](../testing-instructions)
+- [Deployment Report](../deployment-report)

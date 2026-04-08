@@ -1,0 +1,359 @@
+---
+title: Projects API
+subtitle: Project CRUD, milestones, timeline, and financial management
+---
+
+## Base URL
+
+```
+http://localhost:5000/api/projects
+```
+
+## Overview
+
+The Projects API manages construction projects including CRUD operations, milestone tracking, timeline visualization, and financial summaries.
+
+## User Roles
+
+| Role | Create | Update | Delete | View |
+|------|--------|--------|--------|------|
+| ADMIN | ✓ | ✓ | ✓ | All |
+| PROJECT_MANAGER | ✓ | Own | - | Own |
+| INSPECTOR | - | - | - | Assigned |
+| VIEWER | - | - | - | Assigned |
+
+## Endpoints
+
+### POST /
+
+Create a new project.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER
+
+**Request Body:**
+
+```json
+{
+  "projectName": "Downtown Office Complex",
+  "description": "A 20-story office building",
+  "location": {
+    "address": "123 Main Street, City Center",
+    "latitude": 6.9271,
+    "longitude": 79.8612
+  },
+  "startDate": "2026-06-01",
+  "endDate": "2027-12-31",
+  "budget": 50000000,
+  "status": "Planning"
+}
+```
+
+**Example Request:**
+
+```bash
+curl -X POST http://localhost:5000/api/projects \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"projectName":"Downtown Office Complex","description":"A 20-story office building","location":{"address":"123 Main Street","latitude":6.9271,"longitude":79.8612},"startDate":"2026-06-01","endDate":"2027-12-31","budget":50000000,"status":"Planning"}'
+```
+
+**Success Response (201):**
+
+```json
+{
+  "success": true,
+  "message": "Project created",
+  "project": {
+    "_id": "607e5f3a2b8c4d3a1b4e3d2c1",
+    "projectName": "Downtown Office Complex",
+    "status": "Planning",
+    "budget": 50000000,
+    "actualCost": 0,
+    "completionPercentage": 0,
+    "sustainabilityScore": 0
+  }
+}
+```
+
+---
+
+### GET /
+
+List all projects (paginated).
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER, INSPECTOR, VIEWER
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| page | number | Page number (default: 1) |
+| limit | number | Items per page (default: 10) |
+| status | string | Filter by status |
+| search | string | Search in project name |
+
+**Example Request:**
+
+```bash
+curl -X GET "http://localhost:5000/api/projects?page=1&limit=10" \
+  -H "Authorization: Bearer <token>"
+```
+
+**Success Response (200):**
+
+```json
+{
+  "projects": [
+    {
+      "_id": "607e5f3a2b8c4d3a1b4e3d2c1",
+      "projectName": "Downtown Office Complex",
+      "status": "Planning",
+      "budget": 50000000,
+      "completionPercentage": 0
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 5,
+    "pages": 1
+  }
+}
+```
+
+---
+
+### GET /status/:status
+
+Get projects by status.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER, INSPECTOR, VIEWER
+
+**Status Values:** `Planning`, `In Progress`, `On Hold`, `Completed`
+
+**Example Request:**
+
+```bash
+curl -X GET http://localhost:5000/api/projects/status/In%20Progress \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### GET /:id
+
+Get project by ID.
+
+- **Auth Required:** Yes
+- **Roles:** Project Members
+
+**Example Request:**
+
+```bash
+curl -X GET http://localhost:5000/api/projects/607e5f3a2b8c4d3a1b4e3d2c1 \
+  -H "Authorization: Bearer <token>"
+```
+
+**Success Response (200):**
+
+```json
+{
+  "project": {
+    "_id": "607e5f3a2b8c4d3a1b4e3d2c1",
+    "projectName": "Downtown Office Complex",
+    "location": {
+      "address": "123 Main Street",
+      "latitude": 6.9271,
+      "longitude": 79.8612
+    },
+    "startDate": "2026-06-01",
+    "endDate": "2027-12-31",
+    "status": "Planning",
+    "budget": 50000000,
+    "actualCost": 0,
+    "completionPercentage": 0,
+    "sustainabilityScore": 0,
+    "milestones": []
+  }
+}
+```
+
+---
+
+### PUT /:id
+
+Update project.
+
+- **Auth Required:** Yes
+- **Roles:** PROJECT_MANAGER (assigned to project)
+
+**Request Body:**
+
+```json
+{
+  "projectName": "Downtown Office Complex - Phase 1",
+  "status": "In Progress",
+  "completionPercentage": 15
+}
+```
+
+**Example Request:**
+
+```bash
+curl -X PUT http://localhost:5000/api/projects/607e5f3a2b8c4d3a1b4e3d2c1 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"status":"In Progress","completionPercentage":15}'
+```
+
+---
+
+### DELETE /:id
+
+Delete project (soft delete).
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN
+
+**Example Request:**
+
+```bash
+curl -X DELETE http://localhost:5000/api/projects/607e5f3a2b8c4d3a1b4e3d2c1 \
+  -H "Authorization: Bearer <token>"
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Project deleted"
+}
+```
+
+---
+
+### POST /:id/milestones
+
+Add milestone to project.
+
+- **Auth Required:** Yes
+- **Roles:** PROJECT_MANAGER
+
+**Request Body:**
+
+```json
+{
+  "title": "Foundation Complete",
+  "dueDate": "2026-08-31",
+  "status": "In Progress"
+}
+```
+
+**Example Request:**
+
+```bash
+curl -X POST http://localhost:5000/api/projects/607e5f3a2b8c4d3a1b4e3d2c1/milestones \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"title":"Foundation Complete","dueDate":"2026-08-31","status":"In Progress"}'
+```
+
+---
+
+### PUT /:id/milestones/:milestoneId
+
+Update milestone.
+
+- **Auth Required:** Yes
+- **Roles:** PROJECT_MANAGER
+
+**Example Request:**
+
+```bash
+curl -X PUT http://localhost:5000/api/projects/607e5f3a2b8c4d3a1b4e3d2c1/milestones/607e5f3a2b8c4d3a1b4e3d2c2 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"status":"Completed","completedDate":"2026-08-30"}'
+```
+
+---
+
+### GET /:id/timeline
+
+Get project timeline with milestones.
+
+- **Auth Required:** Yes
+- **Roles:** Project Members
+
+**Example Request:**
+
+```bash
+curl -X GET http://localhost:5000/api/projects/607e5f3a2b8c4d3a1b4e3d2c1/timeline \
+  -H "Authorization: Bearer <token>"
+```
+
+**Success Response (200):**
+
+```json
+{
+  "project": "Downtown Office Complex",
+  "startDate": "2026-06-01",
+  "endDate": "2027-12-31",
+  "milestones": [
+    {
+      "title": "Foundation Complete",
+      "dueDate": "2026-08-31",
+      "status": "Completed",
+      "completedDate": "2026-08-30"
+    }
+  ]
+}
+```
+
+---
+
+### GET /:id/financial-summary
+
+Get budget vs actual cost summary.
+
+- **Auth Required:** Yes
+- **Roles:** Project Members
+
+**Example Request:**
+
+```bash
+curl -X GET http://localhost:5000/api/projects/607e5f3a2b8c4d3a1b4e3d2c1/financial-summary \
+  -H "Authorization: Bearer <token>"
+```
+
+**Success Response (200):**
+
+```json
+{
+  "budget": 50000000,
+  "actualCost": 7500000,
+  "remaining": 42500000,
+  "percentUsed": 15
+}
+```
+
+---
+
+## Project Status Values
+
+- `Planning`
+- `In Progress`
+- `On Hold`
+- `Completed`
+
+---
+
+## Related Documentation
+
+- [Sustainability API](./api-sustainability)
+- [Testing Instructions](../testing-instructions)
+- [Deployment Report](../deployment-report)

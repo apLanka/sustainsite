@@ -1,0 +1,324 @@
+---
+title: Resources API
+subtitle: Materials, equipment, and supplier management
+---
+
+## Base URL
+
+```
+http://localhost:5000/api
+```
+
+## Overview
+
+The Resources API manages materials inventory, equipment, and suppliers for construction projects.
+
+---
+
+## Materials API
+
+### Base URL
+
+```
+http://localhost:5000/api/materials
+```
+
+### Endpoints
+
+#### POST /materials
+
+Create material.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER
+
+**Request Body:**
+
+```json
+{
+  "materialName": "Portland Cement",
+  "category": "Concrete",
+  "quantity": 500,
+  "unit": "bags",
+  "unitPrice": 1200,
+  "supplier": "607e5f3a2b8c4d3a1b4e3d2c8",
+  "projectId": "607e5f3a2b8c4d3a1b4e3d2c1",
+  "isEcoFriendly": false
+}
+```
+
+**Example Request:**
+
+```bash
+curl -X POST http://localhost:5000/api/materials \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"materialName":"Portland Cement","category":"Concrete","quantity":500,"unit":"bags","unitPrice":1200}'
+```
+
+---
+
+#### GET /materials
+
+List materials.
+
+- **Auth Required:** Yes
+- **Query Params:** `category`, `projectId`
+
+```bash
+curl -X GET "http://localhost:5000/api/materials?projectId=607e5f3a2b8c4d3a1b4e3d2c1" \
+  -H "Authorization: Bearer <token>"
+```
+
+#### GET /materials/list/low-stock
+
+Get materials below minimum threshold.
+
+```bash
+curl -X GET http://localhost:5000/api/materials/list/low-stock \
+  -H "Authorization: Bearer <token>"
+```
+
+#### PUT /materials/:id/status
+
+Update material status.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER, SUPPLIER
+
+**Status Values:** `Ordered` → `In Transit` → `Delivered` → `In Stock` → `Used`
+
+**Request Body:**
+
+```json
+{"status": "Delivered", "currentStock": 500}
+```
+
+```bash
+curl -X PUT http://localhost:5000/api/materials/607e5f3a2b8c4d3a1b4e3d2c9/status \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"status":"Delivered","currentStock":500}'
+```
+
+#### POST /materials/:id/usage
+
+Record material usage.
+
+```bash
+curl -X POST http://localhost:5000/api/materials/607e5f3a2b8c4d3a1b4e3d2c9/usage \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"quantityUsed":50}'
+```
+
+#### GET /materials/:projectId/cost-summary
+
+Get cost summary for project.
+
+```bash
+curl -X GET http://localhost:5000/api/materials/607e5f3a2b8c4d3a1b4e3d2c1/cost-summary \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+## Equipment API
+
+### Base URL
+
+```
+http://localhost:5000/api/equipment
+```
+
+### Endpoints
+
+#### POST /equipment
+
+Create equipment.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER
+
+**Request Body:**
+
+```json
+{
+  "equipmentName": "Concrete Mixer",
+  "type": "Heavy Machinery",
+  "status": "Available",
+  "purchaseDate": "2025-01-15"
+}
+```
+
+**Example Request:**
+
+```bash
+curl -X POST http://localhost:5000/api/equipment \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"equipmentName":"Concrete Mixer","type":"Heavy Machinery","status":"Available"}'
+```
+
+---
+
+#### GET /equipment
+
+List equipment.
+
+```bash
+curl -X GET http://localhost:5000/api/equipment \
+  -H "Authorization: Bearer <token>"
+```
+
+#### GET /equipment/list/available
+
+Get available equipment.
+
+```bash
+curl -X GET http://localhost:5000/api/equipment/list/available \
+  -H "Authorization: Bearer <token>"
+```
+
+#### POST /equipment/:id/assign
+
+Assign equipment to project.
+
+```bash
+curl -X POST http://localhost:5000/api/equipment/607e5f3a2b8c4d3a1b4e3d2ca/assign \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"projectId":"607e5f3a2b8c4d3a1b4e3d2c1"}'
+```
+
+#### POST /equipment/:id/maintenance
+
+Schedule maintenance.
+
+```bash
+curl -X POST http://localhost:5000/api/equipment/607e5f3a2b8c4d3a1b4e3d2ca/maintenance \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"maintenanceDate":"2026-06-01"}'
+```
+
+---
+
+## Suppliers API
+
+### Base URL
+
+```
+http://localhost:5000/api/suppliers
+```
+
+### Endpoints
+
+#### POST /suppliers
+
+Create supplier.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER
+
+**Request Body:**
+
+```json
+{
+  "companyName": "BuildRight Supplies Ltd",
+  "contactPerson": "Mike Johnson",
+  "email": "mike@buildright.lk",
+  "phoneNumber": "+94 11 234 5678",
+  "materialsSupplied": ["Concrete", "Steel", "Cement"],
+  "isSustainabilityCertified": true
+}
+```
+
+**Example Request:**
+
+```bash
+curl -X POST http://localhost:5000/api/suppliers \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"companyName":"BuildRight Supplies","contactPerson":"Mike Johnson","email":"mike@buildright.lk","materialsSupplied":["Concrete","Steel"]}'
+```
+
+---
+
+#### GET /suppliers
+
+List suppliers.
+
+```bash
+curl -X GET http://localhost:5000/api/suppliers \
+  -H "Authorization: Bearer <token>"
+```
+
+#### POST /suppliers/:id/rating
+
+Rate supplier.
+
+**Request Body:**
+
+```json
+{"rating": 4, "comments": "Great quality materials, on-time delivery"}
+```
+
+```bash
+curl -X POST http://localhost:5000/api/suppliers/607e5f3a2b8c4d3a1b4e3d2cb/rating \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"rating":4,"comments":"Great quality"}'
+```
+
+#### GET /suppliers/:id/performance
+
+Get supplier performance metrics.
+
+```bash
+curl -X GET http://localhost:5000/api/suppliers/607e5f3a2b8c4d3a1b4e3d2cb/performance \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response:**
+
+```json
+{
+  "performance": {
+    "averageRating": 4.2,
+    "totalRatings": 15,
+    "onTimeDeliveryRate": 92,
+    "qualityScore": 88
+  }
+}
+```
+
+---
+
+## Material Categories
+
+| Category | Examples |
+|----------|---------|
+| Concrete | Cement, Sand, Gravel |
+| Steel | Rebar, Steel Bars |
+| Wood | Plywood, Timber |
+| Electrical | Wiring, Switches |
+| Plumbing | Pipes, Fittings |
+
+---
+
+## Equipment Types
+
+| Type | Examples |
+|------|---------|
+| Heavy Machinery | Excavator, Crane, Mixer |
+| Power Tools | Drill, Saw, Grinder |
+| Safety Equipment | Helmets, Vests |
+
+---
+
+## Related Documentation
+
+- [Projects API](./api-projects)
+- [Testing Instructions](../testing-instructions)
+- [Deployment Report](../deployment-report)
