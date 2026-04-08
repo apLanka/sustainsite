@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import ProjectHeader from '@/components/project/ProjectHeader';
 import DocumentUploader from '@/components/documents/DocumentUploader';
@@ -56,6 +56,7 @@ const StatusBadge = ({ status }: { status: DocumentStatus }) => {
 
 export default function DocumentsPage() {
   const { id: projectId } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
   const {
     documents,
@@ -70,7 +71,6 @@ export default function DocumentsPage() {
     setDocFilters,
     setDocLoading,
     setUploading,
-    resetDocFilters,
   } = useDocumentStore();
 
   // ── Upload modal ──────────────────────────────────────────────────────────
@@ -118,8 +118,10 @@ export default function DocumentsPage() {
   // ── Fetch documents ───────────────────────────────────────────────────────
   useEffect(() => {
     if (!projectId) return;
-    resetDocFilters(projectId);
-  }, [projectId, resetDocFilters]);
+    // Allow ?status= URL param to pre-filter (e.g. from dashboard "Review Now")
+    const urlStatus = (searchParams.get('status') ?? '') as DocumentStatus | '';
+    setDocFilters({ projectId, status: urlStatus, documentType: '', tag: '', page: 1, limit: 10 });
+  }, [projectId]);
 
   useEffect(() => {
     if (!docFilters.projectId) return;

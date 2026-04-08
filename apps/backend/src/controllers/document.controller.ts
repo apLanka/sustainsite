@@ -50,7 +50,7 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
       fileName: req.file.originalname,
       fileSize: size,
       fileFormat: format,
-      status: DocumentStatus.DRAFT,
+      status: DocumentStatus.UNDER_REVIEW,
       uploadedBy: req.user!.userId,
     });
 

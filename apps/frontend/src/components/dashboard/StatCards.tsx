@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useDashboardStore } from '@/store';
 
 const CIRC_R   = 54;
@@ -8,7 +9,8 @@ const Skeleton = ({ className }: { className: string }) => (
 );
 
 const StatCards = ({ isLoading }: { isLoading: boolean }) => {
-  const { activeCount, avgSustainability, pendingApprovals, highRiskCount } = useDashboardStore();
+  const { activeCount, avgSustainability, pendingApprovals, highRiskCount, projects } = useDashboardStore();
+  const firstProjectId = projects[0]?._id;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
@@ -75,10 +77,10 @@ const StatCards = ({ isLoading }: { isLoading: boolean }) => {
           )}
           <p className="text-sm font-semibold text-slate-500 mt-1 uppercase tracking-wider font-headline">Pending Approvals</p>
         </div>
-        {!isLoading && pendingApprovals > 0 && (
-          <a className="mt-4 inline-flex items-center text-xs font-bold text-amber-700 hover:underline group-hover:gap-2 transition-all gap-1 cursor-pointer" href="#">
+        {!isLoading && pendingApprovals > 0 && firstProjectId && (
+          <Link to={`/projects/${firstProjectId}/documents?status=Under Review`} className="mt-4 inline-flex items-center text-xs font-bold text-amber-700 hover:underline group-hover:gap-2 transition-all gap-1 cursor-pointer">
             Review Now <span className="material-symbols-outlined !text-sm">arrow_forward</span>
-          </a>
+          </Link>
         )}
       </div>
 

@@ -143,7 +143,7 @@ const documentSchema = new Schema<IDocument>(
     status: {
       type: String,
       enum: Object.values(DocumentStatus),
-      default: DocumentStatus.DRAFT,
+      default: DocumentStatus.UNDER_REVIEW,
     },
     approvedBy: {
       type: Schema.Types.ObjectId,
@@ -217,7 +217,7 @@ documentSchema.methods.createNewVersion = function (
   this.version = `${majorVersion}.${minorVersion + 1}`;
   this.fileUrl = fileUrl;
   this.uploadedBy = uploadedBy;
-  this.status = DocumentStatus.DRAFT;
+  this.status = DocumentStatus.UNDER_REVIEW;
 
   return this.save();
 };
