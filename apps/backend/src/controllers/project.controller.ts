@@ -1,7 +1,7 @@
 import {Request, Response} from 'express';
 import mongoose from 'mongoose';
 import Project from '../models/Project';
-import Milestone from '../models/Milestone';
+import Milestone, { MilestoneStatus } from '../models/Milestone';
 import Material from '../models/Material';
 
 export const createProject = async (req: Request, res: Response): Promise<void> => {
@@ -174,6 +174,19 @@ export const deleteProject = async (req: Request, res: Response): Promise<void> 
   }
 };
 
+// Recalculates and persists a project's completionPercentage from its milestones.
+async function syncProjectCompletion(projectId: string): Promise<void> {
+  const milestones = await Milestone.find({ projectId });
+  if (milestones.length === 0) return;
+  const total = milestones.reduce((sum, m) => {
+    const pct = m.status === MilestoneStatus.COMPLETED ? 100 : m.completionPercentage;
+    return sum + pct;
+  }, 0);
+  await Project.findByIdAndUpdate(projectId, {
+    completionPercentage: Math.round(total / milestones.length),
+  });
+}
+
 export const addMilestone = async (req: Request, res: Response): Promise<void> => {
   try {
     const milestoneData = {
@@ -182,6 +195,7 @@ export const addMilestone = async (req: Request, res: Response): Promise<void> =
     };
 
     const milestone = await Milestone.create(milestoneData);
+    await syncProjectCompletion(req.params.id);
 
     res.status(201).json({
       success: true,
@@ -210,6 +224,8 @@ export const updateMilestone = async (req: Request, res: Response): Promise<void
       });
       return;
     }
+
+    await syncProjectCompletion(req.params.id);
 
     res.status(200).json({
       success: true,
