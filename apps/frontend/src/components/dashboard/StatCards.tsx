@@ -16,8 +16,8 @@ const StatCards = ({ isLoading }: { isLoading: boolean }) => {
       {/* Active Projects */}
       <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col justify-between group hover:shadow-md transition-shadow">
         <div className="flex justify-between items-start mb-4">
-          <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-secondary">
-            <span className="material-symbols-outlined !text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>foundation</span>
+          <div className="w-14 h-14 bg-emerald-50 rounded-xl flex items-center justify-center text-secondary">
+            <span className="material-symbols-outlined !text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>foundation</span>
           </div>
         </div>
         <div>
@@ -63,8 +63,8 @@ const StatCards = ({ isLoading }: { isLoading: boolean }) => {
       {/* Pending Approvals */}
       <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col justify-between group hover:shadow-md transition-shadow">
         <div className="flex justify-between items-start">
-          <div className="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-700">
-            <span className="material-symbols-outlined !text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>pending_actions</span>
+          <div className="w-14 h-14 bg-amber-50 rounded-xl flex items-center justify-center text-amber-700">
+            <span className="material-symbols-outlined !text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>pending_actions</span>
           </div>
         </div>
         <div className="mt-4">
@@ -85,8 +85,8 @@ const StatCards = ({ isLoading }: { isLoading: boolean }) => {
       {/* High-Risk Inspections */}
       <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col justify-between group hover:shadow-md transition-shadow">
         <div className="flex justify-between items-start mb-4">
-          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${highRiskCount > 0 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-secondary'}`}>
-            <span className="material-symbols-outlined !text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+          <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${highRiskCount > 0 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-secondary'}`}>
+            <span className="material-symbols-outlined !text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
               {highRiskCount > 0 ? 'warning' : 'verified_user'}
             </span>
           </div>
