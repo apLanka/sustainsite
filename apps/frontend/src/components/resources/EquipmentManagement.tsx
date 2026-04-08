@@ -53,10 +53,6 @@ export default function EquipmentManagement() {
     fetchEquipment();
   }, [activeProjectId]);
 
-  const availableCount = equipment.filter(e => e.status === 'Available').length;
-  const inUseCount = equipment.filter(e => e.status === 'In Use').length;
-  const maintenanceCount = equipment.filter(e => e.status === 'Under Maintenance').length;
-
   const handleCreateEquipment = async () => {
     if (!form.equipmentName || !form.equipmentType) {
       setCreateError('Please fill in all required fields');
@@ -156,7 +152,7 @@ export default function EquipmentManagement() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {equipment.map((item) => (
-          <div key={item.id} className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group relative overflow-hidden">
+          <div key={item._id} className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group relative overflow-hidden">
             {/* Background Accent */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-[100px] -z-10 group-hover:bg-primary/5 transition-colors"></div>
 

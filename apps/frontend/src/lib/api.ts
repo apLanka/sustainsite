@@ -476,4 +476,43 @@ export const complianceApi = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// Dashboard API
+// ---------------------------------------------------------------------------
+
+export const dashboardApi = {
+  // Top 6 recent projects (all statuses)
+  getRecentProjects: async (): Promise<PaginatedResponse<Project>> => {
+    const res = await api.get<PaginatedResponse<Project>>('/projects', { params: { limit: 6 } });
+    return res.data;
+  },
+
+  // Total in-progress project count only — use pagination.total
+  getActiveProjectCount: async (): Promise<number> => {
+    const res = await api.get<PaginatedResponse<Project>>('/projects', { params: { status: 'In Progress', limit: 1 } });
+    return res.data.pagination.total;
+  },
+
+  // Total pending document approvals — use pagination.total
+  getPendingApprovals: async (): Promise<number> => {
+    const res = await api.get<DocumentPaginatedResponse>('/documents', { params: { status: 'Under Review', limit: 1 } });
+    return res.data.pagination.total;
+  },
+
+  // High + Critical unresolved inspection count
+  getHighRiskCount: async (): Promise<number> => {
+    const [high, critical] = await Promise.all([
+      api.get<CompliancePaginatedResponse<SafetyInspection>>('/compliance/inspections', { params: { riskLevel: 'High', isResolved: 'false', limit: 1 } }),
+      api.get<CompliancePaginatedResponse<SafetyInspection>>('/compliance/inspections', { params: { riskLevel: 'Critical', isResolved: 'false', limit: 1 } }),
+    ]);
+    return high.data.pagination.total + critical.data.pagination.total;
+  },
+
+  // Checklists with due dates across all projects (for upcoming roadmap)
+  getUpcomingChecklists: async (): Promise<CompliancePaginatedResponse<ComplianceChecklist>> => {
+    const res = await api.get<CompliancePaginatedResponse<ComplianceChecklist>>('/compliance/checklists', { params: { limit: 50 } });
+    return res.data;
+  },
+};
+
 export default api;

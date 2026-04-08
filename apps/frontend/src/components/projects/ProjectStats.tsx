@@ -1,4 +1,5 @@
 import type { Project } from '@/types/project';
+import { calcMilestoneProgress } from '@/lib/milestoneProgress';
 
 interface Props {
   project: Project;
@@ -8,6 +9,11 @@ const fmt = (n: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
 
 const ProjectStats = ({ project }: Props) => {
+  const milestones = project.milestones ?? [];
+  const completionPct = milestones.length > 0
+    ? calcMilestoneProgress(milestones)
+    : project.completionPercentage;
+
   const budgetUsedPct = project.budget > 0
     ? Math.min(100, Math.round((project.actualCost / project.budget) * 100))
     : 0;
@@ -75,14 +81,14 @@ const ProjectStats = ({ project }: Props) => {
         </p>
         <div className="flex items-end gap-2">
           <h4 className="text-3xl font-black text-primary tracking-tighter font-headline">
-            {project.completionPercentage}%
+            {completionPct}%
           </h4>
           <span className="text-xs font-bold text-secondary mb-1">
             {project.daysRemaining > 0 ? `${project.daysRemaining}d left` : 'Overdue'}
           </span>
         </div>
         <div className="h-1.5 w-full bg-slate-100 rounded-full mt-4 overflow-hidden">
-          <div className="h-full bg-amber-500 rounded-full" style={{ width: `${project.completionPercentage}%` }} />
+          <div className="h-full bg-amber-500 rounded-full" style={{ width: `${completionPct}%` }} />
         </div>
       </div>
     </div>

@@ -8,6 +8,7 @@ import ProjectHeader from '@/components/project/ProjectHeader';
 import SmoothTabs from '@/components/ui/SmoothTabs';
 import { projectApi } from '@/lib/api';
 import { useProjectStore } from '@/store';
+import { calcMilestoneProgress } from '@/lib/milestoneProgress';
 import type { Milestone, CreateMilestonePayload, UpdateMilestonePayload } from '@/types/project';
 import { MilestoneStatus } from '@/types/project';
 
@@ -19,6 +20,7 @@ export default function ProjectDetailPage() {
     setSelectedProject,
     appendMilestone,
     updateMilestoneInStore,
+    updateProjectInList,
   } = useProjectStore();
 
   const [activeTab, setActiveTab] = useState('milestones');
@@ -103,6 +105,16 @@ export default function ProjectDetailPage() {
   };
 
   const milestones = selectedProject?.milestones ?? [];
+
+  // Sync calculated progress back into the store so list views stay accurate
+  useEffect(() => {
+    if (!selectedProject || milestones.length === 0) return;
+    const calculated = calcMilestoneProgress(milestones);
+    if (calculated !== selectedProject.completionPercentage) {
+      updateProjectInList(selectedProject._id, { completionPercentage: calculated });
+      setSelectedProject({ ...selectedProject, completionPercentage: calculated });
+    }
+  }, [milestones, selectedProject, updateProjectInList, setSelectedProject]);
 
   return (
     <DashboardLayout>

@@ -9,6 +9,7 @@ import type {
   InspectionFilters,
   CompliancePagination,
 } from '@/types/compliance';
+import type { DashboardData } from '@/types/dashboard';
 
 // ---------------------------------------------------------------------------
 // Auth slice
@@ -265,6 +266,28 @@ export const useComplianceStore = create<ComplianceSlice>()((set) => ({
       checklistFilters:  { ...DEFAULT_CHECKLIST_FILTERS,  projectId },
       inspectionFilters: { ...DEFAULT_INSPECTION_FILTERS, projectId },
     }),
+}));
+
+// ---------------------------------------------------------------------------
+// Dashboard slice
+// ---------------------------------------------------------------------------
+
+interface DashboardSlice extends DashboardData {
+  isDashboardLoading: boolean;
+  setDashboard: (data: Partial<DashboardData>) => void;
+  setDashboardLoading: (v: boolean) => void;
+}
+
+export const useDashboardStore = create<DashboardSlice>()((set) => ({
+  projects: [],
+  activeCount: 0,
+  pendingApprovals: 0,
+  highRiskCount: 0,
+  avgSustainability: 0,
+  upcomingDueDates: [],
+  isDashboardLoading: false,
+  setDashboard: (data) => set((state) => ({ ...state, ...data })),
+  setDashboardLoading: (v) => set({ isDashboardLoading: v }),
 }));
 
 // ---------------------------------------------------------------------------
