@@ -1,6 +1,6 @@
 ---
 title: API overview & endpoints
-subtitle: REST map, Swagger UI, Postman, and OpenAPI export
+subtitle: Complete REST API reference with examples for all endpoints
 ---
 
 ## Base URL
@@ -9,7 +9,27 @@ subtitle: REST map, Swagger UI, Postman, and OpenAPI export
 - **Local API:** `http://localhost:5000`
 - **Production API:** set by your deployment (e.g. Render) — details under **Deployment report** in the sidebar.
 
-Most REST routes live under **`/api`**. JWT is sent as `Authorization: Bearer <token>` unless the route is public (e.g. register/login).
+Most REST routes live under `/api`. JWT is sent as `Authorization: Bearer <token>` unless the route is public (e.g. register/login).
+
+## Authentication
+
+All protected endpoints require JWT authentication:
+
+```bash
+# Include token in Authorization header
+curl -X GET http://localhost:5000/api/projects \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+### User Roles
+
+| Role | Description |
+|------|-------------|
+| ADMIN | Full system access |
+| PROJECT_MANAGER | Manage projects and resources |
+| INSPECTOR | Update sustainability metrics, conduct inspections |
+| SUPPLIER | Update material delivery status |
+| VIEWER | Read-only access |
 
 ## Route prefixes (Express)
 
@@ -23,12 +43,912 @@ Most REST routes live under **`/api`**. JWT is sent as `Authorization: Bearer <t
 | Documents | `/api/documents` | Upload, versioning, approval workflow |
 | Compliance | `/api/compliance` | Checklists, inspections, project score |
 | Safety | `/api/safety` | Aggregated safety / high-risk inspections |
-| Resources (materials) | `/api/resources/materials` | Also mounted at `/api/materials` |
-| Resources (equipment) | `/api/resources/equipment` | Also mounted at `/api/equipment` |
-| Resources (suppliers) | `/api/resources/suppliers` | Also mounted at `/api/suppliers` |
+| Materials | `/api/materials` | Material inventory |
+| Equipment | `/api/equipment` | Equipment management |
+| Suppliers | `/api/suppliers` | Supplier management |
 | Users (admin) | `/api/users` | Role-guarded user management |
 
-Stricter rate limits apply to **`/api/auth/login`** and **`/api/auth/register`** (see backend `app.ts`).
+---
+
+## API Endpoints Reference
+
+### 1. Health & Index
+
+#### GET /health
+
+Health check endpoint.
+
+```bash
+curl -X GET http://localhost:5000/health
+```
+
+**Response (200):**
+```json
+{"status": "ok", "timestamp": "2026-04-25T10:00:00.000Z", "environment": "development"}
+```
+
+#### GET /api
+
+API index with version.
+
+```bash
+curl -X GET http://localhost:5000/api
+```
+
+**Response (200):**
+```json
+{
+  "message": "SustainSite API",
+  "version": "1.0.0",
+  "routes": ["/api/auth", "/api/projects", "/api/sustainability", ...]
+}
+```
+
+---
+
+### 2. Authentication (/api/auth)
+
+#### POST /api/auth/register
+
+Register a new user.
+
+- **Auth Required:** No
+- **Request Body:**
+```json
+{
+  "fullName": "John Doe",
+  "email": "john@example.com",
+  "password": "Password123",
+  "role": "VIEWER"
+}
+```
+
+```bash
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"fullName":"John Doe","email":"john@example.com","password":"Password123","role":"VIEWER"}'
+```
+
+**Response (201):**
+```json
+{"success": true, "message": "Registration successful", "user": {...}, "token": "eyJ..."}
+```
+
+#### POST /api/auth/login
+
+Login and receive JWT token.
+
+- **Auth Required:** No
+- **Request Body:**
+```json
+{"email": "john@example.com", "password": "Password123"}
+```
+
+```bash
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"john@example.com","password":"Password123"}'
+```
+
+**Response (200):**
+```json
+{"success": true, "message": "Login successful", "token": "eyJ...", "user": {...}}
+```
+
+#### GET /api/auth/me
+
+Get current user profile.
+
+- **Auth Required:** Yes
+- **Roles:** All
+
+```bash
+curl -X GET http://localhost:5000/api/auth/me \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response (200):**
+```json
+{"user": {"_id": "...", "fullName": "John Doe", "email": "john@example.com", "role": "VIEWER"}}
+```
+
+#### PATCH /api/auth/profile
+
+Update profile.
+
+- **Auth Required:** Yes
+- **Request Body:**
+```json
+{"fullName": "John Smith", "jobTitle": "Engineer"}
+```
+
+```bash
+curl -X PATCH http://localhost:5000/api/auth/profile \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"fullName":"John Smith","jobTitle":"Engineer"}'
+```
+
+#### PATCH /api/auth/change-password
+
+Change password.
+
+- **Auth Required:** Yes
+- **Request Body:**
+```json
+{"currentPassword": "OldPass123", "newPassword": "NewPass123"}
+```
+
+```bash
+curl -X PATCH http://localhost:5000/api/auth/change-password \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"currentPassword":"OldPass123","newPassword":"NewPass123"}'
+```
+
+---
+
+### 3. Projects (/api/projects)
+
+#### POST /api/projects
+
+Create a new project.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER
+- **Request Body:**
+```json
+{
+  "projectName": "Downtown Office Complex",
+  "description": "A 20-story office building",
+  "location": {"address": "123 Main Street", "latitude": 6.9271, "longitude": 79.8612},
+  "startDate": "2026-06-01",
+  "endDate": "2027-12-31",
+  "budget": 50000000,
+  "status": "Planning"
+}
+```
+
+```bash
+curl -X POST http://localhost:5000/api/projects \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"projectName":"Downtown Office Complex","description":"A 20-story office building","location":{"address":"123 Main Street","latitude":6.9271,"longitude":79.8612},"startDate":"2026-06-01","endDate":"2027-12-31","budget":50000000,"status":"Planning"}'
+```
+
+**Response (201):**
+```json
+{"success": true, "message": "Project created", "project": {...}}
+```
+
+#### GET /api/projects
+
+List all projects (paginated).
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER, INSPECTOR, VIEWER
+- **Query Params:** `page`, `limit`, `status`, `search`
+
+```bash
+curl -X GET "http://localhost:5000/api/projects?page=1&limit=10" \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response (200):**
+```json
+{"projects": [...], "pagination": {"page": 1, "limit": 10, "total": 5, "pages": 1}}
+```
+
+#### GET /api/projects/:id
+
+Get project by ID.
+
+- **Auth Required:** Yes
+- **Roles:** Project Members
+
+```bash
+curl -X GET http://localhost:5000/api/projects/607e5f3a2b8c4d3a1b4e3d2c1 \
+  -H "Authorization: Bearer <token>"
+```
+
+#### PUT /api/projects/:id
+
+Update project.
+
+- **Auth Required:** Yes
+- **Roles:** PROJECT_MANAGER (assigned)
+
+```bash
+curl -X PUT http://localhost:5000/api/projects/607e5f3a2b8c4d3a1b4e3d2c1 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"status":"In Progress","completionPercentage":15}'
+```
+
+#### DELETE /api/projects/:id
+
+Delete project.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN
+
+```bash
+curl -X DELETE http://localhost:5000/api/projects/607e5f3a2b8c4d3a1b4e3d2c1 \
+  -H "Authorization: Bearer <token>"
+```
+
+#### POST /api/projects/:id/milestones
+
+Add milestone.
+
+- **Auth Required:** Yes
+- **Roles:** PROJECT_MANAGER
+- **Request Body:**
+```json
+{"title": "Foundation Complete", "dueDate": "2026-08-31", "status": "In Progress"}
+```
+
+```bash
+curl -X POST http://localhost:5000/api/projects/607e5f3a2b8c4d3a1b4e3d2c1/milestones \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"title":"Foundation Complete","dueDate":"2026-08-31","status":"In Progress"}'
+```
+
+#### GET /api/projects/:id/timeline
+
+Get project timeline.
+
+```bash
+curl -X GET http://localhost:5000/api/projects/607e5f3a2b8c4d3a1b4e3d2c1/timeline \
+  -H "Authorization: Bearer <token>"
+```
+
+#### GET /api/projects/:id/financial-summary
+
+Get budget vs actual.
+
+```bash
+curl -X GET http://localhost:5000/api/projects/607e5f3a2b8c4d3a1b4e3d2c1/financial-summary \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response (200):**
+```json
+{"budget": 50000000, "actualCost": 7500000, "remaining": 42500000, "percentUsed": 15}
+```
+
+---
+
+### 4. Sustainability (/api/sustainability)
+
+#### POST /api/sustainability
+
+Create sustainability metric.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER, INSPECTOR
+- **Request Body:**
+```json
+{
+  "projectId": "607e5f3a2b8c4d3a1b4e3d2c1",
+  "carbonEmissions": 150.5,
+  "energyConsumption": 25000,
+  "wasteManagement": 85.2,
+  "waterUsage": 1200,
+  "recordedDate": "2026-04-01"
+}
+```
+
+```bash
+curl -X POST http://localhost:5000/api/sustainability \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"projectId":"607e5f3a2b8c4d3a1b4e3d2c1","carbonEmissions":150.5,"energyConsumption":25000,"wasteManagement":85.2,"waterUsage":1200}'
+```
+
+**Response (201):**
+```json
+{"success": true, "metric": {"sustainabilityScore": 72, "treesEquivalent": 6.8, ...}}
+```
+
+#### GET /api/sustainability
+
+List all metrics.
+
+```bash
+curl -X GET http://localhost:5000/api/sustainability \
+  -H "Authorization: Bearer <token>"
+```
+
+#### GET /api/sustainability/projects/:projectId/metrics
+
+Get project metrics.
+
+```bash
+curl -X GET http://localhost:5000/api/sustainability/projects/607e5f3a2b8c4d3a1b4e3d2c1/metrics \
+  -H "Authorization: Bearer <token>"
+```
+
+#### GET /api/sustainability/projects/:projectId/score
+
+Get sustainability score.
+
+```bash
+curl -X GET http://localhost:5000/api/sustainability/projects/607e5f3a2b8c4d3a1b4e3d2c1/score \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response (200):**
+```json
+{"score": {"current": 72, "breakdown": {"carbonEmissions": 25, ...}, "trend": "improving"}}
+```
+
+#### GET /api/sustainability/projects/:projectId/trends
+
+Get historical trends.
+
+```bash
+curl -X GET http://localhost:5000/api/sustainability/projects/607e5f3a2b8c4d3a1b4e3d2c1/trends \
+  -H "Authorization: Bearer <token>"
+```
+
+#### POST /api/sustainability/calculate-impact
+
+Calculate impact (without saving).
+
+```bash
+curl -X POST http://localhost:5000/api/sustainability/calculate-impact \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"carbonEmissions":500,"energyConsumption":10000}'
+```
+
+---
+
+### 5. Documents (/api/documents)
+
+#### POST /api/documents
+
+Upload document.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER, INSPECTOR
+- **Content-Type:** multipart/form-data
+
+```bash
+curl -X POST http://localhost:5000/api/documents \
+  -H "Authorization: Bearer <token>" \
+  -F "file=@blueprint.pdf" \
+  -F "projectId=607e5f3a2b8c4d3a1b4e3d2c1" \
+  -F "title=Building Blueprint v1" \
+  -F "documentType=Blueprint"
+```
+
+**Response (201):**
+```json
+{"success": true, "document": {"title": "Building Blueprint v1", "status": "Draft", "fileUrl": "...", "version": 1}}
+```
+
+#### GET /api/documents
+
+List documents.
+
+- **Query Params:** `page`, `limit`, `projectId`, `status`, `documentType`
+
+```bash
+curl -X GET "http://localhost:5000/api/documents?projectId=607e5f3a2b8c4d3a1b4e3d2c1" \
+  -H "Authorization: Bearer <token>"
+```
+
+#### GET /api/documents/:id
+
+Get document by ID.
+
+```bash
+curl -X GET http://localhost:5000/api/documents/607e5f3a2b8c4d3a1b4e3d2c4 \
+  -H "Authorization: Bearer <token>"
+```
+
+#### PUT /api/documents/:id/approve
+
+Approve document.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, INSPECTOR
+
+```bash
+curl -X PUT http://localhost:5000/api/documents/607e5f3a2b8c4d3a1b4e3d2c4/approve \
+  -H "Authorization: Bearer <token>"
+```
+
+#### PUT /api/documents/:id/reject
+
+Reject document.
+
+- **Roles:** ADMIN, INSPECTOR
+- **Request Body:**
+```json
+{"rejectionReason": "Missing signature"}
+```
+
+```bash
+curl -X PUT http://localhost:5000/api/documents/607e5f3a2b8c4d3a1b4e3d2c4/reject \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"rejectionReason":"Missing signature"}'
+```
+
+#### POST /api/documents/:id/version
+
+Create new version.
+
+```bash
+curl -X POST http://localhost:5000/api/documents/607e5f3a2b8c4d3a1b4e3d2c4/version \
+  -H "Authorization: Bearer <token>" \
+  -F "file=@blueprint-v2.pdf"
+```
+
+#### DELETE /api/documents/:id
+
+Delete document.
+
+- **Roles:** Owner or ADMIN
+
+```bash
+curl -X DELETE http://localhost:5000/api/documents/607e5f3a2b8c4d3a1b4e3d2c4 \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### 6. Compliance (/api/compliance)
+
+#### POST /api/compliance/checklists
+
+Create checklist.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER, INSPECTOR
+- **Request Body:**
+```json
+{
+  "projectId": "607e5f3a2b8c4d3a1b4e3d2c1",
+  "name": "Environmental Compliance Q2 2026",
+  "category": "Environmental",
+  "items": [
+    {"description": "Waste management plan", "completed": true},
+    {"description": "Water treatment operational", "completed": false}
+  ]
+}
+```
+
+```bash
+curl -X POST http://localhost:5000/api/compliance/checklists \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"projectId":"...","name":"Environmental Compliance Q2 2026","category":"Environmental","items":[{"description":"Waste management plan","completed":true}]}'
+```
+
+**Response (201):**
+```json
+{"success": true, "checklist": {"score": 50, "items": [...]}}
+```
+
+#### GET /api/compliance/checklists
+
+List checklists.
+
+```bash
+curl -X GET http://localhost:5000/api/compliance/checklists \
+  -H "Authorization: Bearer <token>"
+```
+
+#### GET /api/compliance/checklists/:id
+
+Get checklist details.
+
+```bash
+curl -X GET http://localhost:5000/api/compliance/checklists/607e5f3a2b8c4d3a1b4e3d2c5 \
+  -H "Authorization: Bearer <token>"
+```
+
+#### PUT /api/compliance/checklists/:id/items/:itemId
+
+Update checklist item.
+
+- **Request Body:**
+```json
+{"completed": true, "notes": "Verified"}
+```
+
+```bash
+curl -X PUT http://localhost:5000/api/compliance/checklists/607e5f3a2b8c4d3a1b4e3d2c5/items/607e5f3a2b8c4d3a1b4e3d2c6 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"completed":true,"notes":"Verified"}'
+```
+
+#### GET /api/compliance/score/:projectId
+
+Get project compliance score.
+
+```bash
+curl -X GET http://localhost:5000/api/compliance/score/607e5f3a2b8c4d3a1b4e3d2c1 \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response (200):**
+```json
+{"score": 85, "totalItems": 20, "completedItems": 17}
+```
+
+#### POST /api/compliance/inspections
+
+Create inspection.
+
+- **Roles:** ADMIN, INSPECTOR
+
+```bash
+curl -X POST http://localhost:5000/api/compliance/inspections \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"projectId":"...","inspectorName":"Jane Smith","date":"2026-04-20","findings":"All clear","riskLevel":"Low"}'
+```
+
+---
+
+### 7. Safety (/api/safety)
+
+#### POST /api/safety/inspection
+
+Create safety inspection.
+
+- **Roles:** ADMIN, INSPECTOR
+- **Request Body:**
+```json
+{
+  "projectId": "607e5f3a2b8c4d3a1b4e3d2c1",
+  "inspectorName": "Jane Smith",
+  "date": "2026-04-20",
+  "findings": "All safety protocols followed",
+  "riskLevel": "Low"
+}
+```
+
+```bash
+curl -X POST http://localhost:5000/api/safety/inspection \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"projectId":"...","inspectorName":"Jane Smith","date":"2026-04-20","findings":"All safety protocols followed","riskLevel":"Low"}'
+```
+
+#### GET /api/safety/:projectId
+
+Get inspections for project.
+
+```bash
+curl -X GET http://localhost:5000/api/safety/607e5f3a2b8c4d3a1b4e3d2c1 \
+  -H "Authorization: Bearer <token>"
+```
+
+#### GET /api/safety/:projectId/high-risk
+
+Get high-risk inspections.
+
+```bash
+curl -X GET http://localhost:5000/api/safety/607e5f3a2b8c4d3a1b4e3d2c1/high-risk \
+  -H "Authorization: Bearer <token>"
+```
+
+#### GET /api/safety/inspection/:id
+
+Get inspection by ID.
+
+```bash
+curl -X GET http://localhost:5000/api/safety/inspection/607e5f3a2b8c4d3a1b4e3d2c7 \
+  -H "Authorization: Bearer <token>"
+```
+
+#### PUT /api/safety/inspection/:id
+
+Update inspection.
+
+- **Roles:** ADMIN, INSPECTOR
+
+```bash
+curl -X PUT http://localhost:5000/api/safety/inspection/607e5f3a2b8c4d3a1b4e3d2c7 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"actionStatus":"Completed"}'
+```
+
+#### DELETE /api/safety/inspection/:id
+
+Delete inspection.
+
+- **Roles:** ADMIN
+
+```bash
+curl -X DELETE http://localhost:5000/api/safety/inspection/607e5f3a2b8c4d3a1b4e3d2c7 \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### 8. Materials (/api/materials)
+
+#### POST /api/materials
+
+Create material.
+
+- **Roles:** ADMIN, PROJECT_MANAGER
+- **Request Body:**
+```json
+{
+  "materialName": "Portland Cement",
+  "category": "Concrete",
+  "quantity": 500,
+  "unit": "bags",
+  "unitPrice": 1200,
+  "supplier": "607e5f3a2b8c4d3a1b4e3d2c8",
+  "projectId": "607e5f3a2b8c4d3a1b4e3d2c1"
+}
+```
+
+```bash
+curl -X POST http://localhost:5000/api/materials \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"materialName":"Portland Cement","category":"Concrete","quantity":500,"unit":"bags","unitPrice":1200}'
+```
+
+#### GET /api/materials
+
+List materials.
+
+- **Query Params:** `category`, `projectId`
+
+```bash
+curl -X GET http://localhost:5000/api/materials \
+  -H "Authorization: Bearer <token>"
+```
+
+#### GET /api/materials/list/low-stock
+
+Get low stock materials.
+
+```bash
+curl -X GET http://localhost:5000/api/materials/list/low-stock \
+  -H "Authorization: Bearer <token>"
+```
+
+#### PUT /api/materials/:id/status
+
+Update material status.
+
+- **Roles:** ADMIN, PROJECT_MANAGER, SUPPLIER
+- **Request Body:**
+```json
+{"status": "Delivered", "currentStock": 500}
+```
+
+```bash
+curl -X PUT http://localhost:5000/api/materials/607e5f3a2b8c4d3a1b4e3d2c9/status \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"status":"Delivered","currentStock":500}'
+```
+
+#### POST /api/materials/:id/usage
+
+Record material usage.
+
+- **Request Body:**
+```json
+{"quantityUsed": 50}
+```
+
+```bash
+curl -X POST http://localhost:5000/api/materials/607e5f3a2b8c4d3a1b4e3d2c9/usage \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"quantityUsed":50}'
+```
+
+#### GET /api/materials/:projectId/cost-summary
+
+Get cost summary.
+
+```bash
+curl -X GET http://localhost:5000/api/materials/607e5f3a2b8c4d3a1b4e3d2c1/cost-summary \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### 9. Equipment (/api/equipment)
+
+#### POST /api/equipment
+
+Create equipment.
+
+- **Roles:** ADMIN, PROJECT_MANAGER
+
+```bash
+curl -X POST http://localhost:5000/api/equipment \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"equipmentName":"Concrete Mixer","type":"Heavy Machinery","status":"Available"}'
+```
+
+#### GET /api/equipment
+
+List equipment.
+
+```bash
+curl -X GET http://localhost:5000/api/equipment \
+  -H "Authorization: Bearer <token>"
+```
+
+#### GET /api/equipment/list/available
+
+Get available equipment.
+
+```bash
+curl -X GET http://localhost:5000/api/equipment/list/available \
+  -H "Authorization: Bearer <token>"
+```
+
+#### POST /api/equipment/:id/assign
+
+Assign equipment to project.
+
+```bash
+curl -X POST http://localhost:5000/api/equipment/607e5f3a2b8c4d3a1b4e3d2ca/assign \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"projectId":"607e5f3a2b8c4d3a1b4e3d2c1"}'
+```
+
+#### POST /api/equipment/:id/maintenance
+
+Schedule maintenance.
+
+```bash
+curl -X POST http://localhost:5000/api/equipment/607e5f3a2b8c4d3a1b4e3d2ca/maintenance \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"maintenanceDate":"2026-06-01"}'
+```
+
+---
+
+### 10. Suppliers (/api/suppliers)
+
+#### POST /api/suppliers
+
+Create supplier.
+
+- **Roles:** ADMIN, PROJECT_MANAGER
+
+```bash
+curl -X POST http://localhost:5000/api/suppliers \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"companyName":"BuildRight Supplies","contactPerson":"Mike Johnson","email":"mike@buildright.lk","materialsSupplied":["Concrete","Steel"]}'
+```
+
+#### GET /api/suppliers
+
+List suppliers.
+
+```bash
+curl -X GET http://localhost:5000/api/suppliers \
+  -H "Authorization: Bearer <token>"
+```
+
+#### POST /api/suppliers/:id/rating
+
+Rate supplier.
+
+- **Request Body:**
+```json
+{"rating": 4, "comments": "Great quality"}
+```
+
+```bash
+curl -X POST http://localhost:5000/api/suppliers/607e5f3a2b8c4d3a1b4e3d2cb/rating \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"rating":4,"comments":"Great quality"}'
+```
+
+#### GET /api/suppliers/:id/performance
+
+Get supplier performance.
+
+```bash
+curl -X GET http://localhost:5000/api/suppliers/607e5f3a2b8c4d3a1b4e3d2cb/performance \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response (200):**
+```json
+{"performance": {"averageRating": 4.2, "totalRatings": 15, "onTimeDeliveryRate": 92}}
+```
+
+---
+
+### 11. Users (/api/users)
+
+#### GET /api/users
+
+List all users.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN
+
+```bash
+curl -X GET http://localhost:5000/api/users \
+  -H "Authorization: Bearer <token>"
+```
+
+#### GET /api/users/:id
+
+Get user by ID.
+
+```bash
+curl -X GET http://localhost:5000/api/users/607e5f3a2b8c4d3a1b4e3d2c1 \
+  -H "Authorization: Bearer <token>"
+```
+
+#### PATCH /api/users/:id
+
+Update user.
+
+- **Roles:** ADMIN
+
+```bash
+curl -X PATCH http://localhost:5000/api/users/607e5f3a2b8c4d3a1b4e3d2c1 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"role":"ADMIN"}'
+```
+
+#### DELETE /api/users/:id
+
+Deactivate user.
+
+- **Roles:** ADMIN
+
+```bash
+curl -X DELETE http://localhost:5000/api/users/607e5f3a2b8c4d3a1b4e3d2c1 \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+## HTTP Status Codes
+
+| Code | Description |
+|------|-------------|
+| 200 | OK - Success |
+| 201 | Created |
+| 400 | Bad Request - Validation error |
+| 401 | Unauthorized |
+| 403 | Forbidden |
+| 404 | Not Found |
+| 409 | Conflict |
+| 429 | Rate Limited |
+
+## Error Response Format
+
+```json
+{"success": false, "message": "Error description"}
+```
+
+---
 
 ## Interactive API (Swagger UI)
 
