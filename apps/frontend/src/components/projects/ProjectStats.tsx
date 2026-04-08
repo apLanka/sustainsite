@@ -1,32 +1,24 @@
 import type { Project } from '@/types/project';
 import { calcMilestoneProgress } from '@/lib/milestoneProgress';
-
 interface Props {
-  project: Project;
+    project: Project;
 }
-
-const fmt = (n: number) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
-
+const fmt = (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
 const ProjectStats = ({ project }: Props) => {
-  const milestones = project.milestones ?? [];
-  const completionPct = milestones.length > 0
-    ? calcMilestoneProgress(milestones)
-    : project.completionPercentage;
-
-  const budgetUsedPct = project.budget > 0
-    ? Math.min(100, Math.round((project.actualCost / project.budget) * 100))
-    : 0;
-
-  const startMs = new Date(project.startDate).getTime();
-  const endMs   = new Date(project.endDate).getTime();
-  const totalDays = Math.max(1, Math.ceil((endMs - startMs) / 86_400_000));
-  const elapsed   = Math.max(0, Math.ceil((Date.now() - startMs) / 86_400_000));
-  const elapsedPct = Math.min(100, Math.round((elapsed / totalDays) * 100));
-
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-      {/* Budget */}
+    const milestones = project.milestones ?? [];
+    const completionPct = milestones.length > 0
+        ? calcMilestoneProgress(milestones)
+        : project.completionPercentage;
+    const budgetUsedPct = project.budget > 0
+        ? Math.min(100, Math.round((project.actualCost / project.budget) * 100))
+        : 0;
+    const startMs = new Date(project.startDate).getTime();
+    const endMs = new Date(project.endDate).getTime();
+    const totalDays = Math.max(1, Math.ceil((endMs - startMs) / 86400000));
+    const elapsed = Math.max(0, Math.ceil((Date.now() - startMs) / 86400000));
+    const elapsedPct = Math.min(100, Math.round((elapsed / totalDays) * 100));
+    return (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      
       <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-slate-100/50 transition-all group">
         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 group-hover:text-secondary transition-colors leading-none">
           Budget Utilized
@@ -38,11 +30,11 @@ const ProjectStats = ({ project }: Props) => {
           </span>
         </div>
         <div className="h-1.5 w-full bg-slate-100 rounded-full mt-4 overflow-hidden">
-          <div className="h-full bg-emerald-600 rounded-full" style={{ width: `${budgetUsedPct}%` }} />
+          <div className="h-full bg-emerald-600 rounded-full" style={{ width: `${budgetUsedPct}%` }}/>
         </div>
       </div>
 
-      {/* Days Elapsed */}
+      
       <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-slate-100/50 transition-all group">
         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 group-hover:text-secondary transition-colors leading-none">
           Days Elapsed
@@ -52,11 +44,11 @@ const ProjectStats = ({ project }: Props) => {
           <span className="text-xs font-bold text-slate-400 mb-1">Target: {totalDays} Days</span>
         </div>
         <div className="h-1.5 w-full bg-slate-100 rounded-full mt-4 overflow-hidden">
-          <div className="h-full bg-secondary rounded-full" style={{ width: `${elapsedPct}%` }} />
+          <div className="h-full bg-secondary rounded-full" style={{ width: `${elapsedPct}%` }}/>
         </div>
       </div>
 
-      {/* Sustainability Score */}
+      
       <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-slate-100/50 transition-all group">
         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 group-hover:text-secondary transition-colors leading-none">
           Sustainability Score
@@ -70,11 +62,11 @@ const ProjectStats = ({ project }: Props) => {
           </span>
         </div>
         <div className="h-1.5 w-full bg-slate-100 rounded-full mt-4 overflow-hidden">
-          <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${project.sustainabilityScore}%` }} />
+          <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${project.sustainabilityScore}%` }}/>
         </div>
       </div>
 
-      {/* Completion */}
+      
       <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-slate-100/50 transition-all group">
         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 group-hover:text-secondary transition-colors leading-none">
           Completion
@@ -88,11 +80,9 @@ const ProjectStats = ({ project }: Props) => {
           </span>
         </div>
         <div className="h-1.5 w-full bg-slate-100 rounded-full mt-4 overflow-hidden">
-          <div className="h-full bg-amber-500 rounded-full" style={{ width: `${completionPct}%` }} />
+          <div className="h-full bg-amber-500 rounded-full" style={{ width: `${completionPct}%` }}/>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 };
-
 export default ProjectStats;

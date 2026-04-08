@@ -1,9 +1,7 @@
 import { Link } from 'react-router-dom';
-
 const BlueprintSidebar = () => {
-  return (
-    <aside className="space-y-6">
-      {/* SECTION: Sustainability Preview */}
+    return (<aside className="space-y-6">
+      
       <div className="bg-emerald-950 text-white p-8 rounded-3xl shadow-xl shadow-emerald-950/20 relative overflow-hidden group">
         <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/20 rounded-full -mr-10 -mt-10 blur-3xl group-hover:bg-secondary/30 transition-all duration-700"></div>
         
@@ -28,7 +26,7 @@ const BlueprintSidebar = () => {
         </div>
       </div>
 
-      {/* SECTION: Architectural Guidance */}
+      
       <div className="bg-surface-container-lowest p-8 rounded-3xl border border-slate-100/50 shadow-sm">
         <h4 className="text-sm font-bold text-primary font-headline mb-6 flex items-center gap-2">
           <span className="material-symbols-outlined text-emerald-600">tips_and_updates</span>
@@ -67,21 +65,15 @@ const BlueprintSidebar = () => {
           </li>
         </ul>
 
-        <Link
-          to="/projects"
-          className="block w-full mt-8 py-3 text-xs font-bold text-secondary uppercase tracking-widest hover:underline transition-all text-center"
-        >
+        <Link to="/projects" className="block w-full mt-8 py-3 text-xs font-bold text-secondary uppercase tracking-widest hover:underline transition-all text-center">
           View All Projects
         </Link>
       </div>
 
-      {/* SECTION: Help & Support */}
+      
       <div className="bg-surface-container-low p-6 rounded-2xl border border-slate-100/50">
         <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-3">Help & Support</p>
-        <a
-          href="mailto:support@sustainsite.app"
-          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-        >
+        <a href="mailto:support@sustainsite.app" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <div className="flex -space-x-2">
             <div className="w-6 h-6 rounded-full bg-emerald-100 border border-white flex items-center justify-center">
               <span className="material-symbols-outlined text-[10px] text-emerald-700">support_agent</span>
@@ -93,8 +85,6 @@ const BlueprintSidebar = () => {
           <p className="text-[10px] font-bold text-primary">Contact SustainSite Support</p>
         </a>
       </div>
-    </aside>
-  );
+    </aside>);
 };
-
 export default BlueprintSidebar;
