@@ -487,9 +487,9 @@ export const dashboardApi = {
     return res.data;
   },
 
-  // Total active project count only — use pagination.total
+  // Total in-progress project count only — use pagination.total
   getActiveProjectCount: async (): Promise<number> => {
-    const res = await api.get<PaginatedResponse<Project>>('/projects', { params: { status: 'Active', limit: 1 } });
+    const res = await api.get<PaginatedResponse<Project>>('/projects', { params: { status: 'In Progress', limit: 1 } });
     return res.data.pagination.total;
   },
 
@@ -502,8 +502,8 @@ export const dashboardApi = {
   // High + Critical unresolved inspection count
   getHighRiskCount: async (): Promise<number> => {
     const [high, critical] = await Promise.all([
-      api.get<CompliancePaginatedResponse<SafetyInspection>>('/compliance/inspections', { params: { riskLevel: 'High', isResolved: false, limit: 1 } }),
-      api.get<CompliancePaginatedResponse<SafetyInspection>>('/compliance/inspections', { params: { riskLevel: 'Critical', isResolved: false, limit: 1 } }),
+      api.get<CompliancePaginatedResponse<SafetyInspection>>('/compliance/inspections', { params: { riskLevel: 'High', isResolved: 'false', limit: 1 } }),
+      api.get<CompliancePaginatedResponse<SafetyInspection>>('/compliance/inspections', { params: { riskLevel: 'Critical', isResolved: 'false', limit: 1 } }),
     ]);
     return high.data.pagination.total + critical.data.pagination.total;
   },
