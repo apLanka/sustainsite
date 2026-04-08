@@ -1,5 +1,6 @@
 import type { Milestone } from '@/types/project';
 import { MilestoneStatus } from '@/types/project';
+import { calcMilestoneProgress } from '@/lib/milestoneProgress';
 
 interface Props {
   milestones: Milestone[];
@@ -20,11 +21,8 @@ const MilestoneTimeline = ({ milestones, onEdit }: Props) => {
     );
   }
 
-  // Height of the completed+in-progress stem
-  const firstPendingIdx = milestones.findIndex((m) => m.status === MilestoneStatus.PENDING);
-  const stemPct = firstPendingIdx === -1
-    ? 100
-    : Math.round((firstPendingIdx / milestones.length) * 100);
+  // Height of the progress stem — driven by actual milestone completion
+  const stemPct = calcMilestoneProgress(milestones);
 
   return (
     <div className="relative pl-10 md:pl-12 lg:pl-16 pb-20">
