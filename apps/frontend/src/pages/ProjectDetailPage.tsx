@@ -10,6 +10,7 @@ import SmoothTabs from '@/components/ui/SmoothTabs';
 import { projectApi } from '@/lib/api';
 import { useProjectStore } from '@/store';
 import { useAuth } from '@/contexts/AuthContext';
+import { canDeleteProject, isAssignedProjectManager } from '@/lib/rbac';
 import { calcMilestoneProgress } from '@/lib/milestoneProgress';
 import type { Milestone, CreateMilestonePayload, UpdateMilestonePayload, UpdateProjectPayload } from '@/types/project';
 import { MilestoneStatus, ProjectStatus } from '@/types/project';
@@ -51,7 +52,8 @@ export default function ProjectDetailPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const canManageProject = user?.role === 'ADMIN' || user?.role === 'PROJECT_MANAGER';
+  const canEditAsManager = isAssignedProjectManager(selectedProject, user?.userId);
+  const canDeleteProj = canDeleteProject(user?.role);
 
   const tabs = [
     { id: 'milestones', label: 'Milestones & Timeline' },
@@ -195,8 +197,9 @@ export default function ProjectDetailPage() {
 
       <div className="px-10">
         {/* Action buttons for managers */}
-        {canManageProject && selectedProject && (
+        {selectedProject && (canEditAsManager || canDeleteProj) && (
           <div className="flex items-center justify-end gap-3 pt-6">
+            {canEditAsManager && (
             <button
               onClick={() => setShowEditProject(true)}
               className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-primary bg-slate-100 rounded-xl hover:bg-slate-200 transition-all uppercase tracking-widest"
@@ -204,6 +207,8 @@ export default function ProjectDetailPage() {
               <span className="material-symbols-outlined text-sm">edit</span>
               Edit Project
             </button>
+            )}
+            {canDeleteProj && (
             <button
               onClick={() => setShowDeleteConfirm(true)}
               className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-rose-600 bg-rose-50 rounded-xl hover:bg-rose-100 transition-all uppercase tracking-widest"
@@ -211,6 +216,7 @@ export default function ProjectDetailPage() {
               <span className="material-symbols-outlined text-sm">delete</span>
               Delete
             </button>
+            )}
           </div>
         )}
 
@@ -249,6 +255,7 @@ export default function ProjectDetailPage() {
                       <h3 className="text-2xl font-black text-primary tracking-tighter leading-none font-headline">
                         Project Roadmap
                       </h3>
+                      {canEditAsManager && (
                       <button
                         onClick={() => setShowAddModal(true)}
                         className="px-4 py-2 bg-emerald-50 text-emerald-700 font-bold text-[10px] rounded-lg tracking-widest uppercase hover:bg-emerald-100 transition-all flex items-center gap-2"
@@ -256,9 +263,10 @@ export default function ProjectDetailPage() {
                         <span className="material-symbols-outlined text-sm">add_task</span>
                         Add Milestone
                       </button>
+                      )}
                     </div>
 
-                    <MilestoneTimeline milestones={milestones} onEdit={handleOpenEdit} />
+                    <MilestoneTimeline milestones={milestones} onEdit={canEditAsManager ? handleOpenEdit : undefined} />
                   </>
                 )}
               </div>

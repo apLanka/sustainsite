@@ -1,6 +1,8 @@
 import {Link, useParams} from 'react-router-dom';
 import {useEffect, useState} from 'react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { canLogSustainabilityMetrics } from '@/lib/rbac';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import ProjectHeader from '@/components/project/ProjectHeader';
 import SustainabilityScore from '@/components/sustainability/SustainabilityScore';
@@ -15,6 +17,8 @@ import type {
 
 export default function SustainabilityDashboardPage() {
   const {id: projectId} = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const canRecord = canLogSustainabilityMetrics(user?.role);
 
   const [scoreData, setScoreData] = useState<ScoreType | null>(null);
   const [latestMetric, setLatestMetric] = useState<SustainabilityMetric | null>(null);
@@ -211,6 +215,7 @@ export default function SustainabilityDashboardPage() {
               <span className="material-symbols-outlined text-lg">download</span>
               Export Report
             </button>
+            {canRecord && (
             <Link
                 to={`/projects/${projectId}/sustainability/record`}
               className="px-6 py-2.5 bg-primary text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/10 hover:brightness-110 active:scale-95 transition-all cursor-pointer font-headline"
@@ -218,6 +223,7 @@ export default function SustainabilityDashboardPage() {
               <span className="material-symbols-outlined text-lg">add_chart</span>
               Record New Metrics
             </Link>
+            )}
           </div>
         </div>
 
@@ -255,12 +261,14 @@ export default function SustainabilityDashboardPage() {
                 <div className="h-80 flex flex-col items-center justify-center text-slate-400 gap-3">
                   <span className="material-symbols-outlined text-4xl">show_chart</span>
                   <p className="text-sm font-medium">No metrics recorded yet</p>
+                  {canRecord && (
                   <Link
                     to={`/projects/${projectId}/sustainability/record`}
                     className="text-xs text-emerald-600 font-bold hover:underline"
                   >
                     Record your first metric →
                   </Link>
+                  )}
                 </div>
               )}
             </div>

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { canCreateProject, canLogSustainabilityMetrics } from '@/lib/rbac';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import StatCards from '@/components/dashboard/StatCards';
 import ProjectOverview from '@/components/dashboard/ProjectOverview';
@@ -54,6 +55,8 @@ export default function DashboardPage() {
 
   if (!user) return null;
 
+  const showQuickActions = canCreateProject(user.role) || canLogSustainabilityMetrics(user.role);
+
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   const firstProjectId = projects[0]?._id;
 
@@ -85,6 +88,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {showQuickActions && (
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setMenuOpen(o => !o)}
@@ -98,6 +102,7 @@ export default function DashboardPage() {
           </button>
           {menuOpen && (
             <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-slate-100 py-2 z-20">
+              {canCreateProject(user.role) && (
               <Link
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 font-medium font-headline"
@@ -105,6 +110,8 @@ export default function DashboardPage() {
               >
                 <span className="material-symbols-outlined text-lg">architecture</span> New Project
               </Link>
+              )}
+              {canLogSustainabilityMetrics(user.role) && (
               <Link
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 font-medium font-headline"
@@ -112,9 +119,11 @@ export default function DashboardPage() {
               >
                 <span className="material-symbols-outlined text-lg">monitoring</span> Log Metrics
               </Link>
+              )}
             </div>
           )}
         </div>
+        )}
       </header>
 
       <StatCards isLoading={isDashboardLoading} />

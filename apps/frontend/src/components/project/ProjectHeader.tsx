@@ -4,6 +4,8 @@ import { toast } from 'sonner';
 import { useProjectStore } from '@/store';
 import { projectApi } from '@/lib/api';
 import { ProjectStatus } from '@/types/project';
+import { useAuth } from '@/contexts/AuthContext';
+import { canDeleteProject, canManageProjectSettings } from '@/lib/rbac';
 
 // ─── Status badge config ─────────────────────────────────────────────────────
 
@@ -46,7 +48,12 @@ const TabLink = ({ to, label, icon, end }: { to: string; label: string; icon: st
 const ProjectMenu = () => {
   const { id }                        = useParams();
   const navigate                      = useNavigate();
+  const { user }                      = useAuth();
   const { selectedProject, setSelectedProject, updateProjectInList } = useProjectStore();
+
+  const canStatus                     = canManageProjectSettings(selectedProject, user?.userId);
+  const canDel                        = canDeleteProject(user?.role);
+  const showMenu                      = canStatus || canDel;
 
   const [open, setOpen]               = useState(false);
   const [confirming, setConfirming]   = useState(false);
@@ -97,6 +104,8 @@ const ProjectMenu = () => {
     }
   };
 
+  if (!showMenu) return null;
+
   return (
     <div ref={menuRef} className="relative">
       {/* Trigger — the existing three-dots button */}
@@ -119,7 +128,7 @@ const ProjectMenu = () => {
 
           {!confirming ? (
             <>
-              {/* ── Status section ── */}
+              {canStatus && (
               <div className="px-3 pt-3 pb-1">
                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 px-1 mb-1.5">
                   Set Status
@@ -148,12 +157,14 @@ const ProjectMenu = () => {
                   );
                 })}
               </div>
+              )}
 
-              {/* ── Divider ── */}
+              {canStatus && canDel && (
               <div className="mx-3 my-2 border-t border-slate-50" />
+              )}
 
-              {/* ── Delete ── */}
-              <div className="px-3 pb-3">
+              {canDel && (
+              <div className={`px-3 ${canStatus ? 'pb-3' : 'pt-3 pb-3'}`}>
                 <button
                   type="button"
                   onClick={() => setConfirming(true)}
@@ -163,6 +174,7 @@ const ProjectMenu = () => {
                   Delete Project
                 </button>
               </div>
+              )}
             </>
           ) : (
             /* ── Delete confirmation ── */

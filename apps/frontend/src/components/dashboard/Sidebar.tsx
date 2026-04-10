@@ -1,18 +1,22 @@
 import { NavLink, Link } from 'react-router-dom';
 import Logo from '../common/Logo';
 import { useAuth } from '@/contexts/AuthContext';
+import { canAccessAdminUsers, canCreateProject, isSupplier } from '@/lib/rbac';
 
 const Sidebar = () => {
   const { user } = useAuth();
   const role = user?.role ?? '';
+  const supplier = isSupplier(role);
 
-  const canCreateProject = !['VIEWER', 'SUPPLIER'].includes(role);
-  const isAdmin = role === 'ADMIN';
+  const showCreateProject = canCreateProject(role);
+  const isAdmin = canAccessAdminUsers(role);
 
-  const navItems = [
-    { to: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
-    { to: '/projects', label: 'Projects', icon: 'architecture' },
-  ];
+  const navItems = supplier
+    ? [{ to: '/supplier/materials', label: 'My Materials', icon: 'inventory_2' }]
+    : [
+        { to: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
+        { to: '/projects', label: 'Projects', icon: 'architecture' },
+      ];
 
   const adminItems = isAdmin
     ? [{ to: '/admin/users', label: 'User Management', icon: 'manage_accounts' }]
@@ -58,7 +62,7 @@ const Sidebar = () => {
         )}
       </nav>
       
-      {canCreateProject && (
+      {showCreateProject && (
         <div className="px-6 py-4 mt-auto">
           <Link 
             to="/projects/new"
