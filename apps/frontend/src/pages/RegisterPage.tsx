@@ -4,6 +4,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import AuthLayout from '@/components/common/AuthLayout';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAuthStore } from '@/store';
+import { loginHomePath } from '@/lib/rbac';
 import { registerSchema, type RegisterFormData } from '@/lib/validations/auth';
 import { UserRole } from '@/types/auth';
 
@@ -29,7 +31,8 @@ export default function RegisterPage() {
     setServerError(null);
     try {
       await registerUser(data);
-      navigate('/dashboard');
+      const role = useAuthStore.getState().user?.role;
+      navigate(loginHomePath(role), { replace: true });
     } catch (err: unknown) {
       const message =
         (err as { message?: string })?.message ?? 'Registration failed. Please try again.';
