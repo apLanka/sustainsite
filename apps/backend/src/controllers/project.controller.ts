@@ -301,8 +301,15 @@ export const getFinancialSummary = async (req: Request, res: Response): Promise<
 
     const materials = await Material.find({projectId: id});
 
-    const totalMaterialCost = materials.reduce((sum, mat) => sum + mat.totalCost, 0);
-    const remainingValue = materials.reduce((sum, mat) => sum + (mat.currentStock * mat.unitPrice), 0);
+    const totalMaterialCost = materials.reduce(
+      (sum, mat) => sum + (Number(mat.totalCost) || 0),
+      0
+    );
+    const totalSpendSafe = Number.isFinite(totalMaterialCost) ? totalMaterialCost : 0;
+    const remainingValue = materials.reduce(
+      (sum, mat) => sum + (Number(mat.currentStock) || 0) * (Number(mat.unitPrice) || 0),
+      0
+    );
 
     // Calculate allocation by category
     const allocationByCategory: Record<string, number> = {};
@@ -310,20 +317,21 @@ export const getFinancialSummary = async (req: Request, res: Response): Promise<
       if (!allocationByCategory[mat.category]) {
         allocationByCategory[mat.category] = 0;
       }
-      allocationByCategory[mat.category] += mat.totalCost;
+      allocationByCategory[mat.category] += Number(mat.totalCost) || 0;
     });
 
     // Convert to percentage breakdown
-    const totalSpend = totalMaterialCost;
+    const totalSpend = totalSpendSafe;
     const allocationMix = Object.entries(allocationByCategory).map(([category, cost]) => ({
       category,
       cost,
       percentage: totalSpend > 0 ? (cost / totalSpend) * 100 : 0,
     }));
 
-    const budget = project.budget || 0;
-    const remainingBudget = budget - totalSpend;
-    const spendPercentage = budget > 0 ? (totalSpend / budget) * 100 : 0;
+    const budget = Number(project.budget) || 0;
+    const remainingBudget = budget - totalSpendSafe;
+    const spendPercentage =
+      budget > 0 && Number.isFinite(totalSpendSafe) ? (totalSpendSafe / budget) * 100 : 0;
 
     res.status(200).json({
       success: true,
