@@ -9,14 +9,12 @@ const Sidebar = () => {
 
   const bottomItems = [
     { to: '/settings', label: 'Settings', icon: 'settings' },
-    { to: '#', label: 'Support', icon: 'help_outline' },
   ];
 
   return (
     <aside className="h-screen w-64 fixed left-0 top-0 overflow-y-auto bg-primary flex flex-col py-6 shadow-xl shadow-primary/20 z-50">
       <div className="px-6 mb-8">
         <Logo size="lg" variant="dark" />
-        <p className="text-[10px] text-on-primary-container/80 uppercase tracking-widest font-bold mt-1 ml-10">The Digital Arboretum</p>
       </div>
       
       <nav className="flex-1 px-4 space-y-1">

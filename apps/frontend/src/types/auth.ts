@@ -13,6 +13,7 @@ export interface User {
   fullName: string;
   email: string;
   role: UserRole;
+  jobTitle?: string;
 
   assignedProjects?: string[];
   isActive: boolean;

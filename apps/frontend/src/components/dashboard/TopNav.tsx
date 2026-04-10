@@ -29,21 +29,9 @@ const TopNav = () => {
   };
 
   return (
-    <header className="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-white/80 backdrop-blur-md flex items-center justify-end px-8 border-b border-slate-100">
+    <header className="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-50 bg-white/80 backdrop-blur-md flex items-center justify-end px-8 border-b border-slate-100">
       
       <div className="flex items-center gap-6">
-        <div className="flex items-center gap-4">
-          <button className="relative p-2 text-slate-500 hover:text-emerald-600 transition-colors cursor-pointer">
-            <span className="material-symbols-outlined">notifications</span>
-            <span className="absolute top-1 right-1 w-2 h-2 bg-error rounded-full ring-2 ring-white"></span>
-          </button>
-          <button className="p-2 text-slate-500 hover:text-emerald-600 transition-colors cursor-pointer">
-            <span className="material-symbols-outlined">history_edu</span>
-          </button>
-        </div>
-        
-        <div className="h-8 w-px bg-slate-200"></div>
-        
         <div className="relative" ref={dropdownRef}>
           <button 
             onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -53,11 +41,11 @@ const TopNav = () => {
               <p className="text-xs font-bold text-on-surface leading-none">{userName}</p>
               <p className="text-[10px] text-slate-500 font-medium uppercase tracking-widest mt-1">{userRole}</p>
             </span>
-            <img 
-              alt={userName} 
-              className="w-10 h-10 rounded-full object-cover ring-2 ring-secondary/20 group-hover:ring-secondary transition-all" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6NOWTM8kUxUA6MvpWukL04EWDwtWttYKj_uYA4H6JOVY-HfJ5KKIG-ZDyD5xR0DRYREO4fmU1Nw-FhnHbf35crqNkePM4zq4Lgj_WhdoLB0qgK4Auq_Sed9yCrfXO7UZXR3gF7mKMAT1Y1qTK9UpmEUlSLYiizE3dR9f_D26sO7_tB3j8ySFcqQtph2P0vD_KgfZzoagSMqiNZH6I58a2ApQUD8B7rl_MVIb43VAA0O3fx1hfPzN-WNckwjTcDWk_B5ewWnJWLqY"
-            />
+            <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center ring-2 ring-secondary/20 transition-all shrink-0">
+              <span className="text-white font-black text-base leading-none uppercase">
+                {userName.charAt(0)}
+              </span>
+            </div>
           </button>
 
           <AnimatePresence>
@@ -67,7 +55,7 @@ const TopNav = () => {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden"
+                className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-[60]"
               >
                 <div className="p-5 border-b border-slate-50 bg-slate-50/50">
                   <p className="text-sm font-black text-primary truncate leading-none mb-1">{userName}</p>
