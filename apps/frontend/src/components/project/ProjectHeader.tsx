@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useProjectStore } from '@/store';
 import { projectApi } from '@/lib/api';
 import { ProjectStatus } from '@/types/project';
@@ -73,6 +74,7 @@ const ProjectMenu = () => {
       setSelectedProject(res.data);
       updateProjectInList(id, { status });
     } catch (err) {
+      toast.error('Failed to update project status');
       console.error('Failed to update status:', err);
     } finally {
       setBusy(false);
@@ -88,6 +90,7 @@ const ProjectMenu = () => {
       navigate('/projects');
     } catch (err) {
       console.error('Failed to delete project:', err);
+      toast.error('Failed to delete project');
       setBusy(false);
       setConfirming(false);
       setOpen(false);
@@ -213,6 +216,7 @@ const ProjectHeader = () => {
         setSelectedProject(res.data);
       } catch (err) {
         console.error('ProjectHeader: failed to load project', err);
+        toast.error('Failed to load project details');
       } finally {
         setDetailLoading(false);
       }
@@ -318,11 +322,12 @@ const ProjectHeader = () => {
           </div>
         </div>
 
-        <nav className="flex items-center gap-10">
-          <TabLink to={`/projects/${id}`}               label="Overview"      icon="grid_view"   end />
+        <nav className="flex items-center gap-10 overflow-x-auto">
+          <TabLink to={`/projects/${id}`}               label="Overview"      icon="grid_view"          end />
           <TabLink to={`/projects/${id}/sustainability`} label="Sustainability" icon="eco" />
           <TabLink to={`/projects/${id}/documents`}      label="Documents"     icon="description" />
           <TabLink to={`/projects/${id}/compliance`}     label="Compliance"    icon="fact_check" />
+          <TabLink to={`/projects/${id}/safety`}         label="Safety"        icon="health_and_safety" />
           <TabLink to={`/projects/${id}/resources`}      label="Resources"     icon="inventory_2" />
         </nav>
       </div>

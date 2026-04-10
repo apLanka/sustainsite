@@ -1,13 +1,20 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useProjectStore } from '@/store';
 import { ProjectStatus } from '@/types/project';
 
 const ProjectFilters = () => {
   const { filters, setFilters } = useProjectStore();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [searchInput, setSearchInput] = useState(filters.search ?? '');
+
+  // Keep local input in sync when filters.search is reset externally
+  useEffect(() => {
+    setSearchInput(filters.search ?? '');
+  }, [filters.search]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
+    setSearchInput(value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setFilters({ search: value, page: 1 });
@@ -34,7 +41,7 @@ const ProjectFilters = () => {
           className="input-standard w-full pl-10 pr-4 h-11"
           placeholder="Search Project Inventory..."
           type="text"
-          defaultValue={filters.search}
+          value={searchInput}
           onChange={handleSearch}
         />
       </div>

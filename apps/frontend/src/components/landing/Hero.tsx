@@ -1,7 +1,9 @@
 import { Leaf } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 
 const Hero = () => {
+  const navigate = useNavigate();
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-white pt-20">
       <div className="absolute top-0 right-0 w-1/2 h-full bg-surface-container-low -skew-x-12 translate-x-1/4 hidden lg:block"></div>
@@ -29,7 +31,10 @@ const Hero = () => {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-6 pt-4">
-            <button className="w-full sm:w-auto signature-gradient text-white px-12 py-5 rounded-2xl font-bold text-lg shadow-[0_20px_40px_rgba(1,45,29,0.25)] hover:shadow-none hover:translate-y-1 transition-all duration-300 cursor-pointer">
+            <button
+              onClick={() => navigate('/register')}
+              className="w-full sm:w-auto signature-gradient text-white px-12 py-5 rounded-2xl font-bold text-lg shadow-[0_20px_40px_rgba(1,45,29,0.25)] hover:shadow-none hover:translate-y-1 transition-all duration-300 cursor-pointer"
+            >
               Get Started
             </button>
           </div>
