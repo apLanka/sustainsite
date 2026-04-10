@@ -9,8 +9,8 @@ const TopNav = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const userName = user?.fullName || 'Sarah Jenkins';
-  const userRole = user?.role ? (user.role.charAt(0) + user.role.slice(1).toLowerCase().replace('_', ' ')) : 'Site Administrator';
+  const userName = user?.fullName || 'User';
+  const userRole = user?.role ? (user.role.charAt(0) + user.role.slice(1).toLowerCase().replace('_', ' ')) : 'Loading…';
 
   // Handle outside clicks to close dropdown
   useEffect(() => {
