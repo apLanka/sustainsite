@@ -7,6 +7,15 @@ import User from '../models/User';
 import { sendEmail, emailTemplates } from '../config/email';
 import logger from '../utils/logger';
 
+/** Line cost for finance rollups; insertMany skips Material pre-save so totalCost may be unset. */
+function materialLineCost(mat: { totalCost?: number; quantity?: number; unitPrice?: number }): number {
+  const tc = Number(mat.totalCost);
+  if (Number.isFinite(tc) && tc > 0) return tc;
+  const q = Number(mat.quantity) || 0;
+  const p = Number(mat.unitPrice) || 0;
+  return q * p;
+}
+
 export const createProject = async (req: Request, res: Response): Promise<void> => {
   try {
     const projectData = req.body;
@@ -301,10 +310,7 @@ export const getFinancialSummary = async (req: Request, res: Response): Promise<
 
     const materials = await Material.find({projectId: id});
 
-    const totalMaterialCost = materials.reduce(
-      (sum, mat) => sum + (Number(mat.totalCost) || 0),
-      0
-    );
+    const totalMaterialCost = materials.reduce((sum, mat) => sum + materialLineCost(mat), 0);
     const totalSpendSafe = Number.isFinite(totalMaterialCost) ? totalMaterialCost : 0;
     const remainingValue = materials.reduce(
       (sum, mat) => sum + (Number(mat.currentStock) || 0) * (Number(mat.unitPrice) || 0),
@@ -317,7 +323,7 @@ export const getFinancialSummary = async (req: Request, res: Response): Promise<
       if (!allocationByCategory[mat.category]) {
         allocationByCategory[mat.category] = 0;
       }
-      allocationByCategory[mat.category] += Number(mat.totalCost) || 0;
+      allocationByCategory[mat.category] += materialLineCost(mat);
     });
 
     // Convert to percentage breakdown

@@ -1,11 +1,42 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
+import mongoose, { type Document } from 'mongoose';
 import ComplianceChecklist from '../models/ComplianceChecklist';
 import SafetyInspection from '../models/SafetyInspection';
 import Project from '../models/Project';
 import User from '../models/User';
 import { sendEmail, emailTemplates } from '../config/email';
 import logger from '../utils/logger';
+
+/** insertMany skips ComplianceChecklist pre-save; recover rollups when items exist but totals stayed at defaults. */
+function effectiveChecklistRollup(c: {
+  items?: { isCompleted?: boolean }[];
+  totalItems?: number;
+  completedItems?: number;
+  complianceScore?: number;
+}): { totalItems: number; completedItems: number; complianceScore: number } {
+  const items = c.items ?? [];
+  const n = items.length;
+  const done = items.filter((i) => i.isCompleted).length;
+  const storedT = Number(c.totalItems) || 0;
+  const storedD = Number(c.completedItems) || 0;
+  if (n > 0 && storedT === 0 && storedD === 0) {
+    return {
+      totalItems: n,
+      completedItems: done,
+      complianceScore: Math.round((done / n) * 100),
+    };
+  }
+  return {
+    totalItems: storedT,
+    completedItems: storedD,
+    complianceScore: Number(c.complianceScore) || 0,
+  };
+}
+
+function checklistDocToResponse(doc: Document): Record<string, unknown> {
+  const plain = doc.toObject();
+  return { ...plain, ...effectiveChecklistRollup(plain) };
+}
 
 export const createChecklist = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -71,7 +102,7 @@ export const getChecklists = async (req: Request, res: Response): Promise<void> 
 
     res.status(200).json({
       success: true,
-      data: checklists,
+      data: checklists.map((c) => checklistDocToResponse(c)),
       pagination: {
         total,
         page: pageNum,
@@ -106,7 +137,7 @@ export const getChecklistById = async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    res.status(200).json({ success: true, data: checklist });
+    res.status(200).json({ success: true, data: checklistDocToResponse(checklist) });
   } catch (error: unknown) {
     res.status(500).json({
       success: false,
@@ -524,18 +555,19 @@ export const getProjectComplianceScore = async (req: Request, res: Response): Pr
       return;
     }
 
-    const totalItems = checklists.reduce((sum, c) => sum + c.totalItems, 0);
-    const completedItems = checklists.reduce((sum, c) => sum + c.completedItems, 0);
+    const rollups = checklists.map((c) => effectiveChecklistRollup(c));
+    const totalItems = rollups.reduce((sum, r) => sum + r.totalItems, 0);
+    const completedItems = rollups.reduce((sum, r) => sum + r.completedItems, 0);
     const overallScore = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
-    const completedChecklists = checklists.filter((c) => c.complianceScore === 100).length;
+    const completedChecklists = rollups.filter((r) => r.complianceScore === 100).length;
 
-    const breakdown = checklists.map((c) => ({
+    const breakdown = checklists.map((c, i) => ({
       checklistId: c._id,
       checklistName: c.checklistName,
       category: c.category,
-      complianceScore: c.complianceScore,
-      totalItems: c.totalItems,
-      completedItems: c.completedItems,
+      complianceScore: rollups[i].complianceScore,
+      totalItems: rollups[i].totalItems,
+      completedItems: rollups[i].completedItems,
       dueDate: c.dueDate,
     }));
 

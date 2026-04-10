@@ -7,6 +7,9 @@
  * Requires MONGODB_URI in .env (or set it inline below).
  * WARNING: This script INSERTS new documents — it does NOT wipe existing data.
  *          Run once. If you need to re-run, drop the seeded collections first.
+ *
+ * insertMany does NOT run pre('save') hooks. Seeded docs must set any fields
+ * those hooks would compute (e.g. Material.totalCost, ComplianceChecklist totals).
  */
 
 import mongoose from 'mongoose';
@@ -478,6 +481,9 @@ async function seed() {
         { itemId: 'EA-5', itemName: 'Renewable Energy — On-site solar PV design approved', isCompleted: false },
         { itemId: 'EA-6', itemName: 'Enhanced Commissioning — third-party review', isCompleted: false },
       ],
+      totalItems: 6,
+      completedItems: 3,
+      complianceScore: 50,
     },
     {
       projectId: proj1._id,
@@ -495,6 +501,9 @@ async function seed() {
         { itemId: 'CS-6', itemName: 'PPE compliance audit — 100% of workers', isCompleted: false },
         { itemId: 'CS-7', itemName: 'Crane operator licences verified', isCompleted: true, completedDate: daysAgo(7), completedBy: SARAH },
       ],
+      totalItems: 7,
+      completedItems: 5,
+      complianceScore: 71,
     },
     {
       projectId: proj1._id,
@@ -510,6 +519,9 @@ async function seed() {
         { itemId: 'BC-4', itemName: 'Rebar inspection sign-off — Level 5 slab', isCompleted: false, notes: 'Scheduled for next pour' },
         { itemId: 'BC-5', itemName: 'Post-pour inspection — Level 5 columns', isCompleted: false },
       ],
+      totalItems: 5,
+      completedItems: 3,
+      complianceScore: 60,
     },
 
     // Riverside — Environmental & Safety
@@ -527,6 +539,9 @@ async function seed() {
         { itemId: 'WE-4', itemName: 'Irrigation system — drip design approved', isCompleted: false },
         { itemId: 'WE-5', itemName: 'Water metering strategy documented', isCompleted: false },
       ],
+      totalItems: 5,
+      completedItems: 2,
+      complianceScore: 40,
     },
     {
       projectId: proj2._id,
@@ -542,6 +557,9 @@ async function seed() {
         { itemId: 'FW-4', itemName: 'Concrete pump setup safety check', isCompleted: false, notes: 'Pump arriving next week' },
         { itemId: 'FW-5', itemName: 'Night work noise permit obtained', isCompleted: false },
       ],
+      totalItems: 5,
+      completedItems: 4,
+      complianceScore: 80,
     },
 
     // Harbour View (completed — all items done)
@@ -560,6 +578,9 @@ async function seed() {
         { itemId: 'FC-5', itemName: 'BREEAM assessor site visit completed', isCompleted: true, completedDate: daysAgo(19), completedBy: JAMES },
         { itemId: 'FC-6', itemName: 'Certificate received and filed', isCompleted: true, completedDate: daysAgo(18), completedBy: JAMES },
       ],
+      totalItems: 6,
+      completedItems: 6,
+      complianceScore: 100,
     },
   ]);
 
@@ -712,6 +733,7 @@ async function seed() {
       quantity: 850,
       unit: 'tonnes',
       unitPrice: 185_000,
+      totalCost: 850 * 185_000,
       supplier: sup1._id,
       purchaseOrderNumber: 'PO-VT-2025-0042',
       orderDate: daysAgo(120),
@@ -736,6 +758,7 @@ async function seed() {
       quantity: 12_000,
       unit: 'bags',
       unitPrice: 1_850,
+      totalCost: 12_000 * 1_850,
       supplier: sup1._id,
       purchaseOrderNumber: 'PO-VT-2025-0043',
       orderDate: daysAgo(100),
@@ -759,6 +782,7 @@ async function seed() {
       quantity: 2_500,
       unit: 'm³',
       unitPrice: 8_500,
+      totalCost: 2_500 * 8_500,
       supplier: sup1._id,
       purchaseOrderNumber: 'PO-VT-2025-0044',
       orderDate: daysAgo(95),
@@ -782,6 +806,7 @@ async function seed() {
       quantity: 3_500,
       unit: 'sheets',
       unitPrice: 4_200,
+      totalCost: 3_500 * 4_200,
       supplier: sup2._id,
       purchaseOrderNumber: 'PO-VT-2025-0051',
       orderDate: daysAgo(80),
@@ -808,6 +833,7 @@ async function seed() {
       quantity: 45_000,
       unit: 'units',
       unitPrice: 120,
+      totalCost: 45_000 * 120,
       supplier: sup3._id,
       purchaseOrderNumber: 'PO-RE-2025-0011',
       orderDate: daysAgo(50),
@@ -831,6 +857,7 @@ async function seed() {
       quantity: 800,
       unit: 'm²',
       unitPrice: 6_800,
+      totalCost: 800 * 6_800,
       supplier: sup2._id,
       purchaseOrderNumber: 'PO-RE-2025-0012',
       orderDate: daysAgo(30),
