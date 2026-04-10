@@ -1,5 +1,6 @@
 import {useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
+import { toast } from 'sonner';
 import {sustainabilityApi} from '@/lib/api';
 
 const EnvironmentalAuditForm = () => {
@@ -7,14 +8,21 @@ const EnvironmentalAuditForm = () => {
   const navigate = useNavigate();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     recordedDate: new Date().toISOString().split('T')[0],
+    // Carbon emissions
+    carbonTransportation: 0,
+    carbonEquipment: 0,
+    carbonMaterials: 0,
+    // Energy
     electricity: 0,
     diesel: 0,
     renewableOffset: 0,
+    // Water
     waterConsumption: 0,
+    waterRecycled: 0,
+    // Waste
     recyclableWaste: 0,
     nonRecyclableWaste: 0,
     hazardousWaste: 0,
@@ -26,15 +34,14 @@ const EnvironmentalAuditForm = () => {
     if (!projectId) return;
 
     setIsSubmitting(true);
-    setError(null);
 
     try {
       await sustainabilityApi.createMetric({
         projectId,
         carbonEmissions: {
-          transportation: 0,
-          equipment: 0,
-          materials: 0,
+          transportation: Number(form.carbonTransportation) || 0,
+          equipment: Number(form.carbonEquipment) || 0,
+          materials: Number(form.carbonMaterials) || 0,
         },
         energyConsumption: {
           electricity: Number(form.electricity) || 0,
@@ -48,16 +55,18 @@ const EnvironmentalAuditForm = () => {
         },
         waterUsage: {
           municipal: Number(form.waterConsumption) || 0,
-          recycled: 0,
+          recycled: Number(form.waterRecycled) || 0,
         },
         recordedDate: form.recordedDate,
         notes: form.notes || undefined,
       });
 
+      toast.success('Environmental audit submitted successfully');
       navigate(`/projects/${projectId}/sustainability`);
     } catch (err: unknown) {
-      console.error('Failed to submit metric:', err);
-      setError((err as { message?: string })?.message || 'Failed to submit audit');
+      const msg = (err as { response?: { data?: { message?: string } }; message?: string })
+        ?.response?.data?.message || (err as { message?: string })?.message || 'Failed to submit audit';
+      toast.error(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -68,12 +77,6 @@ const EnvironmentalAuditForm = () => {
 
   return (
       <form onSubmit={handleSubmit} className="space-y-12">
-        {error && (
-            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-600 font-medium">
-              {error}
-            </div>
-        )}
-
       {/* SECTION: Audit Context */}
       <section className="space-y-6">
         <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
@@ -86,7 +89,7 @@ const EnvironmentalAuditForm = () => {
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Project Assignment (Locked)</label>
             <div className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold text-slate-500 cursor-not-allowed flex items-center gap-2">
               <span className="material-symbols-outlined text-xs">lock</span>
-              Project ID: {projectId ? projectId.slice(-8) : 'PRJ-2026-001'}
+              {projectId ? `Project ID: …${projectId.slice(-8)}` : 'No project selected'}
             </div>
           </div>
           <div className="space-y-2">
@@ -101,11 +104,58 @@ const EnvironmentalAuditForm = () => {
         </div>
       </section>
 
+      {/* SECTION: Carbon Emissions */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
+          <span className="material-symbols-outlined text-rose-600" style={{ fontVariationSettings: "'FILL' 1" }}>co2</span>
+          <h3 className="text-sm font-bold text-primary font-headline uppercase tracking-widest">Carbon Emissions (tCO2e)</h3>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Transportation</label>
+            <input
+                type="number"
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+                className="input-standard w-full h-12"
+                value={form.carbonTransportation || ''}
+                onChange={e => update('carbonTransportation', Number(e.target.value))}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Equipment</label>
+            <input
+                type="number"
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+                className="input-standard w-full h-12"
+                value={form.carbonEquipment || ''}
+                onChange={e => update('carbonEquipment', Number(e.target.value))}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Materials</label>
+            <input
+                type="number"
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+                className="input-standard w-full h-12"
+                value={form.carbonMaterials || ''}
+                onChange={e => update('carbonMaterials', Number(e.target.value))}
+            />
+          </div>
+        </div>
+      </section>
+
       {/* SECTION: Carbon & Energy */}
       <section className="space-y-6">
         <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
           <span className="material-symbols-outlined text-amber-600" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
-          <h3 className="text-sm font-bold text-primary font-headline uppercase tracking-widest">Carbon & Energy Profile</h3>
+          <h3 className="text-sm font-bold text-primary font-headline uppercase tracking-widest">Energy Profile</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -114,6 +164,7 @@ const EnvironmentalAuditForm = () => {
             <input
                 type="number"
                 placeholder="0.00"
+                min="0"
                 className="input-standard w-full h-12"
                 value={form.electricity || ''}
                 onChange={e => update('electricity', Number(e.target.value))}
@@ -124,6 +175,7 @@ const EnvironmentalAuditForm = () => {
             <input
                 type="number"
                 placeholder="0.00"
+                min="0"
                 className="input-standard w-full h-12"
                 value={form.diesel || ''}
                 onChange={e => update('diesel', Number(e.target.value))}
@@ -134,6 +186,7 @@ const EnvironmentalAuditForm = () => {
             <input
                 type="number"
                 placeholder="0"
+                min="0"
                 max="100"
                 className="input-standard w-full h-12"
                 value={form.renewableOffset || ''}
@@ -152,17 +205,31 @@ const EnvironmentalAuditForm = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Water Consumption (Liters)</label>
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Municipal Water (Liters)</label>
             <div className="relative">
               <input
                   type="number"
                   placeholder="0.00"
+                  min="0"
                   className="input-standard w-full h-12"
                   value={form.waterConsumption || ''}
                   onChange={e => update('waterConsumption', Number(e.target.value))}
               />
-              <span
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">LITERS</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">LITERS</span>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Recycled Water (Liters)</label>
+            <div className="relative">
+              <input
+                  type="number"
+                  placeholder="0.00"
+                  min="0"
+                  className="input-standard w-full h-12"
+                  value={form.waterRecycled || ''}
+                  onChange={e => update('waterRecycled', Number(e.target.value))}
+              />
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">LITERS</span>
             </div>
           </div>
           <div className="space-y-2">
@@ -171,12 +238,12 @@ const EnvironmentalAuditForm = () => {
               <input
                   type="number"
                   placeholder="0.00"
+                  min="0"
                   className="input-standard w-full h-12"
                   value={form.recyclableWaste || ''}
                   onChange={e => update('recyclableWaste', Number(e.target.value))}
               />
-              <span
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">KG</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">KG</span>
             </div>
           </div>
           <div className="space-y-2">
@@ -184,6 +251,7 @@ const EnvironmentalAuditForm = () => {
             <input
                 type="number"
                 placeholder="0.00"
+                min="0"
                 className="input-standard w-full h-12"
                 value={form.nonRecyclableWaste || ''}
                 onChange={e => update('nonRecyclableWaste', Number(e.target.value))}
@@ -194,6 +262,7 @@ const EnvironmentalAuditForm = () => {
             <input
                 type="number"
                 placeholder="0.00"
+                min="0"
                 className="input-standard w-full h-12"
                 value={form.hazardousWaste || ''}
                 onChange={e => update('hazardousWaste', Number(e.target.value))}

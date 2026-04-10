@@ -33,18 +33,20 @@ interface BarDataItem {
 }
 
 export const ImpactRadar = ({data}: { data?: RadarDataItem[] }) => {
-  const radarData = data ?? [
-    {subject: 'Carbon', A: 85, fullMark: 100},
-    {subject: 'Energy', A: 72, fullMark: 100},
-    {subject: 'Waste', A: 90, fullMark: 100},
-    {subject: 'Water', A: 65, fullMark: 100},
-    {subject: 'Biolife', A: 80, fullMark: 100},
-  ];
+  if (!data || data.length === 0) {
+    return (
+      <div className="h-full w-full flex flex-col items-center justify-center min-h-[300px] text-slate-400">
+        <span className="material-symbols-outlined text-4xl mb-2">radar</span>
+        <p className="text-sm font-semibold">No metric data yet</p>
+        <p className="text-xs mt-1">Record environmental metrics to see the impact radar</p>
+      </div>
+    );
+  }
 
   return (
       <div className="h-full w-full flex items-center justify-center min-h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart cx="50%" cy="50%" outerRadius="65%" data={radarData}>
+          <RadarChart cx="50%" cy="50%" outerRadius="65%" data={data}>
             <PolarGrid stroke="#e2e8f0"/>
             <PolarAngleAxis
                 dataKey="subject"
@@ -64,19 +66,20 @@ export const ImpactRadar = ({data}: { data?: RadarDataItem[] }) => {
 };
 
 export const HistoricalTrendLine = ({data}: { data?: LineDataItem[] }) => {
-  const lineData = data ?? [
-    {name: 'Jan', score: 65},
-    {name: 'Feb', score: 68},
-    {name: 'Mar', score: 75},
-    {name: 'Apr', score: 72},
-    {name: 'May', score: 80},
-    {name: 'Jun', score: 84},
-  ];
+  if (!data || data.length < 2) {
+    return (
+      <div className="h-64 w-full flex flex-col items-center justify-center text-slate-400">
+        <span className="material-symbols-outlined text-4xl mb-2">show_chart</span>
+        <p className="text-sm font-semibold">Not enough data</p>
+        <p className="text-xs mt-1">Record at least 2 metrics to see the trend line</p>
+      </div>
+    );
+  }
 
   return (
       <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={lineData} margin={{top: 5, right: 30, left: 0, bottom: 5}}>
+          <LineChart data={data} margin={{top: 5, right: 30, left: 0, bottom: 5}}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
             <XAxis
                 dataKey="name"
@@ -111,17 +114,20 @@ export const HistoricalTrendLine = ({data}: { data?: LineDataItem[] }) => {
 };
 
 export const ResourceBarChart = ({data}: { data?: BarDataItem[] }) => {
-  const barData = data ?? [
-    {name: 'Steel', value: 45, color: '#0e6c4a'},
-    {name: 'Concrete', value: 30, color: '#012d1d'},
-    {name: 'Transport', value: 15, color: '#10b981'},
-    {name: 'Waste', value: 10, color: '#059669'},
-  ];
+  if (!data || data.length === 0) {
+    return (
+      <div className="h-64 w-full flex flex-col items-center justify-center text-slate-400">
+        <span className="material-symbols-outlined text-4xl mb-2">bar_chart</span>
+        <p className="text-sm font-semibold">No resource data yet</p>
+        <p className="text-xs mt-1">Record environmental metrics to see resource breakdown</p>
+      </div>
+    );
+  }
 
   return (
       <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={barData} layout="vertical" margin={{left: 20}}>
+          <BarChart data={data} layout="vertical" margin={{left: 20}}>
             <XAxis type="number" hide/>
             <YAxis
                 dataKey="name"
@@ -132,7 +138,7 @@ export const ResourceBarChart = ({data}: { data?: BarDataItem[] }) => {
             />
             <Tooltip cursor={{fill: 'transparent'}}/>
             <Bar dataKey="value" radius={[0, 10, 10, 0]} barSize={20}>
-              {barData.map((entry, index) => (
+              {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color}/>
               ))}
             </Bar>
