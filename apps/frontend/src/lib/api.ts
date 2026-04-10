@@ -23,20 +23,36 @@ import type {
   CreateChecklistPayload,
   CreateInspectionPayload,
   InspectionFilters,
+  ProjectComplianceScore,
   SafetyInspection,
+  UpdateChecklistItemPayload,
   UpdateChecklistPayload,
   UpdateInspectionPayload,
 } from '@/types/compliance';
 import type {
+  AssignEquipmentPayload,
   CreateEquipmentPayload,
   CreateMaterialPayload,
   CreateSupplierPayload,
   EquipmentAsset,
+  FinancialSummary,
+  MaintenancePayload,
   MaterialAsset,
   ResourceSummary,
   Supplier,
+  UpdateEquipmentPayload,
+  UpdateMaterialPayload,
+  UpdateSupplierPayload,
 } from '@/types/resources';
-import type {SustainabilityMetric, SustainabilityScore, SustainabilityTrend} from '@/types/sustainability';
+import type {
+  ImpactCalculationResponse,
+  IndustryComparisonResponse,
+  SustainabilityMetric,
+  SustainabilityScore,
+  SustainabilityTrend,
+  SustainabilityTrendsResponse,
+} from '@/types/sustainability';
+import type { AdminUser, UpdateUserPayload, UserFilters } from '@/types/user';
 import {attachInterceptors} from './interceptors';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -180,17 +196,7 @@ export const projectApi = {
     return response.data;
   },
 
-  getFinancialSummary: async (id: string): Promise<SingleResponse<{
-    projectId: string;
-    projectName: string;
-    budget: number;
-    totalSpend: number;
-    remainingBudget: number;
-    spendPercentage: number;
-    remainingValue: number;
-    materialCount: number;
-    allocationMix: { category: string; cost: number; percentage: number }[];
-  }>> => {
+  getFinancialSummary: async (id: string): Promise<SingleResponse<FinancialSummary>> => {
     const response = await api.get(`/projects/${id}/financial-summary`);
     return response.data;
   },
@@ -275,10 +281,47 @@ export const resourcesApi = {
     return response.data;
   },
 
-    createSupplier: async (data: CreateSupplierPayload): Promise<SingleResponse<Supplier>> => {
-        const response = await api.post<SingleResponse<Supplier>>('/resources/suppliers', data);
-        return response.data;
-    },
+  updateMaterial: async (id: string, data: UpdateMaterialPayload): Promise<SingleResponse<MaterialAsset>> => {
+    const response = await api.put<SingleResponse<MaterialAsset>>(`/resources/materials/${id}`, data);
+    return response.data;
+  },
+
+  deleteMaterial: async (id: string): Promise<void> => {
+    await api.delete(`/resources/materials/${id}`);
+  },
+
+  updateEquipment: async (id: string, data: UpdateEquipmentPayload): Promise<SingleResponse<EquipmentAsset>> => {
+    const response = await api.put<SingleResponse<EquipmentAsset>>(`/resources/equipment/${id}`, data);
+    return response.data;
+  },
+
+  deleteEquipment: async (id: string): Promise<void> => {
+    await api.delete(`/resources/equipment/${id}`);
+  },
+
+  assignEquipment: async (id: string, data: AssignEquipmentPayload): Promise<SingleResponse<EquipmentAsset>> => {
+    const response = await api.post<SingleResponse<EquipmentAsset>>(`/resources/equipment/${id}/assign`, data);
+    return response.data;
+  },
+
+  addMaintenance: async (id: string, data: MaintenancePayload): Promise<SingleResponse<EquipmentAsset>> => {
+    const response = await api.post<SingleResponse<EquipmentAsset>>(`/resources/equipment/${id}/maintenance`, data);
+    return response.data;
+  },
+
+  createSupplier: async (data: CreateSupplierPayload): Promise<SingleResponse<Supplier>> => {
+    const response = await api.post<SingleResponse<Supplier>>('/resources/suppliers', data);
+    return response.data;
+  },
+
+  updateSupplier: async (id: string, data: UpdateSupplierPayload): Promise<SingleResponse<Supplier>> => {
+    const response = await api.put<SingleResponse<Supplier>>(`/resources/suppliers/${id}`, data);
+    return response.data;
+  },
+
+  deleteSupplier: async (id: string): Promise<void> => {
+    await api.delete(`/resources/suppliers/${id}`);
+  },
 
   getCostSummary: async (projectId: string): Promise<SingleResponse<ResourceSummary>> => {
     const response = await api.get<SingleResponse<ResourceSummary>>(
@@ -327,10 +370,37 @@ export const sustainabilityApi = {
     return response.data;
   },
 
-  getProjectMetrics: async (projectId: string): Promise<PaginatedResponse<SustainabilityMetric>> => {
-    const params = new URLSearchParams({projectId});
+  getProjectMetrics: async (projectId: string, limit = 10): Promise<PaginatedResponse<SustainabilityMetric>> => {
     const response = await api.get<PaginatedResponse<SustainabilityMetric>>(
-        `/sustainability/projects/${projectId}/metrics?${params.toString()}`
+        `/sustainability/projects/${projectId}/metrics`, { params: { limit } }
+    );
+    return response.data;
+  },
+
+  getProjectTrendsDetailed: async (
+    projectId: string,
+    period = '6months',
+    interval = 'monthly'
+  ): Promise<SingleResponse<SustainabilityTrendsResponse>> => {
+    const response = await api.get<SingleResponse<SustainabilityTrendsResponse>>(
+        `/sustainability/projects/${projectId}/trends`, { params: { period, interval } }
+    );
+    return response.data;
+  },
+
+  compareWithIndustry: async (projectId: string): Promise<SingleResponse<IndustryComparisonResponse>> => {
+    const response = await api.get<SingleResponse<IndustryComparisonResponse>>(
+        `/sustainability/projects/${projectId}/compare`
+    );
+    return response.data;
+  },
+
+  calculateImpact: async (data: {
+    carbonEmissions: { transportation: number; equipment: number; materials: number };
+    energyConsumption: { electricity: number; diesel: number; renewableEnergy: number };
+  }): Promise<SingleResponse<ImpactCalculationResponse>> => {
+    const response = await api.post<SingleResponse<ImpactCalculationResponse>>(
+        '/sustainability/calculate-impact', data
     );
     return response.data;
   },
@@ -357,6 +427,13 @@ export const documentApi = {
   },
 
   getDocuments: async (filters: Partial<DocumentFilters>): Promise<DocumentPaginatedResponse> => {
+    // Use the search endpoint when a query is present
+    if (filters.search?.trim()) {
+      const params: Record<string, string> = { q: filters.search.trim() };
+      if (filters.projectId) params.projectId = filters.projectId;
+      const response = await api.get<DocumentPaginatedResponse>('/documents/search', { params });
+      return response.data;
+    }
     const params: Record<string, string> = {};
     if (filters.projectId)    params.projectId    = filters.projectId;
     if (filters.documentType) params.documentType = filters.documentType;
@@ -482,6 +559,100 @@ export const complianceApi = {
 
   deleteInspection: async (id: string): Promise<void> => {
     await api.delete(`/compliance/inspections/${id}`);
+  },
+
+  updateChecklistItem: async (
+    checklistId: string,
+    itemId: string,
+    payload: UpdateChecklistItemPayload
+  ): Promise<SingleResponse<ComplianceChecklist>> => {
+    const res = await api.put<SingleResponse<ComplianceChecklist>>(
+      `/compliance/checklists/${checklistId}/items/${itemId}`, payload
+    );
+    return res.data;
+  },
+
+  getProjectScore: async (projectId: string): Promise<SingleResponse<ProjectComplianceScore>> => {
+    const res = await api.get<SingleResponse<ProjectComplianceScore>>(
+      `/compliance/score/${projectId}`
+    );
+    return res.data;
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Safety API (dedicated /api/safety router)
+// ---------------------------------------------------------------------------
+
+export const safetyApi = {
+  createInspection: async (data: CreateInspectionPayload): Promise<SingleResponse<SafetyInspection>> => {
+    const res = await api.post<SingleResponse<SafetyInspection>>('/safety/inspection', data);
+    return res.data;
+  },
+
+  getByProject: async (
+    projectId: string,
+    params?: Partial<InspectionFilters>
+  ): Promise<{ success: boolean; data: SafetyInspection[]; count?: number; pagination?: CompliancePagination }> => {
+    const res = await api.get(`/safety/${projectId}`, { params });
+    return res.data;
+  },
+
+  getById: async (id: string): Promise<SingleResponse<SafetyInspection>> => {
+    const res = await api.get<SingleResponse<SafetyInspection>>(`/safety/inspection/${id}`);
+    return res.data;
+  },
+
+  update: async (id: string, data: UpdateInspectionPayload): Promise<SingleResponse<SafetyInspection>> => {
+    const res = await api.put<SingleResponse<SafetyInspection>>(`/safety/inspection/${id}`, data);
+    return res.data;
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/safety/inspection/${id}`);
+  },
+
+  getHighRisk: async (projectId: string): Promise<{ success: boolean; data: SafetyInspection[]; count: number }> => {
+    const res = await api.get(`/safety/${projectId}/high-risk`);
+    return res.data;
+  },
+};
+
+// ---------------------------------------------------------------------------
+// User Management API (ADMIN only)
+// ---------------------------------------------------------------------------
+
+interface UserPaginatedResponse {
+  success: boolean;
+  data: AdminUser[];
+  pagination: { page: number; limit: number; total: number; totalPages: number };
+}
+
+export const userApi = {
+  getUsers: async (filters: Partial<UserFilters> = {}): Promise<UserPaginatedResponse> => {
+    const params: Record<string, string> = {};
+    if (filters.search) params.search = filters.search;
+    if (filters.role)   params.role   = filters.role;
+    if (filters.isActive !== undefined && filters.isActive !== '') params.isActive = String(filters.isActive);
+    if (filters.page)   params.page   = String(filters.page);
+    if (filters.limit)  params.limit  = String(filters.limit);
+    const res = await api.get<UserPaginatedResponse>('/users', { params });
+    return res.data;
+  },
+
+  getById: async (id: string): Promise<SingleResponse<AdminUser>> => {
+    const res = await api.get<SingleResponse<AdminUser>>(`/users/${id}`);
+    return res.data;
+  },
+
+  update: async (id: string, data: UpdateUserPayload): Promise<SingleResponse<AdminUser>> => {
+    const res = await api.patch<SingleResponse<AdminUser>>(`/users/${id}`, data);
+    return res.data;
+  },
+
+  deactivate: async (id: string): Promise<SingleResponse<AdminUser>> => {
+    const res = await api.delete<SingleResponse<AdminUser>>(`/users/${id}`);
+    return res.data;
   },
 };
 
