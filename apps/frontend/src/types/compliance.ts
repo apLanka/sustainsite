@@ -40,7 +40,7 @@ export type IssueSeverity = typeof IssueSeverity[keyof typeof IssueSeverity];
 
 export interface PopulatedUser {
   _id: string;
-  name: string;
+  fullName: string;
   email: string;
 }
 

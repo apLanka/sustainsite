@@ -8,7 +8,7 @@ import { documentApi } from '@/lib/api';
 import { useDocumentStore } from '@/store';
 import { useAuthStore } from '@/store';
 import { DocumentStatus, DocumentType } from '@/types/document';
-import type { ProjectDocument, UploadDocumentPayload, PreviousVersion } from '@/types/document';
+import type { ProjectDocument, PreviousVersion } from '@/types/document';
 import { UserRole } from '@/types/auth';
 import api from '@/lib/api';
 
@@ -174,10 +174,10 @@ export default function DocumentsPage() {
   useEffect(() => {
     const t = setTimeout(() => {
       setDebouncedSearch(searchQuery.trim());
-      setDocFilters(f => ({ ...f, search: searchQuery.trim() || undefined, page: 1 }));
+      setDocFilters({ search: searchQuery.trim() || undefined, page: 1 });
     }, 400);
     return () => clearTimeout(t);
-  }, [searchQuery]);
+  }, [searchQuery, setDocFilters]);
 
   // visibleDocs = documents (search is now server-side)
   const visibleDocs = useMemo(() => documents, [documents]);
@@ -377,7 +377,10 @@ export default function DocumentsPage() {
               {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => { setSearchQuery(''); setDocFilters(f => ({ ...f, search: undefined, page: 1 })); }}
+                  onClick={() => {
+                    setSearchQuery('');
+                    setDocFilters({ search: undefined, page: 1 });
+                  }}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors"
                 >
                   <span className="material-symbols-outlined text-lg">close</span>

@@ -563,7 +563,7 @@ export default function CompliancePage() {
                               {item.completedBy && (
                                 <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 uppercase tracking-tight bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
                                   <span className="material-symbols-outlined text-[12px]">person</span>
-                                  {item.completedBy.name}
+                                  {item.completedBy.fullName}
                                 </div>
                               )}
                               {item.attachedDocuments?.length > 0 && (
@@ -658,7 +658,7 @@ export default function CompliancePage() {
                         <RiskBadge level={insp.riskLevel} />
                       </td>
                       <td className="px-4 py-4 text-xs font-bold text-slate-500">
-                        {insp.inspector?.name ?? '—'}
+                        {insp.inspector?.fullName ?? '—'}
                       </td>
                       <td className="px-4 py-4">
                         {canInspect ? (
@@ -1044,7 +1044,7 @@ export default function CompliancePage() {
             <div className="p-10 space-y-5 max-h-[65vh] overflow-y-auto">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Inspector</p>
-                <p className="text-sm font-bold text-primary">{inspectionDetail.inspector?.name ?? '—'}</p>
+                <p className="text-sm font-bold text-primary">{inspectionDetail.inspector?.fullName ?? '—'}</p>
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Findings</p>
