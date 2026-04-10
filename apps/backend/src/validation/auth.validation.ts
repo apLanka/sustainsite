@@ -35,6 +35,40 @@ export const registerSchema = Joi.object({
 
 });
 
+export const updateProfileSchema = Joi.object({
+  fullName: Joi.string().min(2).max(100).required().messages({
+    'string.min': 'Full name must be at least 2 characters',
+    'string.max': 'Full name cannot exceed 100 characters',
+    'any.required': 'Full name is required',
+  }),
+
+  email: Joi.string().email().lowercase().trim().required().messages({
+    'string.email': 'Please provide a valid email address',
+    'any.required': 'Email is required',
+  }),
+
+  jobTitle: Joi.string().max(100).allow('').optional().messages({
+    'string.max': 'Job title cannot exceed 100 characters',
+  }),
+});
+
+export const changePasswordSchema = Joi.object({
+  currentPassword: Joi.string().required().messages({
+    'any.required': 'Current password is required',
+  }),
+
+  newPassword: Joi.string()
+    .min(8)
+    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+    .required()
+    .messages({
+      'string.min': 'New password must be at least 8 characters',
+      'string.pattern.base':
+        'New password must contain at least one uppercase letter, one lowercase letter, and one number',
+      'any.required': 'New password is required',
+    }),
+});
+
 export const loginSchema = Joi.object({
   email: Joi.string().email().required().messages({
     'string.email': 'Please provide a valid email address',

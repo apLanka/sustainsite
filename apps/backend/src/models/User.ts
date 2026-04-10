@@ -7,6 +7,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: UserRole;
+  jobTitle: string;
   assignedProjects: mongoose.Types.ObjectId[];
 
   isActive: boolean;
@@ -47,6 +48,12 @@ const userSchema = new Schema<IUser>(
       enum: Object.values(UserRole),
       required: [true, 'Role is required'],
       default: UserRole.VIEWER,
+    },
+    jobTitle: {
+      type: String,
+      trim: true,
+      maxlength: [100, 'Job title cannot exceed 100 characters'],
+      default: '',
     },
     assignedProjects: [
       {

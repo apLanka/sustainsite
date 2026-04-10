@@ -69,6 +69,15 @@ export const authApi = {
     const response = await api.get<UserResponse>('/auth/me');
     return response.data;
   },
+
+  changePassword: async (data: { currentPassword: string; newPassword: string }): Promise<void> => {
+    await api.patch('/auth/change-password', data);
+  },
+
+  updateProfile: async (data: { fullName: string; email: string; jobTitle?: string }): Promise<UserResponse> => {
+    const response = await api.patch<UserResponse>('/auth/profile', data);
+    return response.data;
+  },
 };
 
 export const tokenManager = {
