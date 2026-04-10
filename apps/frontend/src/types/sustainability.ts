@@ -44,7 +44,14 @@ export interface SustainabilityMetric {
 export interface SustainabilityScore {
     projectId: string;
     projectName: string;
-    sustainabilityScore: number;
+    currentScore: number;
+    sustainabilityScore?: number;
+    scoreCategory: 'Red' | 'Yellow' | 'Green';
+    lastUpdated: string;
+    trend: 'improving' | 'declining' | 'stable';
+    benchmarkComparison: { industryAverage: number; difference: number };
+    recommendations: string[];
+    scoreBreakdown: Record<string, number> | null;
 }
 
 export interface SustainabilityTrend {
@@ -55,4 +62,35 @@ export interface SustainabilityTrend {
         diversionRate: number;
     };
     recordedDate: string;
+}
+
+export interface SustainabilityTrendsResponse {
+    projectId: string;
+    period: string;
+    interval: string;
+    trends: SustainabilityTrend[];
+    summary: {
+        averageScore: number;
+        scoreImprovement: number;
+        totalCarbonRecorded: number;
+        totalWasteRecorded: number;
+    };
+}
+
+export interface IndustryComparisonResponse {
+    projectId: string;
+    projectName: string;
+    projectScore: number;
+    industryAverage: number;
+    difference: number;
+    percentileBand: string;
+    areasAboveAverage: string[];
+    areasBelowAverage: string[];
+    benchmarks: Record<string, number>;
+}
+
+export interface ImpactCalculationResponse {
+    totalCarbon: number;
+    treesEquivalent: number;
+    renewablePercentage: number;
 }

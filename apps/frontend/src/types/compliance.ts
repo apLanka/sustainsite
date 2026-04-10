@@ -187,4 +187,29 @@ export interface UpdateInspectionPayload {
   actionStatus?: ActionStatus;
   followUpDate?: string;
   followUpNotes?: string;
+  isResolved?: boolean;
+}
+
+export interface UpdateChecklistItemPayload {
+  isCompleted?: boolean;
+  notes?: string;
+  completedDate?: string;
+}
+
+export interface ProjectComplianceScore {
+  projectId: string;
+  overallScore: number;
+  totalChecklists: number;
+  completedChecklists: number;
+  totalItems: number;
+  completedItems: number;
+  breakdown: {
+    checklistId: string;
+    checklistName: string;
+    category?: string;
+    complianceScore: number;
+    totalItems: number;
+    completedItems: number;
+    dueDate?: string;
+  }[];
 }
