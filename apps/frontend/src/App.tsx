@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ProjectProvider } from '@/contexts/ProjectContext';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
@@ -15,12 +16,15 @@ import DocumentsPage from '@/pages/DocumentsPage';
 import CompliancePage from '@/pages/CompliancePage';
 import ResourcesPage from '@/pages/ResourcesPage';
 import SettingsPage from '@/pages/SettingsPage';
+import SafetyPage from '@/pages/SafetyPage';
+import AdminUsersPage from '@/pages/AdminUsersPage';
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <ProjectProvider>
+          <Toaster position="top-right" richColors closeButton />
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
@@ -109,10 +113,28 @@ export default function App() {
             />
 
             <Route
+              path="/projects/:id/safety"
+              element={
+                <ProtectedRoute>
+                  <SafetyPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
               path="/settings"
               element={
                 <ProtectedRoute>
                   <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute>
+                  <AdminUsersPage />
                 </ProtectedRoute>
               }
             />
