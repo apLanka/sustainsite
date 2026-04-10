@@ -1,7 +1,9 @@
 import {useEffect, useState} from 'react';
 import { toast } from 'sonner';
 import {useProject} from '@/contexts/ProjectContext';
+import { useAuth } from '@/contexts/AuthContext';
 import {resourcesApi} from '@/lib/api';
+import { canAdminDeleteResource, canManageInventory } from '@/lib/rbac';
 import type {CreateEquipmentPayload, EquipmentAsset, EquipmentType, UpdateEquipmentPayload} from '@/types/resources';
 import type {StatusType} from '@/components/common/StatusBadge';
 import StatusBadge from '@/components/common/StatusBadge';
@@ -14,7 +16,10 @@ const emptyForm: Partial<CreateEquipmentPayload> = {
 };
 
 export default function EquipmentManagement() {
+  const { user } = useAuth();
   const {activeProjectId} = useProject();
+  const canMutate = canManageInventory(user?.role);
+  const canDel = canAdminDeleteResource(user?.role);
   const [equipment, setEquipment] = useState<EquipmentAsset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -176,9 +181,11 @@ export default function EquipmentManagement() {
           <h3 className="text-xl font-black text-primary uppercase tracking-widest">Fleet Operations</h3>
           <p className="text-slate-400 text-xs font-bold mt-1">Real-time tracking and maintenance scheduling</p>
         </div>
+        {canMutate && (
         <button onClick={() => setShowCreateModal(true)} className="bg-primary text-white px-6 py-3 rounded-2xl text-xs font-bold hover:bg-primary-dark transition-all flex items-center gap-2 shadow-lg shadow-primary/10">
           <span className="material-symbols-outlined text-sm">add</span> Register Asset
         </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -214,26 +221,34 @@ export default function EquipmentManagement() {
                 </div>
               </div>
             </div>
-            {/* Action buttons */}
+            {(canMutate || canDel) && (
             <div className="flex items-center gap-2 flex-wrap">
+              {canMutate && (
               <button onClick={() => openEdit(item)} className="flex-1 py-2 text-[10px] font-black uppercase tracking-wider bg-slate-50 text-slate-600 rounded-xl hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-1">
                 <span className="material-symbols-outlined text-sm">edit</span> Edit
               </button>
+              )}
+              {canMutate && (
               <button onClick={() => { setShowMaintenanceModal(item); }} className="flex-1 py-2 text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 rounded-xl hover:bg-amber-100 transition-all flex items-center justify-center gap-1">
                 <span className="material-symbols-outlined text-sm">build</span> Service
               </button>
-              {item.status === 'Available' && activeProjectId && item.currentProjectId !== activeProjectId && (
+              )}
+              {canMutate && item.status === 'Available' && activeProjectId && item.currentProjectId !== activeProjectId && (
                 <button onClick={() => handleAssign(item)} className="flex-1 py-2 text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 rounded-xl hover:bg-emerald-100 transition-all flex items-center justify-center gap-1">
                   <span className="material-symbols-outlined text-sm">link</span> Assign
                 </button>
               )}
+              {canDel && (
               <button onClick={() => setDeleteConfirm(item._id)} className="w-9 h-9 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-100 transition-all flex items-center justify-center">
                 <span className="material-symbols-outlined text-sm">delete</span>
               </button>
+              )}
             </div>
+            )}
           </div>
         ))}
 
+        {canMutate && (
         <button onClick={() => setShowCreateModal(true)} className="border-2 border-dashed border-slate-200 rounded-[32px] p-8 flex flex-col items-center justify-center gap-4 group hover:border-primary/30 hover:bg-slate-50/50 transition-all">
           <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition-all duration-500">
             <span className="material-symbols-outlined text-3xl">add</span>
@@ -243,6 +258,7 @@ export default function EquipmentManagement() {
             <p className="text-slate-400 text-[10px] mt-1 font-bold">Register heavy machinery or transport vehicles</p>
           </div>
         </button>
+        )}
       </div>
 
       {/* Create Modal */}

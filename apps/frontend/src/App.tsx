@@ -3,6 +3,7 @@ import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ProjectProvider } from '@/contexts/ProjectContext';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
+import { UserRole } from '@/types/auth';
 import LandingPage from '@/pages/LandingPage';
 import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
@@ -18,6 +19,7 @@ import ResourcesPage from '@/pages/ResourcesPage';
 import SettingsPage from '@/pages/SettingsPage';
 import SafetyPage from '@/pages/SafetyPage';
 import AdminUsersPage from '@/pages/AdminUsersPage';
+import SupplierMaterialsPage from '@/pages/SupplierMaterialsPage';
 
 export default function App() {
   return (
@@ -51,7 +53,7 @@ export default function App() {
             <Route
               path="/projects/new"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.PROJECT_MANAGER]}>
                   <CreateProjectPage />
                 </ProtectedRoute>
               }
@@ -79,7 +81,9 @@ export default function App() {
             <Route
               path="/projects/:id/sustainability/record"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute
+                  allowedRoles={[UserRole.ADMIN, UserRole.PROJECT_MANAGER, UserRole.INSPECTOR]}
+                >
                   <RecordMetricsPage />
                 </ProtectedRoute>
               }
@@ -133,8 +137,17 @@ export default function App() {
             <Route
               path="/admin/users"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={[UserRole.ADMIN]}>
                   <AdminUsersPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/supplier/materials"
+              element={
+                <ProtectedRoute allowedRoles={[UserRole.SUPPLIER]}>
+                  <SupplierMaterialsPage />
                 </ProtectedRoute>
               }
             />

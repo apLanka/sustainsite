@@ -7,9 +7,12 @@ export type MaterialSupplierRef =
   | string
   | { _id: string; companyName?: string; email?: string; phoneNumber?: string };
 
+/** API may populate project with projectName. */
+export type MaterialProjectRef = string | { _id?: string; projectName?: string };
+
 export interface MaterialAsset {
   _id: string;
-  projectId: string;
+  projectId: MaterialProjectRef;
   materialName: string;
   category: MaterialCategory;
   description?: string;

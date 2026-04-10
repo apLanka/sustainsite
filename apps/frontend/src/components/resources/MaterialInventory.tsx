@@ -1,7 +1,9 @@
 import {useEffect, useState} from 'react';
 import { toast } from 'sonner';
 import {useProject} from '@/contexts/ProjectContext';
+import { useAuth } from '@/contexts/AuthContext';
 import {resourcesApi} from '@/lib/api';
+import { canAdminDeleteResource, canManageInventory } from '@/lib/rbac';
 import type {
   CreateMaterialPayload,
   MaterialAsset,
@@ -28,7 +30,10 @@ const emptyForm: Partial<CreateMaterialPayload> = {
 };
 
 export default function MaterialInventory() {
+  const { user } = useAuth();
   const {activeProjectId} = useProject();
+  const canCreateEdit = canManageInventory(user?.role);
+  const canDeleteMat = canAdminDeleteResource(user?.role);
   const [materials, setMaterials] = useState<MaterialAsset[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -210,9 +215,11 @@ export default function MaterialInventory() {
       <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <h4 className="text-primary font-black uppercase tracking-widest text-xs">Material Ledger</h4>
+          {canCreateEdit && (
           <button onClick={() => setShowCreateModal(true)} className="bg-secondary text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-secondary-dark transition-all flex items-center gap-2 shadow-sm">
             <span className="material-symbols-outlined text-sm">add</span> New Material
           </button>
+          )}
         </div>
         <div className="overflow-x-auto">
           {materials.length === 0 ? (
@@ -229,7 +236,9 @@ export default function MaterialInventory() {
                   <th className="px-6 py-4">Stock</th>
                   <th className="px-6 py-4">Status</th>
                   <th className="px-6 py-4">Supplier</th>
+                  {(canCreateEdit || canDeleteMat) && (
                   <th className="px-6 py-4">Actions</th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-sm">
@@ -256,16 +265,22 @@ export default function MaterialInventory() {
                       }`}>{m.status}</span>
                     </td>
                     <td className="px-6 py-5 text-slate-500 font-medium text-xs">{supplierName(m.supplier)}</td>
+                    {(canCreateEdit || canDeleteMat) && (
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-2">
+                        {canCreateEdit && (
                         <button onClick={() => openEdit(m)} className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-primary hover:text-white transition-all flex items-center justify-center" title="Edit">
                           <span className="material-symbols-outlined text-sm">edit</span>
                         </button>
+                        )}
+                        {canDeleteMat && (
                         <button onClick={() => setDeleteConfirm(m._id)} className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center" title="Delete">
                           <span className="material-symbols-outlined text-sm">delete</span>
                         </button>
+                        )}
                       </div>
                     </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

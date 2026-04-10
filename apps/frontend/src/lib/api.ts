@@ -208,18 +208,23 @@ export const projectApi = {
 
 export const resourcesApi = {
   getMaterials: async (
-      projectId: string,
+      projectId: string | undefined,
       page = 1,
       limit = 10
   ): Promise<PaginatedResponse<MaterialAsset>> => {
     const params = new URLSearchParams({
-      projectId,
       page: String(page),
       limit: String(limit),
     });
+    if (projectId) params.set('projectId', projectId);
     const response = await api.get<PaginatedResponse<MaterialAsset>>(
         `/resources/materials?${params.toString()}`
     );
+    return response.data;
+  },
+
+  updateMaterialStatus: async (id: string, status: string): Promise<SingleResponse<MaterialAsset>> => {
+    const response = await api.put<SingleResponse<MaterialAsset>>(`/resources/materials/${id}/status`, { status });
     return response.data;
   },
 

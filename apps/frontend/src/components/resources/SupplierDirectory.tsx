@@ -1,11 +1,16 @@
 import {useEffect, useState} from 'react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 import {resourcesApi} from '@/lib/api';
+import { canAdminDeleteResource, canManageInventory } from '@/lib/rbac';
 import type {CreateSupplierPayload, Supplier, UpdateSupplierPayload} from '@/types/resources';
 
 type FilterState = { preferred: boolean; certified: boolean; material: string };
 
 export default function SupplierDirectory() {
+  const { user } = useAuth();
+  const canMutate = canManageInventory(user?.role);
+  const canDel = canAdminDeleteResource(user?.role);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -138,9 +143,11 @@ export default function SupplierDirectory() {
           <button onClick={() => setShowFilters(v => !v)} className={`w-12 h-12 border rounded-2xl transition-all flex items-center justify-center ${showFilters ? 'bg-primary text-white border-primary' : 'border-slate-100 text-slate-400 hover:bg-slate-50'}`}>
             <span className="material-symbols-outlined text-xl">filter_list</span>
           </button>
+          {canMutate && (
           <button onClick={() => setShowCreateModal(true)} className="bg-primary text-white px-6 py-3 rounded-2xl text-xs font-bold hover:bg-primary-dark transition-all flex items-center gap-2 shadow-lg shadow-primary/10">
             <span className="material-symbols-outlined text-sm">person_add</span> Add Partner
           </button>
+          )}
         </div>
       </div>
 
@@ -170,7 +177,7 @@ export default function SupplierDirectory() {
           <p className="text-sm text-slate-400 mt-3 font-medium">
             {suppliers.length === 0 ? 'No partners yet' : 'No partners match the current filters'}
           </p>
-          {suppliers.length === 0 && (
+          {suppliers.length === 0 && canMutate && (
             <button onClick={() => setShowCreateModal(true)} className="mt-4 text-xs font-bold text-emerald-600 hover:underline">
               Add your first partner →
             </button>
@@ -251,15 +258,20 @@ export default function SupplierDirectory() {
                   </div>
                 )}
               </div>
-              {/* Action buttons */}
+              {(canMutate || canDel) && (
               <div className="flex items-center gap-2 pt-4 border-t border-slate-50">
+                {canMutate && (
                 <button onClick={() => openEdit(supplier)} className="flex-1 py-2 text-[10px] font-black uppercase tracking-wider bg-slate-50 text-slate-600 rounded-xl hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-1">
                   <span className="material-symbols-outlined text-sm">edit</span> Edit
                 </button>
+                )}
+                {canDel && (
                 <button onClick={() => setDeleteConfirm(supplier._id)} className="w-9 h-9 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-100 transition-all flex items-center justify-center">
                   <span className="material-symbols-outlined text-sm">delete</span>
                 </button>
+                )}
               </div>
+              )}
             </div>
           ))}
         </div>
