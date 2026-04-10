@@ -63,6 +63,24 @@ export const emailTemplates = {
     <p>Findings: ${findings}</p>
     <p>Immediate action may be required.</p>
   `,
+
+  purchaseOrder: (
+    materialName: string,
+    quantity: number,
+    unit: string,
+    projectName: string,
+    expectedDelivery: string
+  ) => `
+    <h2>📦 New Purchase Order</h2>
+    <p>You have received a new purchase order:</p>
+    <ul>
+      <li><strong>Material:</strong> ${materialName}</li>
+      <li><strong>Quantity:</strong> ${quantity} ${unit}</li>
+      <li><strong>Project:</strong> ${projectName}</li>
+      <li><strong>Expected Delivery:</strong> ${expectedDelivery}</li>
+    </ul>
+    <p>Please confirm receipt and update the delivery status in the system.</p>
+  `,
 };
 
 export default sgMail;
