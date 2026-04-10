@@ -2,6 +2,11 @@ export type MaterialStatus = 'Ordered' | 'In Transit' | 'Delivered' | 'In Stock'
 
 export type MaterialCategory = 'Cement' | 'Steel' | 'Wood' | 'Aggregates' | 'Bricks' | 'Equipment' | 'Other';
 
+/** API may return a raw ObjectId string or a populated supplier document. */
+export type MaterialSupplierRef =
+  | string
+  | { _id: string; companyName?: string; email?: string; phoneNumber?: string };
+
 export interface MaterialAsset {
   _id: string;
   projectId: string;
@@ -12,7 +17,7 @@ export interface MaterialAsset {
   unit: string;
   unitPrice: number;
   totalCost: number;
-  supplier: string;
+  supplier: MaterialSupplierRef;
   status: MaterialStatus;
   currentStock: number;
   minimumThreshold: number;

@@ -11,13 +11,22 @@ interface AllocationMix {
 interface FinancialData {
     projectId: string;
     projectName: string;
-    budget: number;
-    totalSpend: number;
-    remainingBudget: number;
-    spendPercentage: number;
-    remainingValue: number;
-    materialCount: number;
-    allocationMix: AllocationMix[];
+    budget: number | null;
+    totalSpend: number | null;
+    remainingBudget: number | null;
+    spendPercentage: number | null;
+    remainingValue: number | null;
+    materialCount: number | null;
+    allocationMix: AllocationMix[] | null;
+}
+
+function safeNumber(n: unknown, fallback = 0): number {
+    const v = typeof n === 'number' ? n : Number(n);
+    return Number.isFinite(v) ? v : fallback;
+}
+
+function formatCurrency(n: unknown): string {
+    return safeNumber(n).toLocaleString();
 }
 
 export default function CostTracker() {
@@ -74,8 +83,11 @@ export default function CostTracker() {
         );
     }
 
-    const {budget, totalSpend, spendPercentage, allocationMix} = data;
-    const percentage = spendPercentage || 0;
+    const budget = safeNumber(data.budget);
+    const totalSpend = safeNumber(data.totalSpend);
+    const spendPercentage = safeNumber(data.spendPercentage);
+    const allocationMix = Array.isArray(data.allocationMix) ? data.allocationMix : [];
+    const percentage = spendPercentage;
     const isOnTrack = percentage <= 100;
 
     return (
@@ -91,9 +103,9 @@ export default function CostTracker() {
                             <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Fiscal
                                 Overview</p>
                             <h3 className="text-4xl font-black text-primary tracking-tighter">
-                                ${totalSpend.toLocaleString()}
+                                ${formatCurrency(totalSpend)}
                                 <span
-                                    className="text-slate-300 text-lg font-bold ml-2">/ ${budget.toLocaleString()}</span>
+                                    className="text-slate-300 text-lg font-bold ml-2">/ ${formatCurrency(budget)}</span>
                             </h3>
                         </div>
                         <div
@@ -144,12 +156,12 @@ export default function CostTracker() {
                                                         className="text-primary text-[10px] font-black uppercase tracking-widest">{item.category}</span>
                                                 </div>
                                                 <span
-                                                    className="text-primary font-black text-xs tabular-nums">{item.percentage.toFixed(1)}%</span>
+                                                    className="text-primary font-black text-xs tabular-nums">{safeNumber(item.percentage).toFixed(1)}%</span>
                                             </div>
                                             <div className="h-1 bg-slate-50 rounded-full overflow-hidden">
                                                 <div
                                                     className={`h-full ${colors[idx % colors.length]} opacity-20 group-hover:opacity-100 transition-all duration-500`}
-                                                    style={{width: `${item.percentage}%`}}/>
+                                                    style={{width: `${Math.min(100, safeNumber(item.percentage))}%`}}/>
                                             </div>
                                         </div>
                                     );

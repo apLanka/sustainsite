@@ -2,7 +2,22 @@ import {useEffect, useState} from 'react';
 import { toast } from 'sonner';
 import {useProject} from '@/contexts/ProjectContext';
 import {resourcesApi} from '@/lib/api';
-import type {CreateMaterialPayload, MaterialAsset, MaterialCategory, Supplier, UpdateMaterialPayload} from '@/types/resources';
+import type {
+  CreateMaterialPayload,
+  MaterialAsset,
+  MaterialCategory,
+  MaterialSupplierRef,
+  Supplier,
+  UpdateMaterialPayload,
+} from '@/types/resources';
+
+function supplierIdFromRef(supplier: MaterialSupplierRef): string {
+  if (typeof supplier === 'string') return supplier;
+  if (supplier && typeof supplier === 'object' && supplier._id != null) {
+    return typeof supplier._id === 'string' ? supplier._id : String(supplier._id);
+  }
+  return '';
+}
 
 const MATERIAL_CATEGORIES: MaterialCategory[] = ['Cement', 'Steel', 'Wood', 'Aggregates', 'Bricks', 'Equipment', 'Other'];
 
@@ -54,8 +69,12 @@ export default function MaterialInventory() {
     load();
   }, [activeProjectId]);
 
-  const supplierName = (id: string) => {
-    const s = suppliers.find(s => s._id === id);
+  const supplierName = (supplier: MaterialSupplierRef) => {
+    if (supplier && typeof supplier === 'object' && supplier.companyName) {
+      return supplier.companyName;
+    }
+    const id = supplierIdFromRef(supplier);
+    const s = suppliers.find(x => x._id === id);
     return s ? s.companyName : id ? `...${id.slice(-6)}` : '—';
   };
 
