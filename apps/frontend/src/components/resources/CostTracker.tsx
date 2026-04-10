@@ -159,10 +159,6 @@ export default function CostTracker() {
                             )}
                         </div>
                     </div>
-                    <button
-                        className="mt-8 py-3 w-full border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-50 hover:text-primary transition-all">
-                        Configuration
-                    </button>
                 </div>
             </div>
         </div>
