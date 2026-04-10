@@ -103,7 +103,7 @@ The Sustainable Construction Project Management System provides an integrated pl
 Before you begin, ensure you have the following installed:
 
 - **Node.js:** v18 or higher ([Download](https://nodejs.org/))
-- **Package Manager:** bun v1.2.20+ (recommended) or npm
+- **Package Manager:** npm (v10+ recommended; lockfile is `package-lock.json`)
 - **MongoDB Atlas Account:** Free tier ([Sign up](https://www.mongodb.com/cloud/atlas))
 - **Git:** For version control
 
@@ -121,10 +121,6 @@ cd sustainsite
 This is a Turborepo monorepo. Install all dependencies from the root:
 
 ```bash
-# Using bun (recommended)
-bun install
-
-# Or using npm
 npm install
 ```
 
@@ -203,11 +199,11 @@ From the root directory:
 
 ```bash
 # Development mode (runs both backend and frontend)
-bun dev
+npm run dev
 
-# Or run specific apps
-bun dev --filter=backend
-bun dev --filter=frontend
+# Or run specific apps (Turborepo filters)
+npm run dev -- --filter=backend
+npm run dev -- --filter=frontend
 ```
 
 The backend will start on `http://localhost:5000`  
@@ -228,10 +224,10 @@ Visit `http://localhost:5000/health` - you should see:
 
 ```bash
 # Build all apps
-bun build
+npm run build
 
 # Build specific app
-bun build --filter=backend
+npm run build -- --filter=backend
 ```
 
 ## 📚 API Documentation
@@ -1128,37 +1124,37 @@ sustainsite/
 
 ```bash
 # Run only backend
-bun dev --filter=backend
+npm run dev -- --filter=backend
 
 # Run only frontend
-bun dev --filter=frontend
+npm run dev -- --filter=frontend
 ```
 
 ### Type Checking
 
 ```bash
 # Check types in all apps
-bun check-types
+npm run check-types
 
 # Check types in specific app
-bun check-types --filter=backend
+npm run check-types -- --filter=backend
 ```
 
 ### Linting
 
 ```bash
 # Lint all apps
-bun lint
+npm run lint
 
 # Lint specific app
-bun lint --filter=backend
+npm run lint -- --filter=backend
 ```
 
 ### Code Formatting
 
 ```bash
 # Format all files
-bun format
+npm run format
 ```
 
 ### Common Development Tasks
@@ -1168,13 +1164,13 @@ bun format
 cd apps/backend
 
 # Development with hot reload
-bun dev
+npm run dev
 
 # Build TypeScript
-bun build
+npm run build
 
 # Run production build
-bun start
+npm start
 ```
 
 **Frontend:**
@@ -1182,13 +1178,13 @@ bun start
 cd apps/frontend
 
 # Development server
-bun dev
+npm run dev
 
 # Build for production
-bun build
+npm run build
 
 # Preview production build
-bun preview
+npm run preview
 ```
 
 ## 🚀 Deployment
@@ -1197,8 +1193,8 @@ bun preview
 
 1. Create a new Web Service
 2. Connect your GitHub repository
-3. Set build command: `bun install && bun build --filter=backend`
-4. Set start command: `cd apps/backend && bun start`
+3. Set build command: `npm install && npm run build -- --filter=backend`
+4. Set start command: `cd apps/backend && npm start`
 5. Add environment variables from `.env`
 6. Deploy
 
@@ -1206,7 +1202,7 @@ bun preview
 
 1. Connect your GitHub repository
 2. Set root directory: `apps/frontend`
-3. Build command: `bun build`
+3. Build command: `npm run build`
 4. Output directory: `dist`
 5. Add environment variables (API URL)
 6. Deploy
