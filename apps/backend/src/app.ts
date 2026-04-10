@@ -74,21 +74,25 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('combined'));
 }
 
+const isRateLimitDisabled =
+  process.env.DISABLE_RATE_LIMIT === 'true' ||
+  process.env.NODE_ENV === 'test' ||
+  process.env.NODE_ENV === 'development';
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: (process.env.DISABLE_RATE_LIMIT || process.env.NODE_ENV === 'test') ? 10000 : 100,
+  max: isRateLimitDisabled ? 10000 : 100,
   message: { success: false, message: 'Too many requests, please try again later.' },
 });
 
 // Stricter limiter for auth endpoints: 5 requests per 15 minutes per IP
-// Disabled in test environment to prevent 429s during integration tests
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: (process.env.DISABLE_RATE_LIMIT || process.env.NODE_ENV === 'test') ? 10000 : 5,
+  max: isRateLimitDisabled ? 10000 : 5,
   message: { success: false, message: 'Too many login attempts, please try again after 15 minutes.' },
 });
 
-if (!process.env.DISABLE_RATE_LIMIT) {
+if (!isRateLimitDisabled) {
   app.use('/api/', limiter);
 }
 
