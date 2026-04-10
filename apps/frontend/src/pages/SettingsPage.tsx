@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import SmoothTabs from '@/components/ui/SmoothTabs';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -66,6 +67,17 @@ function ProfileSettings() {
   const [apiErrors, setApiErrors] = useState<string[]>([]);
   const [success, setSuccess] = useState(false);
 
+  // Re-initialize form when user data changes (e.g. after refreshUser)
+  useEffect(() => {
+    if (user) {
+      setFields({
+        fullName: user.fullName ?? '',
+        email: user.email ?? '',
+        jobTitle: user.jobTitle ?? '',
+      });
+    }
+  }, [user?.fullName, user?.email, user?.jobTitle]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleChange = (e: { target: { name: string; value: string } }) => {
     setFields((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setError(null);
@@ -83,10 +95,13 @@ function ProfileSettings() {
       await authApi.updateProfile(fields);
       await refreshUser();
       setSuccess(true);
+      toast.success('Profile updated successfully');
     } catch (err: unknown) {
       const apiErr = err as { message?: string; errors?: string[] };
-      setError(apiErr?.message || 'Failed to save changes. Please try again.');
+      const msg = apiErr?.message || 'Failed to save changes. Please try again.';
+      setError(msg);
       setApiErrors(apiErr?.errors ?? []);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -206,10 +221,13 @@ function SecuritySettings() {
       });
       setSuccess(true);
       setFields({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      toast.success('Password changed successfully');
     } catch (err: unknown) {
       const apiErr = err as { message?: string; errors?: string[] };
-      setError(apiErr?.message || 'Failed to change password. Please try again.');
+      const msg = apiErr?.message || 'Failed to change password. Please try again.';
+      setError(msg);
       setApiErrors(apiErr?.errors ?? []);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }

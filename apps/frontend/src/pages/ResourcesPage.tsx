@@ -33,8 +33,8 @@ export default function ResourcesPage() {
           </div>
 
           <div className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 tracking-widest bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Live Inventory Sync
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            Inventory
           </div>
         </header>
 

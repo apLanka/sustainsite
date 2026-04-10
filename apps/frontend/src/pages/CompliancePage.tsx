@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import ProjectHeader from '@/components/project/ProjectHeader';
 import { complianceApi } from '@/lib/api';
@@ -152,6 +153,7 @@ export default function CompliancePage() {
         if (res.data.length > 0) setSelectedChecklist(res.data[0]);
       } catch (err) {
         console.error('Failed to fetch checklists:', err);
+        toast.error('Failed to load checklists');
       } finally {
         setChecklistLoading(false);
       }
@@ -174,6 +176,7 @@ export default function CompliancePage() {
         setInspections(res.data, res.pagination);
       } catch (err) {
         console.error('Failed to fetch inspections:', err);
+        toast.error('Failed to load inspections');
       } finally {
         setInspectionLoading(false);
       }
@@ -205,6 +208,7 @@ export default function CompliancePage() {
       setSelectedChecklist(res.data);
     } catch (err) {
       console.error('Failed to load checklist detail:', err);
+      toast.error('Failed to load checklist details');
     }
   };
 
@@ -223,6 +227,7 @@ export default function CompliancePage() {
       updateChecklistInStore(selectedChecklist._id, res.data);
     } catch (err) {
       console.error('Failed to save item toggle:', err);
+      toast.error('Failed to save checklist item');
       updateChecklistInStore(selectedChecklist._id, { items: snapshot });
     } finally {
       setIsSavingItems(false);
@@ -307,6 +312,7 @@ export default function CompliancePage() {
       updateInspectionInStore(inspId, res.data);
     } catch (err) {
       console.error('Failed to update action status:', err);
+      toast.error('Failed to update action status');
     }
   };
 
@@ -320,6 +326,7 @@ export default function CompliancePage() {
       setDeletingChecklistId(null);
     } catch (err) {
       console.error('Failed to delete checklist:', err);
+      toast.error('Failed to delete checklist');
     } finally {
       setIsDeleting(false);
     }
@@ -335,6 +342,7 @@ export default function CompliancePage() {
       setDeletingInspectionId(null);
     } catch (err) {
       console.error('Failed to delete inspection:', err);
+      toast.error('Failed to delete inspection');
     } finally {
       setIsDeleting(false);
     }
@@ -964,11 +972,16 @@ export default function CompliancePage() {
               {/* Issues identified */}
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Issues Identified</label>
-                <div className="grid grid-cols-3 gap-2">
-                  <input type="text" className="input-standard h-10 col-span-1"
+                <div className="grid grid-cols-4 gap-2">
+                  <input type="text" className="input-standard h-10 col-span-2"
                     placeholder="Issue description"
                     value={newIssue.issue}
                     onChange={(e) => setNewIssue((n) => ({ ...n, issue: e.target.value }))}
+                  />
+                  <input type="text" className="input-standard h-10"
+                    placeholder="Location (optional)"
+                    value={newIssue.location}
+                    onChange={(e) => setNewIssue((n) => ({ ...n, location: e.target.value }))}
                   />
                   <select className="input-standard h-10 py-0 cursor-pointer"
                     value={newIssue.severity}
@@ -976,11 +989,11 @@ export default function CompliancePage() {
                   >
                     {ALL_SEVERITIES.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
-                  <button type="button"
-                    onClick={() => { if (newIssue.issue.trim()) { setInspIssues((prev) => [...prev, { ...newIssue }]); setNewIssue({ issue: '', severity: IssueSeverity.MINOR, location: '' }); } }}
-                    className="px-3 h-10 bg-slate-100 text-primary rounded-xl text-xs font-bold hover:bg-slate-200 transition-all"
-                  >Add</button>
                 </div>
+                <button type="button"
+                  onClick={() => { if (newIssue.issue.trim()) { setInspIssues((prev) => [...prev, { ...newIssue }]); setNewIssue({ issue: '', severity: IssueSeverity.MINOR, location: '' }); } }}
+                  className="px-3 h-10 bg-slate-100 text-primary rounded-xl text-xs font-bold hover:bg-slate-200 transition-all w-full"
+                >Add Issue</button>
                 {inspIssues.length > 0 && (
                   <ul className="space-y-1 mt-1">
                     {inspIssues.map((issue, i) => (
