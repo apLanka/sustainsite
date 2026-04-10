@@ -3,6 +3,9 @@ import mongoose from 'mongoose';
 import Project from '../models/Project';
 import Milestone, { MilestoneStatus } from '../models/Milestone';
 import Material from '../models/Material';
+import User from '../models/User';
+import { sendEmail, emailTemplates } from '../config/email';
+import logger from '../utils/logger';
 
 export const createProject = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -16,6 +19,22 @@ export const createProject = async (req: Request, res: Response): Promise<void> 
     }
 
     const project = await Project.create(projectData);
+
+    // Email notification to assigned project manager
+    if (process.env.SENDGRID_API_KEY) {
+      try {
+        const manager = await User.findById(project.projectManager).select('email fullName');
+        if (manager?.email) {
+          await sendEmail({
+            to: manager.email,
+            subject: `New Project Assigned: ${project.projectName}`,
+            html: emailTemplates.projectCreated(project.projectName, manager.fullName),
+          });
+        }
+      } catch (emailErr) {
+        logger.warn('Project creation email failed', { emailErr });
+      }
+    }
 
     res.status(201).json({
       success: true,

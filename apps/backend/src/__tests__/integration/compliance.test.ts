@@ -588,4 +588,95 @@ describe('Compliance Management API', () => {
         .expect(404);
     });
   });
+
+  // ─── T-13: Granular checklist item update ──────────────────────────────────
+  describe('PUT /api/compliance/checklists/:id/items/:itemId', () => {
+    let checklistId: string;
+
+    beforeEach(async () => {
+      const checklist = await seedChecklist();
+      checklistId = checklist._id.toString();
+    });
+
+    it('should mark item as completed and update compliance score', async () => {
+      const response = await request(app)
+        .put(`/api/compliance/checklists/${checklistId}/items/item-2`)
+        .set('Authorization', `Bearer ${pmToken}`)
+        .send({ isCompleted: true })
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      // Both items now completed → score should be 100
+      expect(response.body.data.complianceScore).toBe(100);
+    });
+
+    it('should update item notes without changing completion status', async () => {
+      const response = await request(app)
+        .put(`/api/compliance/checklists/${checklistId}/items/item-1`)
+        .set('Authorization', `Bearer ${pmToken}`)
+        .send({ notes: 'Verified on site' })
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      const item = response.body.data.items.find((i: { itemId: string }) => i.itemId === 'item-1');
+      expect(item.notes).toBe('Verified on site');
+    });
+
+    it('should return 404 for non-existent item', async () => {
+      await request(app)
+        .put(`/api/compliance/checklists/${checklistId}/items/item-999`)
+        .set('Authorization', `Bearer ${pmToken}`)
+        .send({ isCompleted: true })
+        .expect(404);
+    });
+  });
+
+  // ─── T-14: Project compliance score ────────────────────────────────────────
+  describe('GET /api/compliance/score/:projectId', () => {
+    beforeEach(async () => {
+      await seedChecklist();
+      await ComplianceChecklist.create({
+        projectId,
+        checklistName: 'Environmental Checklist',
+        category: ComplianceCategory.ENVIRONMENTAL,
+        items: [
+          { itemId: 'env-1', itemName: 'Waste disposal plan', isCompleted: true },
+          { itemId: 'env-2', itemName: 'Noise monitoring', isCompleted: true },
+        ],
+      });
+    });
+
+    it('should return aggregated compliance score across all checklists', async () => {
+      const response = await request(app)
+        .get(`/api/compliance/score/${projectId}`)
+        .set('Authorization', `Bearer ${pmToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.totalChecklists).toBe(2);
+      expect(response.body.data.overallScore).toBeGreaterThanOrEqual(0);
+      expect(response.body.data.breakdown).toBeInstanceOf(Array);
+      expect(response.body.data.breakdown.length).toBe(2);
+    });
+
+    it('should return zero score for project with no checklists', async () => {
+      const emptyProj = await Project.create({
+        projectName: 'Empty Project',
+        location: { address: '0 Empty St' },
+        startDate: new Date(),
+        endDate: new Date(),
+        budget: 1000,
+        projectManager: pmId,
+        createdBy: adminId,
+      });
+
+      const response = await request(app)
+        .get(`/api/compliance/score/${emptyProj._id}`)
+        .set('Authorization', `Bearer ${pmToken}`)
+        .expect(200);
+
+      expect(response.body.data.overallScore).toBe(0);
+      expect(response.body.data.totalChecklists).toBe(0);
+    });
+  });
 });

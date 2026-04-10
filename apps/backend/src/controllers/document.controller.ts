@@ -3,6 +3,7 @@ import fs from 'fs';
 import mongoose from 'mongoose';
 import DocumentModel, { DocumentStatus, AccessAction } from '../models/Document';
 import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinary';
+import logger from '../utils/logger';
 
 export const uploadDocument = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -104,8 +105,8 @@ export const getDocuments = async (req: Request, res: Response): Promise<void> =
     const [documents, total] = await Promise.all([
       DocumentModel.find(filter)
         .select('-accessLog -previousVersions')
-        .populate('uploadedBy', 'name email')
-        .populate('approvedBy', 'name email')
+        .populate('uploadedBy', 'fullName email')
+        .populate('approvedBy', 'fullName email')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limitNum),
@@ -140,9 +141,9 @@ export const getDocumentById = async (req: Request, res: Response): Promise<void
     }
 
     const document = await DocumentModel.findById(id)
-      .populate('uploadedBy', 'name email')
-      .populate('approvedBy', 'name email')
-      .populate('accessLog.userId', 'name email');
+      .populate('uploadedBy', 'fullName email')
+      .populate('approvedBy', 'fullName email')
+      .populate('accessLog.userId', 'fullName email');
 
     if (!document) {
       res.status(404).json({ success: false, error: 'Document not found' });
@@ -196,8 +197,8 @@ export const updateDocument = async (req: Request, res: Response): Promise<void>
       { $set: updates },
       { new: true, runValidators: true }
     )
-      .populate('uploadedBy', 'name email')
-      .populate('approvedBy', 'name email');
+      .populate('uploadedBy', 'fullName email')
+      .populate('approvedBy', 'fullName email');
 
     if (!document) {
       res.status(404).json({ success: false, error: 'Document not found' });
@@ -270,8 +271,8 @@ export const approveDocument = async (req: Request, res: Response): Promise<void
     document.rejectionReason = undefined;
     await document.save();
 
-    await document.populate('uploadedBy', 'name email');
-    await document.populate('approvedBy', 'name email');
+    await document.populate('uploadedBy', 'fullName email');
+    await document.populate('approvedBy', 'fullName email');
 
     res.status(200).json({ success: true, data: document });
   } catch (error: unknown) {
@@ -315,7 +316,7 @@ export const rejectDocument = async (req: Request, res: Response): Promise<void>
     document.approvalDate = undefined;
     await document.save();
 
-    await document.populate('uploadedBy', 'name email');
+    await document.populate('uploadedBy', 'fullName email');
 
     res.status(200).json({ success: true, data: document });
   } catch (error: unknown) {
@@ -357,7 +358,7 @@ export const createNewVersion = async (req: Request, res: Response): Promise<voi
     document.fileName = req.file.originalname;
     await document.save();
 
-    await document.populate('uploadedBy', 'name email');
+    await document.populate('uploadedBy', 'fullName email');
 
     res.status(200).json({ success: true, data: document });
   } catch (error: unknown) {
@@ -380,7 +381,7 @@ export const downloadDocument = async (req: Request, res: Response): Promise<voi
 
     const document = await DocumentModel.findById(id).select('fileUrl fileName cloudinaryId');
 
-    console.log(`Download request for document ID: ${id} by user ID: ${req.user!.userId}`);
+    logger.info(`Download request for document ID: ${id} by user ID: ${req.user!.userId}`);
 
     if (!document) {
       res.status(404).json({ success: false, error: 'Document not found' });
@@ -392,7 +393,151 @@ export const downloadDocument = async (req: Request, res: Response): Promise<voi
     DocumentModel.updateOne(
       { _id: id },
       { $push: { accessLog: { userId: req.user!.userId, action: AccessAction.DOWNLOAD, timestamp: new Date() } } }
-    ).catch((err: unknown) => console.error('Failed to log download access:', err));
+    ).catch((err: unknown) => logger.error('Failed to log download access', { err }));
+  } catch (error: unknown) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Server error',
+    });
+  }
+};
+
+// ─── T-11: Document search ────────────────────────────────────────────────────
+
+export const searchDocuments = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const {
+      q,
+      projectId,
+      documentType,
+      status,
+      page = '1',
+      limit = '10',
+    } = req.query;
+
+    const filter: Record<string, unknown> = {};
+
+    if (q && typeof q === 'string' && q.trim()) {
+      filter.$or = [
+        { title: { $regex: q.trim(), $options: 'i' } },
+        { description: { $regex: q.trim(), $options: 'i' } },
+        { tags: { $regex: q.trim(), $options: 'i' } },
+      ];
+    }
+
+    if (projectId) {
+      if (!mongoose.Types.ObjectId.isValid(projectId as string)) {
+        res.status(400).json({ success: false, error: 'Invalid projectId format' });
+        return;
+      }
+      filter.projectId = projectId;
+    }
+    if (documentType) filter.documentType = documentType;
+    if (status) filter.status = status;
+
+    const pageNum = Math.max(1, parseInt(page as string, 10));
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit as string, 10)));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [documents, total] = await Promise.all([
+      DocumentModel.find(filter)
+        .select('-accessLog -previousVersions')
+        .populate('uploadedBy', 'fullName email')
+        .populate('approvedBy', 'fullName email')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum),
+      DocumentModel.countDocuments(filter),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: documents,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        pages: Math.ceil(total / limitNum),
+      },
+    });
+  } catch (error: unknown) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Server error',
+    });
+  }
+};
+
+// ─── T-12: Document status update ────────────────────────────────────────────
+
+const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+  [DocumentStatus.DRAFT]: [DocumentStatus.UNDER_REVIEW],
+  [DocumentStatus.UNDER_REVIEW]: [DocumentStatus.APPROVED, DocumentStatus.REJECTED],
+  [DocumentStatus.REJECTED]: [DocumentStatus.UNDER_REVIEW],
+};
+
+export const updateDocumentStatus = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { status, rejectionReason } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(400).json({ success: false, error: 'Invalid document ID format' });
+      return;
+    }
+
+    if (!status) {
+      res.status(400).json({ success: false, error: 'status is required' });
+      return;
+    }
+
+    const document = await DocumentModel.findById(id);
+    if (!document) {
+      res.status(404).json({ success: false, error: 'Document not found' });
+      return;
+    }
+
+    const allowed = ALLOWED_TRANSITIONS[document.status] ?? [];
+    if (!allowed.includes(status)) {
+      res.status(400).json({
+        success: false,
+        error: `Cannot transition from '${document.status}' to '${status}'. Allowed: ${allowed.join(', ') || 'none'}`,
+      });
+      return;
+    }
+
+    // Role check: only ADMIN/INSPECTOR may approve or reject
+    const userRole = req.user!.role;
+    if (
+      (status === DocumentStatus.APPROVED || status === DocumentStatus.REJECTED) &&
+      userRole !== 'ADMIN' &&
+      userRole !== 'INSPECTOR'
+    ) {
+      res.status(403).json({ success: false, error: 'Only ADMIN or INSPECTOR can approve or reject documents' });
+      return;
+    }
+
+    document.status = status as DocumentStatus;
+
+    if (status === DocumentStatus.APPROVED) {
+      document.approvedBy = new mongoose.Types.ObjectId(req.user!.userId);
+      document.approvalDate = new Date();
+      document.rejectionReason = undefined;
+    } else if (status === DocumentStatus.REJECTED) {
+      if (!rejectionReason) {
+        res.status(400).json({ success: false, error: 'rejectionReason is required when rejecting' });
+        return;
+      }
+      document.rejectionReason = rejectionReason;
+      document.approvedBy = undefined;
+      document.approvalDate = undefined;
+    }
+
+    await document.save();
+    await document.populate('uploadedBy', 'fullName email');
+    await document.populate('approvedBy', 'fullName email');
+
+    res.status(200).json({ success: true, data: document });
   } catch (error: unknown) {
     res.status(500).json({
       success: false,

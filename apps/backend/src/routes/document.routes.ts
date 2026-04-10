@@ -9,6 +9,8 @@ import {
   rejectDocument,
   createNewVersion,
   downloadDocument,
+  searchDocuments,
+  updateDocumentStatus,
 } from '../controllers/document.controller';
 import { authenticate, requireDataEntry, authorize, checkOwnership } from '../middleware';
 import { UserRole } from '../types';
@@ -20,6 +22,9 @@ const router = Router();
 router.post('/', authenticate, requireDataEntry(), upload.single('file'), uploadDocument);
 
 router.get('/', authenticate, getDocuments);
+
+// T-11: Search — must be before /:id to avoid "search" being treated as an ID
+router.get('/search', authenticate, searchDocuments);
 
 router.get('/:id', authenticate, getDocumentById);
 
@@ -49,5 +54,8 @@ router.put(
 router.post('/:id/version', authenticate, requireDataEntry(), upload.single('file'), createNewVersion);
 
 router.get('/:id/download', authenticate, downloadDocument);
+
+// T-12: Status update with transition validation
+router.put('/:id/status', authenticate, updateDocumentStatus);
 
 export default router;

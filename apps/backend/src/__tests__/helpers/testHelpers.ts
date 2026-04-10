@@ -21,8 +21,8 @@ export const createTestUser = async (overrides: Partial<IUser> = {}): Promise<IU
 /**
  * Generate authentication token for testing
  */
-export const getAuthToken = (userId: string, email: string, role: UserRole): string => {
-  return generateToken({ userId, email, role });
+export const getAuthToken = (userId: string, email: string, role: UserRole, supplierId?: string): string => {
+  return generateToken({ userId, email, role, supplierId });
 };
 
 /**

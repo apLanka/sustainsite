@@ -3,6 +3,9 @@ import Material, { MaterialStatus } from '../models/Material';
 import Equipment, { EquipmentStatus, MaintenanceType, IMaintenanceRecord } from '../models/Equipment';
 import Supplier from '../models/Supplier';
 import Project from '../models/Project';
+import User from '../models/User';
+import { sendEmail, emailTemplates } from '../config/email';
+import logger from '../utils/logger';
 
 export const createMaterial = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -41,6 +44,29 @@ export const createMaterial = async (req: Request, res: Response): Promise<void>
       createdBy: req.user?.userId,
     });
 
+    // Email supplier with purchase order details
+    if (process.env.SENDGRID_API_KEY) {
+      try {
+        const supplierDoc = await Supplier.findById(supplier).select('email companyName');
+        const projectDoc = await Project.findById(projectId).select('projectName');
+        if (supplierDoc?.email && projectDoc) {
+          await sendEmail({
+            to: supplierDoc.email,
+            subject: `New Purchase Order: ${materialName}`,
+            html: emailTemplates.purchaseOrder(
+              materialName,
+              quantity,
+              unit,
+              projectDoc.projectName,
+              expectedDeliveryDate ? new Date(expectedDeliveryDate).toDateString() : 'TBD'
+            ),
+          });
+        }
+      } catch (emailErr) {
+        logger.warn('Purchase order email failed', { emailErr });
+      }
+    }
+
     res.status(201).json({
       success: true,
       data: material,
@@ -63,6 +89,22 @@ export const getMaterials = async (req: Request, res: Response): Promise<void> =
     if (category) filter.category = category;
     if (status) filter.status = status;
     if (supplier) filter.supplier = supplier;
+
+    // SUPPLIER role: scope to materials linked to their own supplier record
+    // Linking rule: user.supplierId must match the material's supplier field
+    if (req.user?.role === 'SUPPLIER') {
+      if (req.user.supplierId) {
+        filter.supplier = req.user.supplierId;
+      } else {
+        // No supplierId linked — return empty list rather than exposing all materials
+        res.status(200).json({
+          success: true,
+          data: [],
+          pagination: { page: Number(page), limit: Number(limit), total: 0, pages: 0 },
+        });
+        return;
+      }
+    }
 
     const skip = (Number(page) - 1) * Number(limit);
 
@@ -247,6 +289,30 @@ export const recordMaterialUsage = async (req: Request, res: Response): Promise<
     }
 
     await material.save();
+
+    // Low stock alert email to project manager
+    if (process.env.SENDGRID_API_KEY && material.currentStock < material.minimumThreshold) {
+      try {
+        const project = await Project.findById(material.projectId).select('projectManager projectName');
+        if (project?.projectManager) {
+          const manager = await User.findById(project.projectManager).select('email fullName');
+          if (manager?.email) {
+            await sendEmail({
+              to: manager.email,
+              subject: `Low Stock Alert: ${material.materialName}`,
+              html: emailTemplates.lowStockAlert(
+                material.materialName,
+                material.currentStock,
+                material.minimumThreshold,
+                material.unit
+              ),
+            });
+          }
+        }
+      } catch (emailErr) {
+        logger.warn('Low stock email failed', { emailErr });
+      }
+    }
 
     res.status(200).json({
       success: true,

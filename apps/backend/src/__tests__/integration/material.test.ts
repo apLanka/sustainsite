@@ -365,4 +365,85 @@ describe('Material Management API', () => {
       expect(response.body.data.materialCount).toBe(2);
     });
   });
+
+  // ─── T-18: SUPPLIER-scoped material access ─────────────────────────────────
+  describe('GET /api/materials — SUPPLIER role scoping', () => {
+    let supplierUserId: string;
+    let otherSupplierId: string;
+
+    beforeEach(async () => {
+      // Create a second supplier
+      const otherSup = await Supplier.create({
+        companyName: 'Other Supplier Co',
+        contactPerson: 'Jane Smith',
+        email: 'other@test.com',
+        phoneNumber: '+94779999999',
+        materialsSupplied: ['Timber'],
+      });
+      otherSupplierId = otherSup._id.toString();
+
+      // Create a supplier user linked to supplierId
+      const supplierUser = await createTestUser({
+        email: 'scoped-supplier@test.com',
+        role: UserRole.SUPPLIER,
+      });
+      supplierUserId = supplierUser._id.toString();
+      // Link supplierId on the user record
+      await supplierUser.updateOne({ supplierId });
+
+      // Create materials: one for each supplier
+      await Material.create([
+        {
+          materialName: 'Cement Bags',
+          category: 'Cement',
+          quantity: 100,
+          unit: 'bags',
+          unitPrice: 500,
+          projectId,
+          supplier: supplierId,
+          status: 'In Stock',
+          orderDate: new Date(),
+          expectedDeliveryDate: new Date(),
+          createdBy: pmId,
+        },
+        {
+          materialName: 'Timber Planks',
+          category: 'Wood',
+          quantity: 50,
+          unit: 'planks',
+          unitPrice: 300,
+          projectId,
+          supplier: otherSupplierId,
+          status: 'In Stock',
+          orderDate: new Date(),
+          expectedDeliveryDate: new Date(),
+          createdBy: pmId,
+        },
+      ]);
+    });
+
+    it('should return only materials linked to the SUPPLIER user\'s supplierId', async () => {
+      const scopedToken = getAuthToken(supplierUserId, 'scoped-supplier@test.com', UserRole.SUPPLIER, supplierId);
+
+      const response = await request(app)
+        .get('/api/materials')
+        .set('Authorization', `Bearer ${scopedToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.length).toBe(1);
+      expect(response.body.data[0].materialName).toBe('Cement Bags');
+    });
+
+    it('should return empty list for SUPPLIER with no supplierId linked', async () => {
+      // supplierToken has no supplierId in JWT
+      const response = await request(app)
+        .get('/api/materials')
+        .set('Authorization', `Bearer ${supplierToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.length).toBe(0);
+    });
+  });
 });

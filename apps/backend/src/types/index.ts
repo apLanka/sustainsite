@@ -86,6 +86,7 @@ export interface JWTPayload {
   userId: string;
   email: string;
   role: UserRole;
+  supplierId?: string;
 }
 
 export interface ApiResponse<T = any> {
