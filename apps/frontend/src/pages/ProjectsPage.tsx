@@ -2,8 +2,12 @@ import { Link } from 'react-router-dom';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import ProjectFilters from '@/components/projects/ProjectFilters';
 import ProjectsGrid from '@/components/projects/ProjectsGrid';
+import { useProjectStore } from '@/store';
 
 export default function ProjectsPage() {
+  const pagination = useProjectStore((s) => s.pagination);
+  const total = pagination?.total ?? 0;
+
   return (
     <DashboardLayout>
       {/* Header Section */}
@@ -13,7 +17,7 @@ export default function ProjectsPage() {
           <h2 className="text-4xl font-extrabold text-primary tracking-tighter leading-tight font-headline">Project Inventory</h2>
           <div className="flex items-center gap-2 mt-2 text-slate-500 text-sm font-medium">
             <span className="material-symbols-outlined text-sm">architecture</span>
-            <span>Managing 14 Sustainable Infrastructure Projects</span>
+            <span>Managing {total} Sustainable Infrastructure {total === 1 ? 'Project' : 'Projects'}</span>
           </div>
         </div>
 
