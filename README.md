@@ -156,14 +156,14 @@ CLOUDINARY_API_SECRET=your_api_secret
 SENDGRID_API_KEY=your_sendgrid_api_key
 FROM_EMAIL=noreply@sustainsite.com
 
-# Google Maps API
-GOOGLE_MAPS_API_KEY=your_google_maps_api_key
-
 # Carbon Interface API (Optional)
 CARBON_INTERFACE_API_KEY=your_carbon_api_key
 
 # CORS
 FRONTEND_URL=http://localhost:3000
+
+# Logging (optional — default: info)
+LOG_LEVEL=info
 ```
 
 ### 4. Set Up MongoDB Atlas
@@ -185,13 +185,6 @@ FRONTEND_URL=http://localhost:3000
 1. Sign up at [SendGrid](https://sendgrid.com/)
 2. Create an API key
 3. Update `SENDGRID_API_KEY` in `.env`
-
-#### Google Maps API
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project
-3. Enable Geocoding API and Maps JavaScript API
-4. Create an API key
-5. Update `GOOGLE_MAPS_API_KEY` in `.env`
 
 ### 6. Run the Application
 
@@ -1514,9 +1507,19 @@ On the free tier, Render spins down the service after 15 minutes of inactivity. 
 
 ## 📖 Additional Resources
 
+### Submission Documents
+
+| Document | Description |
+|----------|-------------|
+| [README.md](../README.md) | This file — Setup instructions, API documentation, deployment guide |
+| [Deployment Report](./docs/DEPLOYMENT.md) | Formal deployment report: architecture, step-by-step Render + Vercel setup, env vars, post-deploy verification |
+| [Testing Instruction Report](./docs/TESTING.md) | How to run unit, integration, and performance tests; environment configuration |
+| [Test Report](./docs/TEST_REPORT.md) | Full test results — 268/268 tests passing, coverage table, k6 performance results |
+
+### Developer References
+
 - [Project Specification](./docs/project-spec.md) - Complete technical specification
 - [Backend Tasks Checklist](./docs/BACKEND_TASKS.md) - Phase 1 & 2 completion tracker
-- [Testing Guide](./docs/TESTING.md) - How to run unit, integration, and performance tests
 - [Swagger UI](http://localhost:5000/api-docs) - Interactive API documentation (when server is running)
 - [Express.js Documentation](https://expressjs.com/)
 - [React Documentation](https://react.dev/)

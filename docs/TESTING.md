@@ -1,7 +1,9 @@
-# Testing Guide — SustainSite
+# Testing Instruction Report — SustainSite
 
 > **SE3040 – Application Frameworks**  
 > This document covers unit tests, integration tests, and performance (k6) tests for the backend API.
+
+**Related documents:** [README / Setup & API Docs](../README.md) · [Deployment Report](./DEPLOYMENT.md) · [Test Report](./TEST_REPORT.md)
 
 ---
 
@@ -14,6 +16,8 @@
 5. [Performance Tests (k6)](#performance-tests-k6)
 6. [Test Coverage](#test-coverage)
 7. [CI Mode](#ci-mode)
+8. [Testing Environment Configuration](#testing-environment-configuration)
+9. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -240,6 +244,103 @@ This runs `jest --ci --coverage --maxWorkers=2` — suitable for resource-constr
 
 ---
 
+## Testing Environment Configuration
+
+This section documents the full configuration of the test environment so that results can be reproduced.
+
+### Node.js & Runtime
+
+| Property | Value |
+|----------|-------|
+| Node.js version | ≥ 18.x (tested on 18.20 LTS) |
+| npm version | ≥ 9.x |
+| TypeScript | 5.x (compiled via `ts-jest`) |
+| OS | macOS 15 / Ubuntu 22.04 (CI) |
+
+### Test Framework Versions
+
+| Package | Version | Role |
+|---------|---------|------|
+| `jest` | 30.x | Test runner |
+| `ts-jest` | 29.x | TypeScript transformer for Jest |
+| `supertest` | 7.x | HTTP assertion library |
+| `mongodb-memory-server` | 10.x | In-memory MongoDB for tests |
+| `k6` | latest | Performance / load testing |
+
+### Jest Configuration (`jest.config.ts`)
+
+```ts
+export default {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  roots: ['<rootDir>/src/__tests__'],
+  testMatch: ['**/*.test.ts'],
+  setupFilesAfterFramework: ['<rootDir>/src/__tests__/setup.ts'],
+  collectCoverageFrom: ['src/**/*.ts', '!src/__tests__/**'],
+  coverageReporters: ['text', 'lcov', 'html'],
+};
+```
+
+### Test Database
+
+| Property | Value |
+|----------|-------|
+| Engine | `mongodb-memory-server` (MongoMemoryServer) |
+| MongoDB version | 7.x (downloaded automatically) |
+| Lifecycle | Started in `beforeAll`, stopped in `afterAll` per suite |
+| Isolation | Each suite clears all collections in `beforeEach` |
+| External DB required | **No** |
+
+The test setup file (`src/__tests__/setup.ts`) handles:
+- Starting the in-memory MongoDB server
+- Connecting Mongoose to the in-memory URI
+- Dropping all collections between tests
+- Disconnecting and stopping the server after all tests
+
+### Environment Variables for Tests
+
+No `.env` file is required. The following variables are set automatically by the test setup:
+
+| Variable | Value in tests | Source |
+|----------|---------------|--------|
+| `NODE_ENV` | `test` | Jest config / `setup.ts` |
+| `MONGODB_URI` | In-memory URI | `mongodb-memory-server` |
+| `JWT_SECRET` | `test-secret-key` | `setup.ts` |
+| `JWT_EXPIRE` | `1h` | `setup.ts` |
+| `CLOUDINARY_*` | Mocked | `jest.mock()` in each suite |
+| `SENDGRID_API_KEY` | Mocked | `jest.mock()` in each suite |
+
+### Rate Limiting in Tests
+
+`express-rate-limit` is automatically disabled when `NODE_ENV === 'test'`:
+
+```ts
+// apps/backend/src/app.ts
+max: process.env.NODE_ENV === 'test' ? 10000 : 100,
+```
+
+This prevents `429 Too Many Requests` errors during test runs.
+
+### Mocked External Services
+
+The following third-party services are mocked in all integration tests:
+
+| Service | Mock strategy |
+|---------|--------------|
+| Cloudinary | `jest.mock('@cloudinary/url-gen')` + mock `uploader.upload` |
+| SendGrid | `jest.mock('@sendgrid/mail')` — `sgMail.send` returns `Promise.resolve()` |
+
+### Performance Test Environment (k6)
+
+| Property | Value |
+|----------|-------|
+| Target server | Local dev server (`http://localhost:5000`) or Render (`BASE_URL` env var) |
+| Database | Real MongoDB Atlas (not in-memory) |
+| Auth | k6 scripts auto-register test users on first run |
+| Rate limiting | Must be disabled or accounted for in k6 scripts |
+
+---
+
 ## Troubleshooting
 
 | Problem | Fix |
@@ -249,3 +350,5 @@ This runs `jest --ci --coverage --maxWorkers=2` — suitable for resource-constr
 | `429 Too Many Requests` in tests | Rate limiting is auto-disabled when `NODE_ENV=test` |
 | k6 `connection refused` | Make sure `npm run dev` is running before k6 tests |
 | k6 `401 Unauthorized` | The k6 config auto-registers test users — check server logs |
+| `Cannot find module 'ts-jest'` | Run `npm install` inside `apps/backend` |
+| Coverage report not generated | Use `npm test` (not `npx jest`) — the npm script includes `--coverage` |

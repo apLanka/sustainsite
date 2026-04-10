@@ -287,6 +287,7 @@ All calls guarded: if `SENDGRID_API_KEY` is missing, log a warning and skip — 
 - [x] Integration testing setup and execution — `docs/TESTING.md` created.
 - [x] Performance testing: how to run k6 scripts (`npm run perf:smoke`, `npm run perf:load`, etc.).
 - [x] Testing environment configuration (env vars, in-memory MongoDB, etc.).
+- [x] Full test evidence report — `docs/TEST_REPORT.md` created (268/268 tests passing).
 
 ---
 
