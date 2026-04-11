@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=https://schema.buildwithfern.dev/docs-yml.json
+
+instances:
+  - url: sustain-site-api.docs.buildwithfern.com
+
+title: SustainSite — SE3040 Documentation
+
+layout:
+  searchbar-placement: header
+  page-width: full
+
+navigation:
+  - section: Overview
+    contents:
+      - page: Welcome
+        path: docs/pages/welcome.mdx
+  - section: SE3040 assignment
+    contents:
+      - page: Specification & deliverables
+        path: docs/pages/se3040/assignment-specification.mdx
+  - section: Reports & testing
+    contents:
+      - page: Deployment report
+        path: docs/pages/se3040/deployment-report.mdx
+      - page: Testing instructions
+        path: docs/pages/se3040/testing-instructions.mdx
+      - page: Test report
+        path: docs/pages/se3040/test-report.mdx
+      - page: API overview & endpoints
+        path: docs/pages/se3040/api-overview.mdx
+  - api: SustainSite API
+
+navbar-links:
+  - type: github
+    value: https://github.com/apLanka/sustainsite
+
+colors:
+  accent-primary:
+    dark: "#34d399"
+    light: "#047857"
+  background:
+    dark: "#0f172a"
+    light: "#ffffff"
+
+logo:
+  light: docs/assets/logo-placeholder.svg
+  dark: docs/assets/logo-placeholder.svg
+  height: 28
+  href: https://github.com/apLanka/sustainsite
+
+favicon: docs/assets/favicon-placeholder.svg

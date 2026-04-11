@@ -1,0 +1,54 @@
+---
+title: API overview & endpoints
+subtitle: REST map, Swagger UI, Postman, and OpenAPI export
+---
+
+## Base URL
+
+- **Published docs (this assignment):** [https://sustain-site-api.docs.buildwithfern.com/](https://sustain-site-api.docs.buildwithfern.com/)
+- **Local API:** `http://localhost:5000`
+- **Production API:** set by your deployment (e.g. Render) — details under **Deployment report** in the sidebar.
+
+Most REST routes live under **`/api`**. JWT is sent as `Authorization: Bearer <token>` unless the route is public (e.g. register/login).
+
+## Route prefixes (Express)
+
+| Area | Base path | Notes |
+|------|-----------|--------|
+| Health | `GET /health` | Liveness / platform checks |
+| API index | `GET /api` | JSON index of major route groups |
+| Auth | `/api/auth` | Register, login, profile, password |
+| Projects | `/api/projects` | CRUD, milestones, timeline, financial summary |
+| Sustainability | `/api/sustainability` | Metrics, scores, trends |
+| Documents | `/api/documents` | Upload, versioning, approval workflow |
+| Compliance | `/api/compliance` | Checklists, inspections, project score |
+| Safety | `/api/safety` | Aggregated safety / high-risk inspections |
+| Resources (materials) | `/api/resources/materials` | Also mounted at `/api/materials` |
+| Resources (equipment) | `/api/resources/equipment` | Also mounted at `/api/equipment` |
+| Resources (suppliers) | `/api/resources/suppliers` | Also mounted at `/api/suppliers` |
+| Users (admin) | `/api/users` | Role-guarded user management |
+
+Stricter rate limits apply to **`/api/auth/login`** and **`/api/auth/register`** (see backend `app.ts`).
+
+## Interactive API (Swagger UI)
+
+When the backend is running and Swagger is enabled (`DISABLE_SWAGGER` not `true`):
+
+- **Swagger UI:** `{BASE_URL}/api-docs`
+
+Use this for interactive try-it-out documentation. OpenAPI **paths** are maintained in **`apps/backend/src/config/openapi.paths.ts`** (merged in `swagger.ts`). After you add or change routes, update that file and regenerate:
+
+```bash
+npm run docs:export-openapi
+```
+
+## Postman
+
+Import the collection from the repository:
+
+- File: **`docs/SustainSite.postman_collection.json`**
+- Raw on GitHub: `https://github.com/apLanka/sustainsite/blob/main/docs/SustainSite.postman_collection.json`
+
+## Fern OpenAPI reference
+
+The sidebar **SustainSite API** is generated from **`fern/openapi/openapi.json`** (OpenAPI 3), including **all documented REST paths**, tags, security (Bearer JWT), shared parameters, and request schemas for auth.

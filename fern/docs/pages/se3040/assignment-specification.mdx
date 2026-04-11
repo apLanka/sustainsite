@@ -1,0 +1,35 @@
+---
+title: Specification & deliverables
+subtitle: SE3040 — official brief and submission checklist
+---
+
+**Published site:** [https://sustain-site-api.docs.buildwithfern.com/](https://sustain-site-api.docs.buildwithfern.com/)
+
+## Official assignment specification (PDF)
+
+The module brief and marking criteria are in the PDF below (same file as `docs/SE3040 - Assignment Specification (2).pdf` in the repo).
+
+[Download / open the assignment specification (PDF)](./assets/se3040-assignment-specification.pdf)
+
+## Submission documents (this Fern site)
+
+These pages satisfy typical SE3040 submission expectations and are linked from the sidebar:
+
+1. **API documentation** — use **API overview & endpoints** and **SustainSite API** in the sidebar (route map + OpenAPI from `fern/openapi/openapi.json`). *Paths are maintained in `apps/backend/src/config/openapi.paths.ts`; regenerate with `npm run docs:export-openapi`.*
+2. **Deployment report** — sidebar: *Reports & testing → Deployment report*.
+3. **Testing instruction report** — sidebar: *Reports & testing → Testing instructions*.
+4. **Test report** — sidebar: *Reports & testing → Test report*.
+
+## Source of truth in Git
+
+| Artifact | Repository path |
+|----------|------------------|
+| Assignment PDF | `docs/SE3040 - Assignment Specification (2).pdf` |
+| Deployment | `docs/DEPLOYMENT.md` |
+| Testing instructions | `docs/TESTING.md` |
+| Test report | `docs/TEST_REPORT.md` |
+| Postman collection | `docs/SustainSite.postman_collection.json` |
+| OpenAPI export script | `apps/backend/scripts/export-openapi-for-fern.ts` |
+| OpenAPI JSON | `fern/openapi/openapi.json` |
+
+Keep Fern pages in sync when you edit the `docs/` markdown: re-run the shell step in `fern/README.md` or copy content manually.
