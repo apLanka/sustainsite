@@ -5,7 +5,17 @@ import {resourcesApi} from '@/lib/api';
 import { canAdminDeleteResource, canManageInventory } from '@/lib/rbac';
 import type {CreateSupplierPayload, Supplier, UpdateSupplierPayload} from '@/types/resources';
 
-type FilterState = { preferred: boolean; certified: boolean; material: string };
+type FilterState = { certified: boolean; material: string };
+
+const emptyCreateSupplierForm = (): Partial<CreateSupplierPayload> => ({
+  companyName: '',
+  contactPerson: '',
+  email: '',
+  phoneNumber: '',
+  address: {},
+  materialsSupplied: [],
+  isSustainabilityCertified: false,
+});
 
 export default function SupplierDirectory() {
   const { user } = useAuth();
@@ -16,10 +26,7 @@ export default function SupplierDirectory() {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [form, setForm] = useState<Partial<CreateSupplierPayload>>({
-    companyName: '', contactPerson: '', email: '', phoneNumber: '',
-    address: {}, materialsSupplied: [], isSustainabilityCertified: false,
-  });
+  const [form, setForm] = useState<Partial<CreateSupplierPayload>>(emptyCreateSupplierForm);
   const [materialsInput, setMaterialsInput] = useState('');
 
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
@@ -29,7 +36,7 @@ export default function SupplierDirectory() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState<FilterState>({ preferred: false, certified: false, material: '' });
+  const [filters, setFilters] = useState<FilterState>({ certified: false, material: '' });
 
   useEffect(() => {
     resourcesApi.getSuppliers()
@@ -39,7 +46,6 @@ export default function SupplierDirectory() {
   }, []);
 
   const filteredSuppliers = suppliers.filter(s => {
-    if (filters.preferred && !s.isPreferred) return false;
     if (filters.certified && !s.isSustainabilityCertified) return false;
     if (filters.material && !s.materialsSupplied.some(m => m.toLowerCase().includes(filters.material.toLowerCase()))) return false;
     return true;
@@ -66,8 +72,7 @@ export default function SupplierDirectory() {
       };
       const res = await resourcesApi.createSupplier(payload);
       setSuppliers(prev => [...prev, res.data]);
-      setShowCreateModal(false);
-      setForm({ companyName: '', contactPerson: '', email: '', phoneNumber: '', address: {}, materialsSupplied: [], isSustainabilityCertified: false });
+      closeCreatePartnerModal();
       toast.success('Partner added');
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ?? 'Failed to add partner';
@@ -84,7 +89,7 @@ export default function SupplierDirectory() {
       email: s.email, phoneNumber: s.phoneNumber,
       materialsSupplied: [...s.materialsSupplied],
       isSustainabilityCertified: s.isSustainabilityCertified,
-      isPreferred: s.isPreferred, isActive: s.isActive,
+      isActive: s.isActive,
     });
   };
 
@@ -101,6 +106,18 @@ export default function SupplierDirectory() {
     } finally {
       setIsEditing(false);
     }
+  };
+
+  const openCreatePartnerModal = () => {
+    setForm(emptyCreateSupplierForm());
+    setMaterialsInput('');
+    setShowCreateModal(true);
+  };
+
+  const closeCreatePartnerModal = () => {
+    setShowCreateModal(false);
+    setForm(emptyCreateSupplierForm());
+    setMaterialsInput('');
   };
 
   const handleDelete = async (id: string) => {
@@ -144,7 +161,7 @@ export default function SupplierDirectory() {
             <span className="material-symbols-outlined text-xl">filter_list</span>
           </button>
           {canMutate && (
-          <button onClick={() => setShowCreateModal(true)} className="bg-primary text-white px-6 py-3 rounded-2xl text-xs font-bold hover:bg-primary-dark transition-all flex items-center gap-2 shadow-lg shadow-primary/10">
+          <button onClick={openCreatePartnerModal} className="bg-primary text-white px-6 py-3 rounded-2xl text-xs font-bold hover:bg-primary-dark transition-all flex items-center gap-2 shadow-lg shadow-primary/10">
             <span className="material-symbols-outlined text-sm">person_add</span> Add Partner
           </button>
           )}
@@ -155,16 +172,12 @@ export default function SupplierDirectory() {
       {showFilters && (
         <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 flex flex-wrap gap-4 items-center">
           <label className="flex items-center gap-2 text-xs font-bold text-slate-600 cursor-pointer">
-            <input type="checkbox" className="w-4 h-4 accent-primary" checked={filters.preferred} onChange={e => setFilters(f => ({...f, preferred: e.target.checked}))} />
-            Preferred Only
-          </label>
-          <label className="flex items-center gap-2 text-xs font-bold text-slate-600 cursor-pointer">
             <input type="checkbox" className="w-4 h-4 accent-primary" checked={filters.certified} onChange={e => setFilters(f => ({...f, certified: e.target.checked}))} />
             Sustainability Certified
           </label>
           <input type="text" placeholder="Filter by material..." className="input-standard h-9 text-xs px-3 min-w-[160px]" value={filters.material} onChange={e => setFilters(f => ({...f, material: e.target.value}))} />
-          {(filters.preferred || filters.certified || filters.material) && (
-            <button onClick={() => setFilters({ preferred: false, certified: false, material: '' })} className="text-xs font-bold text-slate-400 hover:text-primary transition-colors flex items-center gap-1">
+          {(filters.certified || filters.material) && (
+            <button onClick={() => setFilters({ certified: false, material: '' })} className="text-xs font-bold text-slate-400 hover:text-primary transition-colors flex items-center gap-1">
               <span className="material-symbols-outlined text-sm">close</span> Clear
             </button>
           )}
@@ -178,7 +191,7 @@ export default function SupplierDirectory() {
             {suppliers.length === 0 ? 'No partners yet' : 'No partners match the current filters'}
           </p>
           {suppliers.length === 0 && canMutate && (
-            <button onClick={() => setShowCreateModal(true)} className="mt-4 text-xs font-bold text-emerald-600 hover:underline">
+            <button onClick={openCreatePartnerModal} className="mt-4 text-xs font-bold text-emerald-600 hover:underline">
               Add your first partner →
             </button>
           )}
@@ -201,15 +214,6 @@ export default function SupplierDirectory() {
                 <div className="pt-2 min-w-0">
                   <h4 className="text-primary font-black text-2xl tracking-tight mb-1 truncate">{supplier.companyName}</h4>
                   <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest truncate">{supplier.materialsSupplied.join(', ') || '—'}</p>
-                  <div className="flex items-center gap-2 mt-3">
-                    <div className="flex">
-                      {[1,2,3,4,5].map(s => (
-                        <span key={s} className={`material-symbols-outlined text-sm ${s <= Math.floor(supplier.averageRating) ? 'text-amber-400' : 'text-slate-200'}`}>star</span>
-                      ))}
-                    </div>
-                    <span className="text-primary font-black text-xs tabular-nums">{supplier.averageRating.toFixed(1)}</span>
-                    {supplier.isPreferred && <span className="text-[9px] font-black bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full uppercase tracking-widest">Preferred</span>}
-                  </div>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-6 mb-8">
@@ -280,45 +284,52 @@ export default function SupplierDirectory() {
       {/* Create Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-          <div className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm" onClick={() => setShowCreateModal(false)} />
+          <div className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm" onClick={closeCreatePartnerModal} />
           <div className="bg-white rounded-[40px] w-full max-w-lg relative overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
             <div className="bg-primary p-8 text-white">
               <h3 className="text-2xl font-black tracking-tighter leading-none">Add Partner</h3>
               <p className="text-white/40 text-xs font-bold uppercase tracking-widest mt-2">Register new supplier</p>
             </div>
-            <div className="p-10 space-y-5 max-h-[70vh] overflow-y-auto">
+            <form
+              className="p-10 space-y-5 max-h-[70vh] overflow-y-auto"
+              autoComplete="off"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void handleCreate();
+              }}
+            >
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Company Name *</label>
-                <input type="text" placeholder="e.g., BuildRight Supplies" className="input-standard w-full h-12" value={form.companyName || ''} onChange={e => setForm(f => ({...f, companyName: e.target.value}))} />
+                <input name="supplier-company" type="text" placeholder="e.g., BuildRight Supplies" className="input-standard w-full h-12" value={form.companyName || ''} onChange={e => setForm(f => ({...f, companyName: e.target.value}))} />
               </div>
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Contact Person *</label>
-                <input type="text" placeholder="e.g., Kasun Fernando" className="input-standard w-full h-12" value={form.contactPerson || ''} onChange={e => setForm(f => ({...f, contactPerson: e.target.value}))} />
+                <input name="supplier-contact" type="text" placeholder="e.g., Kasun Fernando" className="input-standard w-full h-12" value={form.contactPerson || ''} onChange={e => setForm(f => ({...f, contactPerson: e.target.value}))} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Email *</label>
-                  <input type="email" placeholder="contact@company.lk" className="input-standard w-full h-12" value={form.email || ''} onChange={e => setForm(f => ({...f, email: e.target.value}))} />
+                  <input name="supplier-email-new" type="email" placeholder="e.g., orders@supplier.com" className="input-standard w-full h-12" value={form.email || ''} onChange={e => setForm(f => ({...f, email: e.target.value}))} autoComplete="off" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Phone *</label>
-                  <input type="tel" placeholder="+94 71 234 5678" className="input-standard w-full h-12" value={form.phoneNumber || ''} onChange={e => setForm(f => ({...f, phoneNumber: e.target.value}))} />
+                  <input name="supplier-phone-new" type="tel" placeholder="e.g., +94 77 000 0000" className="input-standard w-full h-12" value={form.phoneNumber || ''} onChange={e => setForm(f => ({...f, phoneNumber: e.target.value}))} autoComplete="off" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">City</label>
-                  <input type="text" placeholder="Colombo" className="input-standard w-full h-12" value={form.address?.city || ''} onChange={e => setForm(f => ({...f, address: {...f.address, city: e.target.value}}))} />
+                  <input name="supplier-city-new" type="text" placeholder="e.g., Colombo" className="input-standard w-full h-12" value={form.address?.city || ''} onChange={e => setForm(f => ({...f, address: {...f.address, city: e.target.value}}))} autoComplete="off" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Country</label>
-                  <input type="text" placeholder="Sri Lanka" className="input-standard w-full h-12" value={form.address?.country || ''} onChange={e => setForm(f => ({...f, address: {...f.address, country: e.target.value}}))} />
+                  <input name="supplier-country-new" type="text" placeholder="e.g., Sri Lanka" className="input-standard w-full h-12" value={form.address?.country || ''} onChange={e => setForm(f => ({...f, address: {...f.address, country: e.target.value}}))} autoComplete="off" />
                 </div>
               </div>
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Materials Supplied</label>
                 <div className="flex gap-2">
-                  <input type="text" placeholder="e.g., Cement, Steel" className="input-standard flex-1 h-12" value={materialsInput} onChange={e => setMaterialsInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddMaterial())} />
+                  <input name="supplier-materials-chips" type="text" placeholder="e.g., Cement, Steel" className="input-standard flex-1 h-12" value={materialsInput} onChange={e => setMaterialsInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddMaterial())} />
                   <button type="button" onClick={handleAddMaterial} className="px-4 h-12 bg-slate-100 text-primary font-bold rounded-xl hover:bg-slate-200 transition-all">Add</button>
                 </div>
                 {(form.materialsSupplied ?? []).length > 0 && (
@@ -337,12 +348,12 @@ export default function SupplierDirectory() {
                 <label htmlFor="isCert" className="text-sm font-medium text-slate-600 cursor-pointer">Sustainability Certified Partner</label>
               </div>
               <div className="flex gap-4 pt-4">
-                <button onClick={() => setShowCreateModal(false)} className="flex-1 py-4 bg-slate-100 text-primary font-bold rounded-2xl hover:bg-slate-200 transition-all cursor-pointer">Cancel</button>
-                <button onClick={handleCreate} disabled={isCreating} className="flex-[2] py-4 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all cursor-pointer disabled:opacity-60">
+                <button type="button" onClick={closeCreatePartnerModal} className="flex-1 py-4 bg-slate-100 text-primary font-bold rounded-2xl hover:bg-slate-200 transition-all cursor-pointer">Cancel</button>
+                <button type="submit" disabled={isCreating} className="flex-[2] py-4 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:brightness-110 active:scale-95 transition-all cursor-pointer disabled:opacity-60">
                   {isCreating ? 'Adding...' : 'Add Partner'}
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       )}
@@ -379,10 +390,6 @@ export default function SupplierDirectory() {
                 <label className="flex items-center gap-2 text-xs font-bold text-slate-600 cursor-pointer">
                   <input type="checkbox" className="w-4 h-4 accent-primary" checked={editForm.isSustainabilityCertified ?? false} onChange={e => setEditForm(f => ({...f, isSustainabilityCertified: e.target.checked}))} />
                   Sustainability Certified
-                </label>
-                <label className="flex items-center gap-2 text-xs font-bold text-slate-600 cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 accent-primary" checked={editForm.isPreferred ?? false} onChange={e => setEditForm(f => ({...f, isPreferred: e.target.checked}))} />
-                  Preferred Partner
                 </label>
                 <label className="flex items-center gap-2 text-xs font-bold text-slate-600 cursor-pointer">
                   <input type="checkbox" className="w-4 h-4 accent-primary" checked={editForm.isActive ?? true} onChange={e => setEditForm(f => ({...f, isActive: e.target.checked}))} />
