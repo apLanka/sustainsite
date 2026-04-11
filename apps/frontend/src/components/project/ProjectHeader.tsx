@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useProjectStore } from '@/store';
 import { projectApi } from '@/lib/api';
 import { ProjectStatus } from '@/types/project';
+import { useAuth } from '@/contexts/AuthContext';
+import { canDeleteProject, canManageProjectSettings } from '@/lib/rbac';
 
 // ─── Status badge config ─────────────────────────────────────────────────────
 
@@ -45,7 +48,12 @@ const TabLink = ({ to, label, icon, end }: { to: string; label: string; icon: st
 const ProjectMenu = () => {
   const { id }                        = useParams();
   const navigate                      = useNavigate();
+  const { user }                      = useAuth();
   const { selectedProject, setSelectedProject, updateProjectInList } = useProjectStore();
+
+  const canStatus                     = canManageProjectSettings(selectedProject, user?.userId);
+  const canDel                        = canDeleteProject(user?.role);
+  const showMenu                      = canStatus || canDel;
 
   const [open, setOpen]               = useState(false);
   const [confirming, setConfirming]   = useState(false);
@@ -73,6 +81,7 @@ const ProjectMenu = () => {
       setSelectedProject(res.data);
       updateProjectInList(id, { status });
     } catch (err) {
+      toast.error('Failed to update project status');
       console.error('Failed to update status:', err);
     } finally {
       setBusy(false);
@@ -88,11 +97,14 @@ const ProjectMenu = () => {
       navigate('/projects');
     } catch (err) {
       console.error('Failed to delete project:', err);
+      toast.error('Failed to delete project');
       setBusy(false);
       setConfirming(false);
       setOpen(false);
     }
   };
+
+  if (!showMenu) return null;
 
   return (
     <div ref={menuRef} className="relative">
@@ -116,7 +128,7 @@ const ProjectMenu = () => {
 
           {!confirming ? (
             <>
-              {/* ── Status section ── */}
+              {canStatus && (
               <div className="px-3 pt-3 pb-1">
                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 px-1 mb-1.5">
                   Set Status
@@ -145,12 +157,14 @@ const ProjectMenu = () => {
                   );
                 })}
               </div>
+              )}
 
-              {/* ── Divider ── */}
+              {canStatus && canDel && (
               <div className="mx-3 my-2 border-t border-slate-50" />
+              )}
 
-              {/* ── Delete ── */}
-              <div className="px-3 pb-3">
+              {canDel && (
+              <div className={`px-3 ${canStatus ? 'pb-3' : 'pt-3 pb-3'}`}>
                 <button
                   type="button"
                   onClick={() => setConfirming(true)}
@@ -160,6 +174,7 @@ const ProjectMenu = () => {
                   Delete Project
                 </button>
               </div>
+              )}
             </>
           ) : (
             /* ── Delete confirmation ── */
@@ -213,6 +228,7 @@ const ProjectHeader = () => {
         setSelectedProject(res.data);
       } catch (err) {
         console.error('ProjectHeader: failed to load project', err);
+        toast.error('Failed to load project details');
       } finally {
         setDetailLoading(false);
       }
@@ -318,11 +334,12 @@ const ProjectHeader = () => {
           </div>
         </div>
 
-        <nav className="flex items-center gap-10">
-          <TabLink to={`/projects/${id}`}               label="Overview"      icon="grid_view"   end />
+        <nav className="flex items-center gap-10 overflow-x-auto">
+          <TabLink to={`/projects/${id}`}               label="Overview"      icon="grid_view"          end />
           <TabLink to={`/projects/${id}/sustainability`} label="Sustainability" icon="eco" />
           <TabLink to={`/projects/${id}/documents`}      label="Documents"     icon="description" />
           <TabLink to={`/projects/${id}/compliance`}     label="Compliance"    icon="fact_check" />
+          <TabLink to={`/projects/${id}/safety`}         label="Safety"        icon="health_and_safety" />
           <TabLink to={`/projects/${id}/resources`}      label="Resources"     icon="inventory_2" />
         </nav>
       </div>

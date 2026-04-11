@@ -156,14 +156,14 @@ CLOUDINARY_API_SECRET=your_api_secret
 SENDGRID_API_KEY=your_sendgrid_api_key
 FROM_EMAIL=noreply@sustainsite.com
 
-# Google Maps API
-GOOGLE_MAPS_API_KEY=your_google_maps_api_key
-
 # Carbon Interface API (Optional)
 CARBON_INTERFACE_API_KEY=your_carbon_api_key
 
 # CORS
 FRONTEND_URL=http://localhost:3000
+
+# Logging (optional — default: info)
+LOG_LEVEL=info
 ```
 
 ### 4. Set Up MongoDB Atlas
@@ -185,13 +185,6 @@ FRONTEND_URL=http://localhost:3000
 1. Sign up at [SendGrid](https://sendgrid.com/)
 2. Create an API key
 3. Update `SENDGRID_API_KEY` in `.env`
-
-#### Google Maps API
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project
-3. Enable Geocoding API and Maps JavaScript API
-4. Create an API key
-5. Update `GOOGLE_MAPS_API_KEY` in `.env`
 
 ### 6. Run the Application
 
@@ -615,13 +608,13 @@ Record new sustainability metrics for a project.
 
 ---
 
-#### Get Sustainability Score
+#### Get Enriched Sustainability Score
 
-**GET** `/api/sustainability/score/:projectId`
+**GET** `/api/sustainability/projects/:projectId/score`
 
-Get current sustainability score and analysis.
+Get current sustainability score with breakdown, trend, benchmark comparison, and recommendations.
 
-**Access:** Protected (All authenticated users)
+**Access:** Protected (project members)
 
 **Response (200):**
 ```json
@@ -629,6 +622,7 @@ Get current sustainability score and analysis.
   "success": true,
   "data": {
     "projectId": "65f8d5e6f7a8b9c0d1e2f3a4",
+    "projectName": "Green Tower",
     "currentScore": 78,
     "scoreCategory": "Green",
     "scoreBreakdown": {
@@ -637,9 +631,14 @@ Get current sustainability score and analysis.
       "wasteManagement": 19,
       "waterConservation": 16
     },
+    "lastUpdated": "2026-02-07T00:00:00.000Z",
     "trend": "improving",
+    "benchmarkComparison": {
+      "industryAverage": 65,
+      "difference": 13
+    },
     "recommendations": [
-      "Increase renewable energy usage to reach 85+ score"
+      "Increase renewable energy usage (solar/wind) to improve energy efficiency score."
     ]
   }
 }
@@ -647,34 +646,75 @@ Get current sustainability score and analysis.
 
 ---
 
-#### Get Sustainability Trends
+#### Get Aggregated Sustainability Trends
 
-**GET** `/api/sustainability/trends/:projectId`
+**GET** `/api/sustainability/projects/:projectId/trends`
 
-Get historical sustainability trends.
+Get time-bucketed sustainability trends using MongoDB aggregation.
 
-**Access:** Protected (All authenticated users)
+**Access:** Protected (project members)
 
 **Query Parameters:**
-- `period` (optional, default: 30): Number of days
-- `interval` (optional, default: weekly): daily, weekly, monthly
+- `period` (number, default: `30`) — look-back window in days
+- `interval` (`daily` | `weekly` | `monthly`, default: `weekly`)
 
 **Response (200):**
 ```json
 {
   "success": true,
   "data": {
+    "projectId": "65f8d5e6f7a8b9c0d1e2f3a4",
+    "period": "30 days",
+    "interval": "weekly",
     "trends": [
       {
-        "week": "2026-W06",
+        "period": "2026-W06",
+        "startDate": "2026-02-03T00:00:00.000Z",
         "sustainabilityScore": 78,
         "carbonEmissions": 5.0,
-        "energyConsumption": 3150
+        "energyConsumption": 3150,
+        "wasteGenerated": 1050,
+        "waterUsage": 15000,
+        "recordCount": 2
       }
     ],
     "summary": {
       "averageScore": 75,
-      "scoreImprovement": 6
+      "scoreImprovement": 6,
+      "totalCarbonRecorded": 15.0,
+      "totalWasteRecorded": 3150
+    }
+  }
+}
+```
+
+---
+
+#### Compare with Industry Benchmarks
+
+**GET** `/api/sustainability/projects/:projectId/compare`
+
+Compare the project's sustainability score against industry averages.
+
+**Access:** Protected (project members)
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "projectId": "65f8d5e6f7a8b9c0d1e2f3a4",
+    "projectName": "Green Tower",
+    "projectScore": 78,
+    "industryAverage": 65,
+    "difference": 13,
+    "percentileBand": "Top 35% (Good)",
+    "areasAboveAverage": ["Carbon emissions", "Waste diversion rate"],
+    "areasBelowAverage": ["Renewable energy usage"],
+    "benchmarks": {
+      "average": 65,
+      "good": 75,
+      "excellent": 85
     }
   }
 }
@@ -1016,6 +1056,163 @@ Add a new supplier.
 
 ---
 
+#### Search Documents
+
+**GET** `/api/documents/search`
+
+Full-text search across document title, description, and tags.
+
+**Access:** Protected (all authenticated users)
+
+**Query Parameters:**
+- `q` — search keyword
+- `projectId` — filter by project
+- `documentType` — `Blueprint` | `Permit` | `Certificate` | `Safety Report` | `Contract` | `Other`
+- `status` — `Draft` | `Under Review` | `Approved` | `Rejected`
+- `page` (default: `1`), `limit` (default: `10`)
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": [{ "title": "Safety Report Alpha", "status": "Approved" }],
+  "pagination": { "total": 1, "page": 1, "limit": 10, "pages": 1 }
+}
+```
+
+---
+
+#### Update Document Status
+
+**PUT** `/api/documents/:id/status`
+
+Transition a document through its approval workflow.
+
+**Access:** Protected — ADMIN/INSPECTOR can approve or reject; PROJECT_MANAGER can submit for review
+
+**Allowed transitions:**
+- `Draft` → `Under Review`
+- `Under Review` → `Approved` or `Rejected`
+- `Rejected` → `Under Review`
+
+**Request Body:**
+```json
+{
+  "status": "Approved",
+  "rejectionReason": "Required only when status is Rejected"
+}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": { "status": "Approved", "approvedBy": { "fullName": "Admin User" } }
+}
+```
+
+---
+
+#### Update Checklist Item
+
+**PUT** `/api/compliance/checklists/:id/items/:itemId`
+
+Update a single checklist item's completion status, notes, or attached documents. Automatically recalculates the parent checklist's `complianceScore`.
+
+**Access:** Protected (ADMIN, PROJECT_MANAGER, INSPECTOR)
+
+**Request Body:**
+```json
+{
+  "isCompleted": true,
+  "notes": "Verified on site 2026-04-10"
+}
+```
+
+**Response (200):** Returns the full updated checklist with recalculated score.
+
+---
+
+#### Get Project Compliance Score
+
+**GET** `/api/compliance/score/:projectId`
+
+Aggregate compliance score across all checklists for a project.
+
+**Access:** Protected (all authenticated users)
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "projectId": "65f8d5e6f7a8b9c0d1e2f3a4",
+    "overallScore": 75,
+    "totalChecklists": 3,
+    "completedChecklists": 1,
+    "totalItems": 12,
+    "completedItems": 9,
+    "breakdown": [
+      { "checklistName": "Safety Standards", "complianceScore": 100, "category": "Safety" }
+    ]
+  }
+}
+```
+
+---
+
+### Safety Inspection Endpoints
+
+| Method | Path | Description | Access |
+|--------|------|-------------|--------|
+| `POST` | `/api/safety/inspection` | Create inspection | ADMIN, INSPECTOR |
+| `GET` | `/api/safety/:projectId` | List inspections for project | All authenticated |
+| `GET` | `/api/safety/inspection/:id` | Get single inspection | All authenticated |
+| `PUT` | `/api/safety/inspection/:id` | Update inspection | ADMIN, INSPECTOR |
+| `DELETE` | `/api/safety/inspection/:id` | Delete inspection | ADMIN |
+| `GET` | `/api/safety/:projectId/high-risk` | Unresolved High/Critical inspections | All authenticated |
+
+#### Get High-Risk Inspections
+
+**GET** `/api/safety/:projectId/high-risk`
+
+Returns all unresolved inspections with `riskLevel` of `High` or `Critical`.
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "count": 2,
+  "data": [
+    {
+      "riskLevel": "High",
+      "findings": "Scaffolding not secured",
+      "isResolved": false,
+      "inspector": { "fullName": "Site Inspector" }
+    }
+  ]
+}
+```
+
+---
+
+### User Management Endpoints (ADMIN only)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/users` | List all users (paginated, filterable) |
+| `GET` | `/api/users/:id` | Get user by ID |
+| `PATCH` | `/api/users/:id` | Update role, isActive, supplierId, assignedProjects |
+| `DELETE` | `/api/users/:id` | Soft-delete (sets `isActive: false`) |
+
+**Query Parameters for `GET /api/users`:**
+- `role` — filter by role
+- `isActive` — `true` | `false`
+- `search` — search by name or email
+- `page`, `limit`
+
+---
+
 ### Error Responses
 
 All endpoints may return the following error responses:
@@ -1189,46 +1386,141 @@ npm run preview
 
 ## 🚀 Deployment
 
-### Backend Deployment (Render/Railway)
+This project deploys the **backend to [Render](https://render.com)** and the **frontend to [Vercel](https://vercel.com)**.
 
-1. Create a new Web Service
+---
+
+### Backend — Render
+
+#### 1. Create a Web Service on Render
+
+1. Go to [render.com](https://render.com) → **New → Web Service**
 2. Connect your GitHub repository
-3. Set build command: `npm install && npm run build -- --filter=backend`
-4. Set start command: `cd apps/backend && npm start`
-5. Add environment variables from `.env`
-6. Deploy
+3. Configure the service:
 
-### Frontend Deployment (Vercel/Netlify)
+| Setting | Value |
+|---|---|
+| **Name** | `sustainsite-api` |
+| **Region** | Singapore (or nearest) |
+| **Branch** | `main` |
+| **Root Directory** | `apps/backend` |
+| **Runtime** | Node |
+| **Build Command** | `npm install && npm run build` |
+| **Start Command** | `npm start` |
+| **Instance Type** | Free (or Starter for production) |
 
-1. Connect your GitHub repository
-2. Set root directory: `apps/frontend`
-3. Build command: `npm run build`
-4. Output directory: `dist`
-5. Add environment variables (API URL)
-6. Deploy
+#### 2. Set Environment Variables on Render
 
-### Environment Variables for Production
+In the Render dashboard → **Environment** tab, add every variable below (no quotes):
 
-Ensure all production environment variables are set:
-- Use strong JWT secrets
-- Update CORS origins to production URLs
-- Use production MongoDB cluster
-- Configure proper API keys for third-party services
+```
+NODE_ENV=production
+PORT=5000
+MONGODB_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/sustainsite?retryWrites=true&w=majority
+JWT_SECRET=<generate with: openssl rand -hex 64>
+JWT_EXPIRE=24h
+CLOUDINARY_CLOUD_NAME=<your cloud name>
+CLOUDINARY_API_KEY=<your api key>
+CLOUDINARY_API_SECRET=<your api secret>
+SENDGRID_API_KEY=SG.<your sendgrid key>
+FROM_EMAIL=noreply@yourdomain.com
+FRONTEND_URL=https://<your-vercel-app>.vercel.app
+LOG_LEVEL=info
+```
+
+> **CORS:** `FRONTEND_URL` must exactly match your Vercel deployment URL (no trailing slash).
+
+#### 3. Health Check
+
+Render will ping `GET /health` automatically. Confirm it returns `200` after deploy.
+
+#### 4. Auto-Deploy
+
+Render auto-deploys on every push to `main`. To disable, turn off **Auto-Deploy** in the service settings.
+
+---
+
+### Frontend — Vercel
+
+#### 1. Import Project on Vercel
+
+1. Go to [vercel.com](https://vercel.com) → **Add New → Project**
+2. Import your GitHub repository
+3. Configure:
+
+| Setting | Value |
+|---|---|
+| **Framework Preset** | Vite |
+| **Root Directory** | `apps/frontend` |
+| **Build Command** | `npm run build` |
+| **Output Directory** | `dist` |
+| **Install Command** | `npm install` |
+
+#### 2. Set Environment Variables on Vercel
+
+In **Settings → Environment Variables**, add:
+
+```
+VITE_API_URL=https://sustainsite-api.onrender.com/api
+```
+
+> Replace the URL with your actual Render service URL. The variable **must** start with `VITE_` to be exposed to the Vite build.
+
+#### 3. Redeploy after adding env vars
+
+Vercel does not automatically rebuild when you add env vars. Go to **Deployments → Redeploy** (without clearing cache).
+
+---
+
+### Production Checklist
+
+Before going live, verify:
+
+- [ ] `JWT_SECRET` is at least 64 random characters (never reuse the dev value)
+- [ ] `MONGODB_URI` points to a MongoDB Atlas **production** cluster with IP allowlist set to `0.0.0.0/0` (or Render's static IP)
+- [ ] `FRONTEND_URL` on Render matches the Vercel deployment URL exactly
+- [ ] `VITE_API_URL` on Vercel matches the Render service URL exactly
+- [ ] Cloudinary upload preset is set to **Signed** in production
+- [ ] SendGrid sender identity is verified
+- [ ] Render health check passes: `GET https://<your-api>.onrender.com/health`
+- [ ] Swagger UI is accessible at `GET https://<your-api>.onrender.com/api-docs` (or set `DISABLE_SWAGGER=true` to hide it)
+
+---
+
+### Render Free Tier — Cold Start Note
+
+On the free tier, Render spins down the service after 15 minutes of inactivity. The first request after a cold start can take **30–60 seconds**. Use the **Starter** plan or set up an uptime monitor (e.g. [UptimeRobot](https://uptimerobot.com)) to keep the service warm.
 
 ## 🔒 Security Features
 
 - **Helmet.js:** Secure HTTP headers
-- **CORS:** Configured cross-origin resource sharing
-- **Rate Limiting:** 100 requests per 15 minutes per IP
-- **JWT Authentication:** Token-based authentication with 24h expiry
+- **CORS:** Configured cross-origin resource sharing; only `FRONTEND_URL` and localhost are allowed
+- **Rate Limiting:** 100 requests / 15 min per IP on all `/api/` routes; stricter **5 requests / 15 min** on `/api/auth/login` and `/api/auth/register`
+- **JWT Authentication:** Token-based authentication with 24h expiry; `supplierId` embedded in token for SUPPLIER scoping
 - **Password Hashing:** bcrypt with salt rounds
 - **Input Validation:** Joi validation for all inputs
-- **File Upload Validation:** Type and size restrictions
+- **File Upload Validation:** Type and size restrictions via Multer
+- **RBAC:** Role-based access control — ADMIN, PROJECT_MANAGER, INSPECTOR, SUPPLIER, VIEWER
+- **SUPPLIER Scoping:** SUPPLIER users can only read materials linked to their own `supplierId`
+- **Soft Delete:** Users are deactivated (`isActive: false`) rather than hard-deleted
+- **Winston Logging:** Structured logs with console output (+ file transport in production)
 
 ## 📖 Additional Resources
 
+### Submission Documents
+
+| Document | Description |
+|----------|-------------|
+| [README.md](../README.md) | This file — Setup instructions, API documentation, deployment guide |
+| [Deployment Report](./docs/DEPLOYMENT.md) | Formal deployment report: architecture, step-by-step Render + Vercel setup, env vars, post-deploy verification |
+| [Testing Instruction Report](./docs/TESTING.md) | How to run unit, integration, and performance tests; environment configuration |
+| [Test Report](./docs/TEST_REPORT.md) | Full test results — 268/268 tests passing, coverage table, k6 performance results |
+
+### Developer References
+
 - [Project Specification](./docs/project-spec.md) - Complete technical specification
-- [Backend Setup Guide](./apps/backend/SETUP.md) - Detailed backend setup
+- [Backend Tasks Checklist](./docs/BACKEND_TASKS.md) - Phase 1 & 2 completion tracker
+- [Swagger UI](http://localhost:5000/api-docs) - Interactive API documentation (when server is running)
 - [Express.js Documentation](https://expressjs.com/)
 - [React Documentation](https://react.dev/)
 - [MongoDB Documentation](https://docs.mongodb.com/)

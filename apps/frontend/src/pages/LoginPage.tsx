@@ -4,6 +4,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import AuthLayout from '@/components/common/AuthLayout';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAuthStore } from '@/store';
+import { loginHomePath } from '@/lib/rbac';
 import { loginSchema, type LoginFormData } from '@/lib/validations/auth';
 
 export default function LoginPage() {
@@ -24,7 +26,8 @@ export default function LoginPage() {
     setServerError(null);
     try {
       await login(data.email, data.password, remember);
-      navigate('/dashboard');
+      const role = useAuthStore.getState().user?.role;
+      navigate(loginHomePath(role), { replace: true });
     } catch (err: unknown) {
       const message =
         (err as { message?: string })?.message ?? 'Invalid email or password. Please try again.';

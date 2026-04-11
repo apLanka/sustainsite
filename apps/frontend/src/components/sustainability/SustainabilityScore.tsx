@@ -1,9 +1,37 @@
 import { motion } from 'framer-motion';
 
-const SustainabilityScore = ({ score = 84 }) => {
+interface SustainabilityScoreProps {
+  score?: number;
+  trend?: 'improving' | 'declining' | 'stable';
+  scoreCategory?: 'Red' | 'Yellow' | 'Green';
+}
+
+const SustainabilityScore = ({ score = 0, trend, scoreCategory }: SustainabilityScoreProps) => {
   const radius = 90;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (score / 100) * circumference;
+
+  const trendLabel = trend === 'improving'
+    ? '↑ IMPROVING'
+    : trend === 'declining'
+    ? '↓ DECLINING'
+    : trend === 'stable'
+    ? '→ STABLE'
+    : score > 0 ? 'SCORE RECORDED' : 'NO DATA YET';
+
+  const rankLabel = scoreCategory === 'Green'
+    ? 'EXCELLENT'
+    : scoreCategory === 'Yellow'
+    ? 'GOOD'
+    : scoreCategory === 'Red'
+    ? 'NEEDS WORK'
+    : 'PENDING';
+
+  const rankIcon = scoreCategory === 'Green'
+    ? 'award_star'
+    : scoreCategory === 'Yellow'
+    ? 'star_half'
+    : 'warning';
 
   return (
     <div className="flex flex-col items-center justify-center p-8 bg-emerald-950 rounded-3xl shadow-xl shadow-emerald-950/20 relative overflow-hidden group h-full">
@@ -71,14 +99,14 @@ const SustainabilityScore = ({ score = 84 }) => {
           <p className="text-[9px] font-black uppercase tracking-widest text-emerald-500 mb-1 leading-none">Net Impact</p>
           <div className="flex items-center gap-1.5">
             <span className="material-symbols-outlined text-emerald-300 text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
-            <span className="text-xl font-bold text-white tracking-tight leading-none">+12.4%</span>
+            <span className="text-sm font-bold text-white tracking-tight leading-none">{trendLabel}</span>
           </div>
         </div>
         <div>
           <p className="text-[9px] font-black uppercase tracking-widest text-emerald-500 mb-1 leading-none">Rank Status</p>
           <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-secondary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>award_star</span>
-            <span className="text-xl font-bold text-white tracking-tight leading-none">ALPHA-1</span>
+            <span className="material-symbols-outlined text-secondary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>{rankIcon}</span>
+            <span className="text-sm font-bold text-white tracking-tight leading-none">{rankLabel}</span>
           </div>
         </div>
       </div>

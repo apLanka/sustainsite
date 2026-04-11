@@ -5,6 +5,8 @@ import {
   getChecklistById,
   updateChecklist,
   deleteChecklist,
+  updateChecklistItem,
+  getProjectComplianceScore,
   createInspection,
   getInspections,
   getInspectionById,
@@ -25,6 +27,12 @@ router.get('/checklists/:id', authenticate, getChecklistById);
 router.put('/checklists/:id', authenticate, requireDataEntry(), updateChecklist);
 
 router.delete('/checklists/:id', authenticate, requireAdmin(), deleteChecklist);
+
+// T-13: Granular item update
+router.put('/checklists/:id/items/:itemId', authenticate, requireDataEntry(), updateChecklistItem);
+
+// T-14: Project-level compliance score
+router.get('/score/:projectId', authenticate, getProjectComplianceScore);
 
 router.post(
   '/inspections',

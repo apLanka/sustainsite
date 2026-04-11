@@ -108,19 +108,24 @@ describe('Sustainability Monitoring API', () => {
     });
   });
 
-  describe('GET /api/sustainability/projects/:projectId/score', () => {
+  describe('GET /api/sustainability/projects/:projectId/score (enriched)', () => {
     beforeEach(async () => {
       await Project.findByIdAndUpdate(projectId, { sustainabilityScore: 85 });
+      await SustainabilityMetric.create({ ...validMetricData, projectId, recordedBy: pmId });
     });
 
-    it('should fetch project sustainability score', async () => {
+    it('should return enriched score with trend, breakdown, and recommendations', async () => {
       const response = await request(app)
         .get(`/api/sustainability/projects/${projectId}/score`)
         .set('Authorization', `Bearer ${pmToken}`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.data.sustainabilityScore).toBe(85);
+      expect(response.body.data.currentScore).toBe(85);
+      expect(response.body.data.scoreCategory).toBe('Green');
+      expect(response.body.data.trend).toBeDefined();
+      expect(response.body.data.benchmarkComparison).toBeDefined();
+      expect(response.body.data.recommendations).toBeInstanceOf(Array);
     });
   });
 
@@ -234,22 +239,58 @@ describe('Sustainability Monitoring API', () => {
     });
   });
 
-  describe('GET /api/sustainability/projects/:projectId/trends', () => {
+  describe('GET /api/sustainability/projects/:projectId/trends (aggregated)', () => {
     beforeEach(async () => {
-      await SustainabilityMetric.create({ ...validMetricData, projectId });
-      await SustainabilityMetric.create({ ...validMetricData, projectId });
+      await SustainabilityMetric.create({ ...validMetricData, projectId, recordedBy: pmId });
+      await SustainabilityMetric.create({ ...validMetricData, projectId, recordedBy: pmId });
     });
 
-    it('should fetch metric trends for a project', async () => {
+    it('should return aggregated trends with summary', async () => {
       const response = await request(app)
-        .get(`/api/sustainability/projects/${projectId}/trends`)
+        .get(`/api/sustainability/projects/${projectId}/trends?period=30&interval=weekly`)
         .set('Authorization', `Bearer ${pmToken}`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.data.length).toBe(2);
-      expect(response.body.data[0]).toHaveProperty('sustainabilityScore');
-      expect(response.body.data[0]).not.toHaveProperty('notes'); // We selected specific fields in the controller
+      expect(response.body.data.trends).toBeInstanceOf(Array);
+      expect(response.body.data.summary).toBeDefined();
+      expect(response.body.data.summary).toHaveProperty('averageScore');
+      expect(response.body.data.summary).toHaveProperty('scoreImprovement');
+    });
+  });
+
+  describe('GET /api/sustainability/projects/:projectId/compare', () => {
+    beforeEach(async () => {
+      await Project.findByIdAndUpdate(projectId, { sustainabilityScore: 72 });
+      await SustainabilityMetric.create({ ...validMetricData, projectId, recordedBy: pmId });
+    });
+
+    it('should return industry comparison data', async () => {
+      const response = await request(app)
+        .get(`/api/sustainability/projects/${projectId}/compare`)
+        .set('Authorization', `Bearer ${pmToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.projectScore).toBe(72);
+      expect(response.body.data.industryAverage).toBe(65);
+      expect(response.body.data.difference).toBe(7);
+      expect(response.body.data.percentileBand).toBeDefined();
+      expect(response.body.data.areasAboveAverage).toBeInstanceOf(Array);
+      expect(response.body.data.areasBelowAverage).toBeInstanceOf(Array);
+    });
+  });
+
+  describe('POST /api/sustainability/metrics (alias)', () => {
+    it('should create metric via /metrics alias', async () => {
+      const response = await request(app)
+        .post('/api/sustainability/metrics')
+        .set('Authorization', `Bearer ${pmToken}`)
+        .send({ ...validMetricData, projectId })
+        .expect(201);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.projectId).toBe(projectId);
     });
   });
 });

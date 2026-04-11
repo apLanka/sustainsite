@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useProjectStore } from '@/store';
 import { projectApi } from '@/lib/api';
 import type { Project } from '@/types/project';
@@ -202,6 +203,7 @@ const ProjectsGrid = () => {
         setProjects(res.data, res.pagination);
       } catch (err) {
         console.error('Failed to fetch projects:', err);
+        toast.error('Failed to load projects');
       } finally {
         setLoading(false);
       }

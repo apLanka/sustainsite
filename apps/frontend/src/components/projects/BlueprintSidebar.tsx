@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 
 const BlueprintSidebar = () => {
   return (
@@ -66,23 +67,31 @@ const BlueprintSidebar = () => {
           </li>
         </ul>
 
-        <button className="w-full mt-8 py-3 text-xs font-bold text-secondary uppercase tracking-widest hover:underline transition-all">
-          View Documentation
-        </button>
+        <Link
+          to="/projects"
+          className="block w-full mt-8 py-3 text-xs font-bold text-secondary uppercase tracking-widest hover:underline transition-all text-center"
+        >
+          View All Projects
+        </Link>
       </div>
 
-      {/* SECTION: Quick Actions */}
+      {/* SECTION: Help & Support */}
       <div className="bg-surface-container-low p-6 rounded-2xl border border-slate-100/50">
         <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-3">Help & Support</p>
-        <div className="flex items-center gap-3">
+        <a
+          href="mailto:support@sustainsite.app"
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+        >
           <div className="flex -space-x-2">
-            <img className="w-6 h-6 rounded-full border border-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYJPOM_fxIgjUwF_Xi24kogEe-dS-GUJ3Vjh_P02z2tSY3X474xGCig8ZmcQx0lJi5mfiBevXhybZLSxgCN9hfPNa2pFOqSdkodpAi-C2y7C27qy_ukt8A5GV0eYoif_aZS4MPZDctxhPcOesA_9mXN6hvepvO6K7lNxPsE8VCrhfTpGNiLm0yNMYwUAxqZ1kZTnsFKpertloVx5Zlg6f1CB-SgmKuSRVEACj3zXdeDlZb_UhJofewluthchl41DT2fj8sa7YGeb8" alt="Support" />
+            <div className="w-6 h-6 rounded-full bg-emerald-100 border border-white flex items-center justify-center">
+              <span className="material-symbols-outlined text-[10px] text-emerald-700">support_agent</span>
+            </div>
             <div className="w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center">
               <span className="material-symbols-outlined text-[10px] text-slate-400">help</span>
             </div>
           </div>
-          <p className="text-[10px] font-bold text-primary">Chat with a SustainSite Expert</p>
-        </div>
+          <p className="text-[10px] font-bold text-primary">Contact SustainSite Support</p>
+        </a>
       </div>
     </aside>
   );

@@ -96,7 +96,7 @@ describe('Document Management API', () => {
 
       expect(response.body.success).toBe(true);
       expect(response.body.data.title).toBe('Building Permit 2026');
-      expect(response.body.data.status).toBe(DocumentStatus.DRAFT);
+      expect(response.body.data.status).toBe(DocumentStatus.UNDER_REVIEW);
       expect(response.body.data.uploadedBy.toString()).toBe(pmId);
     });
 
@@ -447,7 +447,7 @@ describe('Document Management API', () => {
 
       expect(response.body.success).toBe(true);
       expect(response.body.data.version).toBe('1.1');
-      expect(response.body.data.status).toBe(DocumentStatus.DRAFT);
+      expect(response.body.data.status).toBe(DocumentStatus.UNDER_REVIEW);
       expect(response.body.data.previousVersions.length).toBe(1);
       expect(response.body.data.previousVersions[0].version).toBe('1.0');
     });
@@ -510,6 +510,120 @@ describe('Document Management API', () => {
       await request(app)
         .get(`/api/documents/${documentId}/download`)
         .expect(401);
+    });
+  });
+
+  // ─── T-11: Document search ─────────────────────────────────────────────────
+  describe('GET /api/documents/search', () => {
+    beforeEach(async () => {
+      const proj = await Project.findOne({});
+      const pid = proj!._id.toString();
+      await DocumentModel.create([
+        {
+          title: 'Safety Report Alpha',
+          description: 'Alpha safety report',
+          documentType: DocumentType.SAFETY_REPORT,
+          fileUrl: 'https://cloudinary.com/a.pdf',
+          fileName: 'a.pdf',
+          projectId: pid,
+          uploadedBy: adminId,
+          status: DocumentStatus.DRAFT,
+        },
+        {
+          title: 'Blueprint Beta',
+          description: 'Beta blueprint',
+          documentType: DocumentType.BLUEPRINT,
+          fileUrl: 'https://cloudinary.com/b.pdf',
+          fileName: 'b.pdf',
+          projectId: pid,
+          uploadedBy: adminId,
+          status: DocumentStatus.APPROVED,
+        },
+      ]);
+    });
+
+    it('should search documents by title keyword', async () => {
+      const response = await request(app)
+        .get('/api/documents/search?q=Alpha')
+        .set('Authorization', `Bearer ${viewerToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.length).toBe(1);
+      expect(response.body.data[0].title).toBe('Safety Report Alpha');
+    });
+
+    it('should filter by documentType', async () => {
+      const response = await request(app)
+        .get('/api/documents/search?documentType=Blueprint')
+        .set('Authorization', `Bearer ${viewerToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.length).toBe(1);
+    });
+
+    it('should return pagination metadata', async () => {
+      const response = await request(app)
+        .get('/api/documents/search')
+        .set('Authorization', `Bearer ${viewerToken}`)
+        .expect(200);
+
+      expect(response.body.pagination).toBeDefined();
+      expect(response.body.pagination.total).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  // ─── T-12: Document status update ─────────────────────────────────────────
+  describe('PUT /api/documents/:id/status', () => {
+    let draftDocId: string;
+
+    beforeEach(async () => {
+      const proj = await Project.findOne({});
+      const pid = proj!._id.toString();
+      // Model default is UNDER_REVIEW; force DRAFT via direct DB write to test transition
+      const doc = await DocumentModel.create({
+        title: 'Status Test Doc',
+        documentType: DocumentType.PERMIT,
+        fileUrl: 'https://cloudinary.com/c.pdf',
+        fileName: 'c.pdf',
+        projectId: pid,
+        uploadedBy: pmId,
+      });
+      // Override status to DRAFT directly (bypassing default) for transition tests
+      await DocumentModel.findByIdAndUpdate(doc._id, { status: DocumentStatus.DRAFT });
+      draftDocId = doc._id.toString();
+    });
+
+    it('should transition Draft → Under Review', async () => {
+      const response = await request(app)
+        .put(`/api/documents/${draftDocId}/status`)
+        .set('Authorization', `Bearer ${pmToken}`)
+        .send({ status: DocumentStatus.UNDER_REVIEW })
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.status).toBe(DocumentStatus.UNDER_REVIEW);
+    });
+
+    it('should reject invalid transition (Draft → Approved)', async () => {
+      await request(app)
+        .put(`/api/documents/${draftDocId}/status`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ status: DocumentStatus.APPROVED })
+        .expect(400);
+    });
+
+    it('should allow INSPECTOR to approve after Under Review', async () => {
+      await DocumentModel.findByIdAndUpdate(draftDocId, { status: DocumentStatus.UNDER_REVIEW });
+
+      const response = await request(app)
+        .put(`/api/documents/${draftDocId}/status`)
+        .set('Authorization', `Bearer ${inspectorToken}`)
+        .send({ status: DocumentStatus.APPROVED })
+        .expect(200);
+
+      expect(response.body.data.status).toBe(DocumentStatus.APPROVED);
     });
   });
 });

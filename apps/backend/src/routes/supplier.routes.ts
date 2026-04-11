@@ -1,0 +1,29 @@
+import { Router } from 'express';
+import {
+  createSupplier,
+  getSuppliers,
+  getSupplierById,
+  updateSupplier,
+  deleteSupplier,
+  rateSupplier,
+  getSupplierPerformance,
+} from '../controllers/resource.controller';
+import { authenticate, requireManager, requireAdmin } from '../middleware';
+
+const router = Router();
+
+router.post('/', authenticate, requireManager(), createSupplier);
+
+router.get('/', authenticate, getSuppliers);
+
+router.get('/:id', authenticate, getSupplierById);
+
+router.put('/:id', authenticate, requireManager(), updateSupplier);
+
+router.delete('/:id', authenticate, requireAdmin(), deleteSupplier);
+
+router.post('/:id/rating', authenticate, requireManager(), rateSupplier);
+
+router.get('/:id/performance', authenticate, getSupplierPerformance);
+
+export default router;

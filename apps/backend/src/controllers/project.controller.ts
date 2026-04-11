@@ -3,6 +3,18 @@ import mongoose from 'mongoose';
 import Project from '../models/Project';
 import Milestone, { MilestoneStatus } from '../models/Milestone';
 import Material from '../models/Material';
+import User from '../models/User';
+import { sendEmail, emailTemplates } from '../config/email';
+import logger from '../utils/logger';
+
+/** Line cost for finance rollups; insertMany skips Material pre-save so totalCost may be unset. */
+function materialLineCost(mat: { totalCost?: number; quantity?: number; unitPrice?: number }): number {
+  const tc = Number(mat.totalCost);
+  if (Number.isFinite(tc) && tc > 0) return tc;
+  const q = Number(mat.quantity) || 0;
+  const p = Number(mat.unitPrice) || 0;
+  return q * p;
+}
 
 export const createProject = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -16,6 +28,22 @@ export const createProject = async (req: Request, res: Response): Promise<void> 
     }
 
     const project = await Project.create(projectData);
+
+    // Email notification to assigned project manager
+    if (process.env.SENDGRID_API_KEY) {
+      try {
+        const manager = await User.findById(project.projectManager).select('email fullName');
+        if (manager?.email) {
+          await sendEmail({
+            to: manager.email,
+            subject: `New Project Assigned: ${project.projectName}`,
+            html: emailTemplates.projectCreated(project.projectName, manager.fullName),
+          });
+        }
+      } catch (emailErr) {
+        logger.warn('Project creation email failed', { emailErr });
+      }
+    }
 
     res.status(201).json({
       success: true,
@@ -282,8 +310,12 @@ export const getFinancialSummary = async (req: Request, res: Response): Promise<
 
     const materials = await Material.find({projectId: id});
 
-    const totalMaterialCost = materials.reduce((sum, mat) => sum + mat.totalCost, 0);
-    const remainingValue = materials.reduce((sum, mat) => sum + (mat.currentStock * mat.unitPrice), 0);
+    const totalMaterialCost = materials.reduce((sum, mat) => sum + materialLineCost(mat), 0);
+    const totalSpendSafe = Number.isFinite(totalMaterialCost) ? totalMaterialCost : 0;
+    const remainingValue = materials.reduce(
+      (sum, mat) => sum + (Number(mat.currentStock) || 0) * (Number(mat.unitPrice) || 0),
+      0
+    );
 
     // Calculate allocation by category
     const allocationByCategory: Record<string, number> = {};
@@ -291,20 +323,21 @@ export const getFinancialSummary = async (req: Request, res: Response): Promise<
       if (!allocationByCategory[mat.category]) {
         allocationByCategory[mat.category] = 0;
       }
-      allocationByCategory[mat.category] += mat.totalCost;
+      allocationByCategory[mat.category] += materialLineCost(mat);
     });
 
     // Convert to percentage breakdown
-    const totalSpend = totalMaterialCost;
+    const totalSpend = totalSpendSafe;
     const allocationMix = Object.entries(allocationByCategory).map(([category, cost]) => ({
       category,
       cost,
       percentage: totalSpend > 0 ? (cost / totalSpend) * 100 : 0,
     }));
 
-    const budget = project.budget || 0;
-    const remainingBudget = budget - totalSpend;
-    const spendPercentage = budget > 0 ? (totalSpend / budget) * 100 : 0;
+    const budget = Number(project.budget) || 0;
+    const remainingBudget = budget - totalSpendSafe;
+    const spendPercentage =
+      budget > 0 && Number.isFinite(totalSpendSafe) ? (totalSpendSafe / budget) * 100 : 0;
 
     res.status(200).json({
       success: true,

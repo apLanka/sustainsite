@@ -1,18 +1,29 @@
 import {Link, useParams} from 'react-router-dom';
 import {useEffect, useState} from 'react';
+import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { canLogSustainabilityMetrics } from '@/lib/rbac';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import ProjectHeader from '@/components/project/ProjectHeader';
 import SustainabilityScore from '@/components/sustainability/SustainabilityScore';
 import {HistoricalTrendLine, ImpactRadar, ResourceBarChart} from '@/components/sustainability/SustainabilityCharts';
 import {sustainabilityApi} from '@/lib/api';
-import type {SustainabilityMetric, SustainabilityScore as ScoreType, SustainabilityTrend} from '@/types/sustainability';
+import type {
+  IndustryComparisonResponse,
+  SustainabilityMetric,
+  SustainabilityScore as ScoreType,
+  SustainabilityTrendsResponse,
+} from '@/types/sustainability';
 
 export default function SustainabilityDashboardPage() {
   const {id: projectId} = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const canRecord = canLogSustainabilityMetrics(user?.role);
 
   const [scoreData, setScoreData] = useState<ScoreType | null>(null);
   const [latestMetric, setLatestMetric] = useState<SustainabilityMetric | null>(null);
-  const [trends, setTrends] = useState<SustainabilityTrend[]>([]);
+  const [trendsData, setTrendsData] = useState<SustainabilityTrendsResponse | null>(null);
+  const [industryData, setIndustryData] = useState<IndustryComparisonResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,17 +34,59 @@ export default function SustainabilityDashboardPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const [scoreRes, latestRes, trendsRes] = await Promise.all([
+        const [scoreRes, latestRes, trendsRes] = await Promise.allSettled([
           sustainabilityApi.getProjectScore(projectId),
           sustainabilityApi.getLatestMetric(projectId),
-          sustainabilityApi.getProjectTrends(projectId),
+          sustainabilityApi.getProjectTrendsDetailed(projectId, '6months', 'monthly'),
         ]);
-        setScoreData(scoreRes.data);
-        setLatestMetric(latestRes.data);
-        setTrends(trendsRes.data);
+
+        if (scoreRes.status === 'fulfilled') {
+          setScoreData(scoreRes.value.data);
+        } else {
+          console.error('Score fetch failed:', scoreRes.reason);
+        }
+
+        if (latestRes.status === 'fulfilled') {
+          setLatestMetric(latestRes.value.data);
+        } else {
+          // 404 means no metrics recorded yet — not a real error
+          const status = (latestRes.reason as { status?: number })?.status;
+          if (status !== 404) {
+            console.error('Latest metric fetch failed:', latestRes.reason);
+          }
+        }
+
+        if (trendsRes.status === 'fulfilled') {
+          setTrendsData(trendsRes.value.data);
+        } else {
+          console.error('Trends fetch failed:', trendsRes.reason);
+        }
+
+        const latestIs404 =
+          latestRes.status === 'rejected' &&
+          (latestRes.reason as { status?: number })?.status === 404;
+
+        const allFailed =
+          scoreRes.status === 'rejected' &&
+          (latestRes.status === 'rejected' && !latestIs404) &&
+          trendsRes.status === 'rejected';
+
+        if (allFailed) {
+          setError('Failed to load sustainability data');
+          toast.error('Failed to load sustainability data');
+        }
+
+        // Industry comparison — non-critical, don't fail the whole page
+        try {
+          const industryRes = await sustainabilityApi.compareWithIndustry(projectId);
+          setIndustryData(industryRes.data);
+        } catch {
+          // No metrics yet — industry comparison unavailable
+        }
       } catch (err) {
         console.error('Failed to load sustainability data:', err);
         setError('Failed to load sustainability data');
+        toast.error('Failed to load sustainability data');
       } finally {
         setIsLoading(false);
       }
@@ -42,77 +95,105 @@ export default function SustainabilityDashboardPage() {
     fetchData();
   }, [projectId]);
 
+  const handleExport = () => {
+    if (!trendsData || !scoreData) {
+      toast.error('No data to export yet');
+      return;
+    }
+    const rows = [
+      ['Date', 'Score', 'Trees Equivalent', 'Waste Diversion Rate'],
+      ...(trendsData.trends ?? []).map(t => [
+        new Date(t.recordedDate).toLocaleDateString(),
+        t.sustainabilityScore,
+        t.treesEquivalent,
+        t.wasteManagement.diversionRate,
+      ]),
+    ];
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sustainability-report-${projectId}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Report exported');
+  };
+
   // Derive radar chart data from latest metric
+  // Carbon: lower emissions = higher score. Cap at 10 tCO2e as a practical max.
   const radarData = latestMetric
       ? [
         {
           subject: 'Carbon',
-          A: Math.round(100 - ((latestMetric.carbonEmissions.total - 2) / 8) * 100) || 50,
+          A: Math.max(0, Math.min(100, Math.round(100 - (latestMetric.carbonEmissions.total / 10) * 100))),
           fullMark: 100
         },
         {
-          subject: 'Energy', A: latestMetric.energyConsumption.total > 0
+          subject: 'Energy',
+          A: latestMetric.energyConsumption.total > 0
               ? Math.round((latestMetric.energyConsumption.renewableEnergy / latestMetric.energyConsumption.total) * 100)
-              : 50, fullMark: 100
+              : 0,
+          fullMark: 100
         },
         {subject: 'Waste', A: latestMetric.wasteManagement.diversionRate, fullMark: 100},
         {
-          subject: 'Water', A: latestMetric.waterUsage.total > 0
+          subject: 'Water',
+          A: latestMetric.waterUsage.total > 0
               ? Math.round((latestMetric.waterUsage.recycled / latestMetric.waterUsage.total) * 100)
-              : 50, fullMark: 100
+              : 0,
+          fullMark: 100
         },
-        {subject: 'Biolife', A: latestMetric.sustainabilityScore, fullMark: 100},
+        {subject: 'Score', A: latestMetric.sustainabilityScore, fullMark: 100},
       ]
-      : [
-        {subject: 'Carbon', A: 50, fullMark: 100},
-        {subject: 'Energy', A: 50, fullMark: 100},
-        {subject: 'Waste', A: 50, fullMark: 100},
-        {subject: 'Water', A: 50, fullMark: 100},
-        {subject: 'Biolife', A: 50, fullMark: 100},
-      ];
+      : undefined;
 
-  // Derive line chart data from trends
-  const FALLBACK_LINE_DATA = [
-    {name: 'Jan', score: 65},
-    {name: 'Feb', score: 68},
-    {name: 'Mar', score: 75},
-    {name: 'Apr', score: 72},
-    {name: 'May', score: 80},
-    {name: 'Jun', score: 84},
-  ];
-
-  let lineData = FALLBACK_LINE_DATA;
-  if (trends && trends.length > 0) {
-    const mapped = trends
+  // Derive line chart data from trends — show even a single point
+  const trends = trendsData?.trends ?? [];
+  const lineData = trends.length >= 1
+    ? trends
         .filter(t => t && typeof t.sustainabilityScore === 'number')
-        .map(t => ({
+        .map((t, i) => ({
           name: t.recordedDate
-              ? new Date(t.recordedDate).toLocaleDateString('en-US', {month: 'short'})
-              : 'Unknown',
+              ? new Date(t.recordedDate).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})
+              : `Entry ${i + 1}`,
           score: t.sustainabilityScore as number,
-        }));
-    if (mapped.length >= 2) {
-      lineData = mapped;
-    }
-  }
+        }))
+    : null;
 
   // Derive bar chart data from latest metric
   const barData = latestMetric
       ? [
-        {name: 'Steel', value: latestMetric.carbonEmissions.materials, color: '#0e6c4a'},
-        {name: 'Concrete', value: latestMetric.carbonEmissions.equipment, color: '#012d1d'},
+        {name: 'Materials', value: latestMetric.carbonEmissions.materials, color: '#0e6c4a'},
+        {name: 'Equipment', value: latestMetric.carbonEmissions.equipment, color: '#012d1d'},
         {name: 'Transport', value: latestMetric.carbonEmissions.transportation, color: '#10b981'},
-        {name: 'Waste', value: Math.round(latestMetric.wasteManagement.diversionRate), color: '#059669'},
+        {name: 'Waste Div.', value: Math.round(latestMetric.wasteManagement.diversionRate), color: '#059669'},
       ]
-      : [
-        {name: 'Steel', value: 45, color: '#0e6c4a'},
-        {name: 'Concrete', value: 30, color: '#012d1d'},
-        {name: 'Transport', value: 15, color: '#10b981'},
-        {name: 'Waste', value: 10, color: '#059669'},
-      ];
+      : undefined;
 
   const treesEquivalent = latestMetric?.treesEquivalent ?? 0;
-  const sustainabilityScoreValue = scoreData?.sustainabilityScore ?? 0;
+  const sustainabilityScoreValue = scoreData?.currentScore ?? scoreData?.sustainabilityScore ?? 0;
+
+  // Performance trend from API
+  const scoreImprovement = trendsData?.summary?.scoreImprovement;
+  const performanceLabel = scoreImprovement != null
+    ? `${scoreImprovement >= 0 ? '+' : ''}${scoreImprovement.toFixed(1)}% SCORE CHANGE`
+    : 'NO TREND DATA YET';
+
+  // Industry comparison from API
+  const industryDiff = industryData?.difference;
+  const industryLabel = industryDiff != null
+    ? `${Math.abs(industryDiff).toFixed(1)}% ${industryDiff >= 0 ? 'ABOVE' : 'BELOW'} INDUSTRY AVG`
+    : 'INDUSTRY DATA UNAVAILABLE';
+
+  // Baseline bar: segments filled based on emissions intensity (lower = greener).
+  // Cap reference at 10 tCO2e; more filled = lower emissions (better).
+  const emissionsTotal = latestMetric?.carbonEmissions.total ?? 0;
+  const filledSegments = emissionsTotal > 0
+    ? Math.max(1, 6 - Math.round((emissionsTotal / 10) * 6))
+    : sustainabilityScoreValue > 0
+      ? Math.round((sustainabilityScoreValue / 100) * 6)
+      : 0;
 
   return (
     <DashboardLayout>
@@ -127,10 +208,14 @@ export default function SustainabilityDashboardPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="px-6 py-2.5 bg-surface-container-high text-primary font-bold text-sm rounded-xl flex items-center justify-center gap-2 hover:bg-slate-200 transition-all cursor-pointer font-headline">
+            <button
+              onClick={handleExport}
+              className="px-6 py-2.5 bg-surface-container-high text-primary font-bold text-sm rounded-xl flex items-center justify-center gap-2 hover:bg-slate-200 transition-all cursor-pointer font-headline"
+            >
               <span className="material-symbols-outlined text-lg">download</span>
               Export Report
             </button>
+            {canRecord && (
             <Link
                 to={`/projects/${projectId}/sustainability/record`}
               className="px-6 py-2.5 bg-primary text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/10 hover:brightness-110 active:scale-95 transition-all cursor-pointer font-headline"
@@ -138,6 +223,7 @@ export default function SustainabilityDashboardPage() {
               <span className="material-symbols-outlined text-lg">add_chart</span>
               Record New Metrics
             </Link>
+            )}
           </div>
         </div>
 
@@ -153,7 +239,11 @@ export default function SustainabilityDashboardPage() {
                     <p className="text-emerald-400 text-sm font-medium">{error}</p>
                   </div>
               ) : (
-                  <SustainabilityScore score={sustainabilityScoreValue}/>
+                  <SustainabilityScore
+                    score={sustainabilityScoreValue}
+                    trend={scoreData?.trend}
+                    scoreCategory={scoreData?.scoreCategory}
+                  />
               )}
             </div>
             <div className="lg:col-span-2 bg-surface-container-lowest p-10 rounded-3xl border border-slate-100/50 shadow-sm flex flex-col justify-center">
@@ -161,9 +251,26 @@ export default function SustainabilityDashboardPage() {
                 <span className="material-symbols-outlined text-emerald-600">show_chart</span>
                 Global Score Trajectory (Last 6 Periods)
               </h4>
-              <div className="h-80">
-                <HistoricalTrendLine data={lineData}/>
-              </div>
+              {isLoading ? (
+                <div className="h-80 animate-pulse bg-slate-100 rounded-2xl" />
+              ) : lineData ? (
+                <div className="h-80">
+                  <HistoricalTrendLine data={lineData}/>
+                </div>
+              ) : (
+                <div className="h-80 flex flex-col items-center justify-center text-slate-400 gap-3">
+                  <span className="material-symbols-outlined text-4xl">show_chart</span>
+                  <p className="text-sm font-medium">No metrics recorded yet</p>
+                  {canRecord && (
+                  <Link
+                    to={`/projects/${projectId}/sustainability/record`}
+                    className="text-xs text-emerald-600 font-bold hover:underline"
+                  >
+                    Record your first metric →
+                  </Link>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -206,7 +313,7 @@ export default function SustainabilityDashboardPage() {
                   <p className="text-sm font-medium text-emerald-200/80">Project Trees Equivalent Offset</p>
                   <div className="mt-10 flex items-center gap-2 text-emerald-200">
                     <span className="material-symbols-outlined !text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
-                    <span className="text-xs font-bold uppercase tracking-[0.2em]">+12.4% PERFORMANCE INCREASE</span>
+                    <span className="text-xs font-bold uppercase tracking-[0.2em]">{performanceLabel}</span>
                   </div>
                 </div>
 
@@ -220,10 +327,10 @@ export default function SustainabilityDashboardPage() {
                   </div>
                   <div className="mt-8 flex gap-1.5 h-2">
                     {[1,2,3,4,5,6].map(i => (
-                      <div key={i} className={`flex-1 rounded-full ${i <= 2 ? 'bg-secondary shadow-[0_0_8px_rgba(14,108,74,0.3)]' : 'bg-slate-100'}`}></div>
+                      <div key={i} className={`flex-1 rounded-full ${i <= filledSegments ? 'bg-secondary shadow-[0_0_8px_rgba(14,108,74,0.3)]' : 'bg-slate-100'}`}></div>
                     ))}
                   </div>
-                  <p className="text-[10px] font-bold text-slate-400 mt-4 uppercase tracking-[0.1em]">22% BELOW SUSTAINSITE AVG</p>
+                  <p className="text-[10px] font-bold text-slate-400 mt-4 uppercase tracking-[0.1em]">{industryLabel}</p>
                 </div>
             </div>
           </div>

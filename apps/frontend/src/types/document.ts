@@ -68,6 +68,7 @@ export interface DocumentPagination {
 
 export interface DocumentFilters {
   projectId?: string;
+  search?: string;
   documentType?: DocumentType | '';
   status?: DocumentStatus | '';
   tag?: string;

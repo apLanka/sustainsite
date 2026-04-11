@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import ProjectHeader from '@/components/project/ProjectHeader';
 import DocumentUploader from '@/components/documents/DocumentUploader';
@@ -7,8 +8,9 @@ import { documentApi } from '@/lib/api';
 import { useDocumentStore } from '@/store';
 import { useAuthStore } from '@/store';
 import { DocumentStatus, DocumentType } from '@/types/document';
-import type { ProjectDocument, UploadDocumentPayload, PreviousVersion } from '@/types/document';
+import type { ProjectDocument, PreviousVersion } from '@/types/document';
 import { UserRole } from '@/types/auth';
+import api from '@/lib/api';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -108,12 +110,15 @@ export default function DocumentsPage() {
   const [deletingId, setDeletingId]                     = useState<string | null>(null);
   const [isDeleting, setIsDeleting]                     = useState(false);
 
-  // ── Search (debounced client-side filter on title) ───────────────────────
-  const [searchQuery, setSearchQuery]       = useState('');
+  // ── Search (debounced, server-side via API) ───────────────────────────────
+  const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
   const canModerate =
     user?.role === UserRole.ADMIN || user?.role === UserRole.INSPECTOR;
+
+  // Status counts loaded separately for accurate sidebar totals
+  const [statusCounts, setStatusCounts] = useState<Record<string, number>>({});
 
   // ── Fetch documents ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -121,7 +126,8 @@ export default function DocumentsPage() {
     // Allow ?status= URL param to pre-filter (e.g. from dashboard "Review Now")
     const urlStatus = (searchParams.get('status') ?? '') as DocumentStatus | '';
     setDocFilters({ projectId, status: urlStatus, documentType: '', tag: '', page: 1, limit: 10 });
-  }, [projectId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId, searchParams.get('status')]);
 
   useEffect(() => {
     if (!docFilters.projectId) return;
@@ -132,6 +138,7 @@ export default function DocumentsPage() {
         setDocuments(res.data, res.pagination);
       } catch (err) {
         console.error('Failed to fetch documents:', err);
+        toast.error('Failed to load documents');
       } finally {
         setDocLoading(false);
       }
@@ -139,18 +146,41 @@ export default function DocumentsPage() {
     fetch();
   }, [docFilters, setDocuments, setDocLoading]);
 
-  // ── Debounce search input (300 ms) ────────────────────────────────────────
+  // Load per-status counts for sidebar (separate from current page)
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 300);
-    return () => clearTimeout(t);
-  }, [searchQuery]);
+    if (!docFilters.projectId) return;
+    const loadCounts = async () => {
+      try {
+        const results = await Promise.allSettled(
+          ALL_STATUSES.map(s =>
+            documentApi.getDocuments({ projectId: docFilters.projectId, status: s, limit: 1 })
+          )
+        );
+        const counts: Record<string, number> = {};
+        ALL_STATUSES.forEach((s, i) => {
+          const r = results[i];
+          counts[s] = r.status === 'fulfilled' ? (r.value.pagination?.total ?? 0) : 0;
+        });
+        setStatusCounts(counts);
+      } catch {
+        // non-critical
+      }
+    };
+    loadCounts();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [docFilters.projectId]);
 
-  // ── Filtered list (client-side title search) ──────────────────────────────
-  const visibleDocs = useMemo(() => {
-    const q = debouncedSearch.toLowerCase();
-    if (!q) return documents;
-    return documents.filter((d) => d.title.toLowerCase().includes(q));
-  }, [documents, debouncedSearch]);
+  // ── Debounce search → push to docFilters (server-side) ───────────────────
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(searchQuery.trim());
+      setDocFilters({ search: searchQuery.trim() || undefined, page: 1 });
+    }, 400);
+    return () => clearTimeout(t);
+  }, [searchQuery, setDocFilters]);
+
+  // visibleDocs = documents (search is now server-side)
+  const visibleDocs = useMemo(() => documents, [documents]);
 
   // ── Upload ────────────────────────────────────────────────────────────────
   const handleUpload = async () => {
@@ -166,24 +196,33 @@ export default function DocumentsPage() {
     setUploading(true);
     setUploadProgress(0);
     try {
-      const payload: UploadDocumentPayload = {
-        file: selectedFile,
-        projectId,
-        documentType: uploadForm.documentType,
-        title: uploadForm.title.trim(),
-        description: uploadForm.description.trim() || undefined,
-        version: uploadForm.version.trim() || '1.0',
-        tags: uploadForm.tags.trim()
-          ? uploadForm.tags.split(',').map((t) => t.trim()).filter(Boolean)
-          : undefined,
-      };
-      const res = await documentApi.upload(payload);
-      appendDocument(res.data);
+      const form = new FormData();
+      form.append('file', selectedFile);
+      form.append('projectId', projectId);
+      form.append('documentType', uploadForm.documentType);
+      form.append('title', uploadForm.title.trim());
+      if (uploadForm.description.trim()) form.append('description', uploadForm.description.trim());
+      form.append('version', uploadForm.version.trim() || '1.0');
+      if (uploadForm.tags.trim()) form.append('tags', JSON.stringify(uploadForm.tags.split(',').map(t => t.trim()).filter(Boolean)));
+
+      const res = await api.post('/documents', form, {
+        headers: { 'Content-Type': undefined },
+        onUploadProgress: (event) => {
+          if (event.total) {
+            setUploadProgress(Math.round((event.loaded / event.total) * 100));
+          }
+        },
+      });
+      appendDocument(res.data.data);
       setShowUploadModal(false);
       setSelectedFile(null);
       setUploadForm({ title: '', documentType: DocumentType.OTHER, description: '', version: '1.0', tags: '' });
+      toast.success('Document uploaded successfully');
     } catch (err: unknown) {
-      setUploadError((err as { message?: string })?.message ?? 'Upload failed.');
+      const msg = (err as { response?: { data?: { message?: string } }; message?: string })
+        ?.response?.data?.message ?? 'Upload failed.';
+      setUploadError(msg);
+      toast.error(msg);
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -200,6 +239,7 @@ export default function DocumentsPage() {
       setHistoryDoc(res.data);
     } catch (err) {
       console.error('Failed to load version history:', err);
+      toast.error('Failed to load version history');
     } finally {
       setIsLoadingHistory(false);
     }
@@ -211,13 +251,27 @@ export default function DocumentsPage() {
     setVersionError(null);
     setIsVersioning(true);
     try {
-      const res = await documentApi.createVersion(newVersionDoc._id, newVersionFile);
-      updateDocumentInStore(newVersionDoc._id, res.data);
+      const form = new FormData();
+      form.append('file', newVersionFile);
+      const res = await api.post(`/documents/${newVersionDoc._id}/versions`, form, {
+        headers: { 'Content-Type': undefined },
+        onUploadProgress: (event) => {
+          if (event.total) {
+            setUploadProgress(Math.round((event.loaded / event.total) * 100));
+          }
+        },
+      });
+      updateDocumentInStore(newVersionDoc._id, res.data.data);
       setShowNewVersionModal(false);
       setNewVersionDoc(null);
       setNewVersionFile(null);
+      setUploadProgress(0);
+      toast.success('New version uploaded successfully');
     } catch (err: unknown) {
-      setVersionError((err as { message?: string })?.message ?? 'Failed to create new version.');
+      const msg = (err as { response?: { data?: { message?: string } }; message?: string })
+        ?.response?.data?.message ?? 'Failed to create new version.';
+      setVersionError(msg);
+      toast.error(msg);
     } finally {
       setIsVersioning(false);
     }
@@ -228,8 +282,10 @@ export default function DocumentsPage() {
     try {
       const res = await documentApi.approve(doc._id);
       updateDocumentInStore(doc._id, res.data);
+      toast.success('Document approved');
     } catch (err) {
       console.error('Failed to approve document:', err);
+      toast.error('Failed to approve document');
     }
   };
 
@@ -246,8 +302,11 @@ export default function DocumentsPage() {
       updateDocumentInStore(rejectingDoc._id, res.data);
       setRejectingDoc(null);
       setRejectionReason('');
+      toast.success('Document rejected');
     } catch (err: unknown) {
-      setRejectError((err as { message?: string })?.message ?? 'Failed to reject document.');
+      const msg = (err as { message?: string })?.message ?? 'Failed to reject document.';
+      setRejectError(msg);
+      toast.error(msg);
     } finally {
       setIsRejecting(false);
     }
@@ -261,8 +320,10 @@ export default function DocumentsPage() {
       await documentApi.delete(deletingId);
       removeDocument(deletingId);
       setDeletingId(null);
+      toast.success('Document deleted');
     } catch (err) {
       console.error('Failed to delete document:', err);
+      toast.error('Failed to delete document');
     } finally {
       setIsDeleting(false);
     }
@@ -316,7 +377,10 @@ export default function DocumentsPage() {
               {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => setSearchQuery('')}
+                  onClick={() => {
+                    setSearchQuery('');
+                    setDocFilters({ search: undefined, page: 1 });
+                  }}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors"
                 >
                   <span className="material-symbols-outlined text-lg">close</span>
@@ -376,7 +440,7 @@ export default function DocumentsPage() {
               </div>
               <div className="mt-4 space-y-1.5">
                 {ALL_STATUSES.map((s) => {
-                  const count = documents.filter((d) => d.status === s).length;
+                  const count = statusCounts[s] ?? documents.filter((d) => d.status === s).length;
                   const sc = statusConfig[s];
                   return (
                     <div key={s} className="flex items-center justify-between">

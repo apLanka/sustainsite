@@ -1,0 +1,586 @@
+# Test Report — SustainSite
+
+**Related documents:** [README / Setup & API Docs](../README.md) · [Deployment Report](./DEPLOYMENT.md) · [Testing Instruction Report](./TESTING.md)
+
+---
+
+**Module:** SE3040 – Application Frameworks  
+**Project:** Sustainable Construction Project Management System  
+**Report Date:** April 2026  
+**Test Framework:** Jest 30 + Supertest 7 + k6  
+**Database (tests):** `mongodb-memory-server` (in-memory, no external DB required)
+
+---
+
+## Summary
+
+| Category | Suites | Tests | Passed | Failed | Pass Rate |
+|----------|--------|-------|--------|--------|-----------|
+| Unit | 2 | 46 | 46 | 0 | **100%** |
+| Integration | 10 | 222 | 222 | 0 | **100%** |
+| **Total** | **12** | **268** | **268** | **0** | **100%** |
+
+Performance tests (k6) are documented in [Section 4](#4-performance-tests-k6).
+
+---
+
+## 1. Unit Tests
+
+Unit tests validate individual components in isolation — no HTTP layer, no real database.
+
+### How to run
+
+```bash
+cd apps/backend
+npx jest --testPathPatterns="unit" --runInBand --verbose
+```
+
+### 1.1 User Model — `src/__tests__/unit/models/User.test.ts`
+
+Tests the Mongoose `User` model: password hashing, `comparePassword`, field validation, and schema defaults.
+
+| # | Test | Result |
+|---|------|--------|
+| 1 | should hash password before saving | ✅ PASS |
+| 2 | should not rehash password if not modified | ✅ PASS |
+| 3 | should rehash password when modified | ✅ PASS |
+| 4 | should return true for correct password | ✅ PASS |
+| 5 | should return false for incorrect password | ✅ PASS |
+| 6 | should return false for empty password | ✅ PASS |
+| 7 | should create user with valid data | ✅ PASS |
+| 8 | should fail without required fullName | ✅ PASS |
+| 9 | should fail without required email | ✅ PASS |
+| 10 | should fail without required password | ✅ PASS |
+| 11 | should fail with invalid email format | ✅ PASS |
+| 12 | should fail with duplicate email | ✅ PASS |
+| 13 | should convert email to lowercase | ✅ PASS |
+| 14 | should fail with password shorter than 8 characters | ✅ PASS |
+| 15 | should set default role to VIEWER | ✅ PASS |
+| 16 | should set default isActive to true | ✅ PASS |
+| 17 | should exclude password from JSON output | ✅ PASS |
+| 18 | should automatically set createdAt and updatedAt | ✅ PASS |
+| 19 | should update updatedAt when user is modified | ✅ PASS |
+| 20 | should accept ADMIN role | ✅ PASS |
+| 21 | should accept PROJECT_MANAGER role | ✅ PASS |
+| 22 | should accept INSPECTOR role | ✅ PASS |
+| 23 | should accept SUPPLIER role | ✅ PASS |
+| 24 | should accept VIEWER role | ✅ PASS |
+
+**Result: 24 / 24 passed**
+
+---
+
+### 1.2 Auth Validation — `src/__tests__/unit/validation/auth.validation.test.ts`
+
+Tests Joi validation schemas for register and login payloads.
+
+| # | Test | Result |
+|---|------|--------|
+| 1 | should validate correct registration data | ✅ PASS |
+| 2 | should fail with fullName shorter than 2 characters | ✅ PASS |
+| 3 | should fail with fullName longer than 100 characters | ✅ PASS |
+| 4 | should fail without fullName | ✅ PASS |
+| 5 | should fail with invalid email format | ✅ PASS |
+| 6 | should fail without email | ✅ PASS |
+| 7 | should convert email to lowercase | ✅ PASS |
+| 8 | should accept valid email formats | ✅ PASS |
+| 9 | should fail with password shorter than 8 characters | ✅ PASS |
+| 10 | should fail without uppercase letter | ✅ PASS |
+| 11 | should fail without lowercase letter | ✅ PASS |
+| 12 | should fail without number | ✅ PASS |
+| 13 | should fail without password | ✅ PASS |
+| 14 | should accept strong passwords | ✅ PASS |
+| 15 | should accept valid roles | ✅ PASS |
+| 16 | should fail with invalid role | ✅ PASS |
+| 17 | should fail without role | ✅ PASS |
+| 18 | should validate correct login data | ✅ PASS |
+| 19 | should fail with invalid email format (login) | ✅ PASS |
+| 20 | should fail without email (login) | ✅ PASS |
+| 21 | should fail without password (login) | ✅ PASS |
+| 22 | should accept any password format for login | ✅ PASS |
+
+**Result: 22 / 22 passed**
+
+---
+
+## 2. Integration Tests
+
+Integration tests start the full Express app against an in-memory MongoDB and make real HTTP requests using `supertest`. Each test suite is fully isolated — the database is cleared between tests.
+
+### How to run
+
+```bash
+cd apps/backend
+npx jest --testPathPatterns="integration" --runInBand --forceExit --verbose
+```
+
+### 2.1 Authentication — `auth.test.ts`
+
+Tests user registration, login, JWT token generation, and protected route access.
+
+| # | Test | Result |
+|---|------|--------|
+| 1 | should register a new user successfully | ✅ PASS |
+| 2 | should hash password in database | ✅ PASS |
+| 3 | should return 409 for duplicate email | ✅ PASS |
+| 4 | should return 400 for invalid email format | ✅ PASS |
+| 5 | should return 400 for weak password | ✅ PASS |
+| 6 | should return 400 for missing required fields | ✅ PASS |
+| 7 | should return 400 for invalid role | ✅ PASS |
+| 8 | should login successfully with valid credentials | ✅ PASS |
+| 9 | should return valid JWT token | ✅ PASS |
+| 10 | should return 401 for invalid email | ✅ PASS |
+| 11 | should return 401 for invalid password | ✅ PASS |
+| 12 | should return 401 for inactive user | ✅ PASS |
+| 13 | should update lastLogin timestamp | ✅ PASS |
+| 14 | should return 400 for missing email | ✅ PASS |
+| 15 | should return 400 for missing password | ✅ PASS |
+| 16 | should return user data with valid token | ✅ PASS |
+| 17 | should return 401 without token | ✅ PASS |
+| 18 | should return 401 with invalid token | ✅ PASS |
+| 19 | should return 401 with malformed authorization header | ✅ PASS |
+| 20 | should return 404 if user not found | ✅ PASS |
+| 21 | should include assignedProjects in response | ✅ PASS |
+| 22 | should handle concurrent registrations with same email | ✅ PASS |
+| 23 | should handle very long input strings | ✅ PASS |
+| 24 | should handle special characters in password | ✅ PASS |
+| 25 | should sanitize email input | ✅ PASS |
+| 26 | should handle empty request body | ✅ PASS |
+| 27 | should register ADMIN user | ✅ PASS |
+| 28 | should register PROJECT_MANAGER user | ✅ PASS |
+| 29 | should register INSPECTOR user | ✅ PASS |
+| 30 | should register SUPPLIER user | ✅ PASS |
+| 31 | should register VIEWER user | ✅ PASS |
+
+**Result: 31 / 31 passed**
+
+---
+
+### 2.2 Project Management — `project.test.ts`
+
+Tests project CRUD, milestone management, status filtering, and RBAC.
+
+| # | Test | Result |
+|---|------|--------|
+| 1 | should create a project successfully when ADMIN | ✅ PASS |
+| 2 | should deny project creation for VIEWER | ✅ PASS |
+| 3 | should get all projects for authenticated user | ✅ PASS |
+| 4 | should filter projects by status | ✅ PASS |
+| 5 | should get project details by id | ✅ PASS |
+| 6 | should return 404 for invalid id | ✅ PASS |
+| 7 | should allow PM to update project | ✅ PASS |
+| 8 | should allow ADMIN to delete project | ✅ PASS |
+| 9 | should deny VIEWER to delete project | ✅ PASS |
+| 10 | should allow PM to add milestone | ✅ PASS |
+| 11 | should allow PM to update milestone | ✅ PASS |
+| 12 | should return project timeline data | ✅ PASS |
+
+**Result: 12 / 12 passed**
+
+---
+
+### 2.3 Sustainability Monitoring — `sustainability.test.ts`
+
+Tests metric recording, enriched score, aggregated trends, industry comparison, and the `/metrics` alias.
+
+| # | Test | Result |
+|---|------|--------|
+| 1 | should create a sustainability metric and update project score | ✅ PASS |
+| 2 | should fetch metrics for a project | ✅ PASS |
+| 3 | should block non-members from viewing project metrics | ✅ PASS |
+| 4 | should return enriched score with trend, breakdown, and recommendations | ✅ PASS |
+| 5 | should calculate experimental impact metrics safely without saving | ✅ PASS |
+| 6 | should return all metrics with pagination | ✅ PASS |
+| 7 | should return a single metric by ID | ✅ PASS |
+| 8 | should update a metric and recalculate score/trees | ✅ PASS |
+| 9 | should allow ADMIN to delete metric | ✅ PASS |
+| 10 | should fetch only the most recent metric for a project | ✅ PASS |
+| 11 | should return aggregated trends with summary | ✅ PASS |
+| 12 | should return industry comparison data | ✅ PASS |
+| 13 | should create metric via /metrics alias | ✅ PASS |
+
+**Result: 13 / 13 passed**
+
+---
+
+### 2.4 Document Management — `document.test.ts`
+
+Tests document upload (Cloudinary mocked), approval workflow, search, status transitions, versioning, and download.
+
+| # | Test | Result |
+|---|------|--------|
+| 1 | should upload a document successfully as PROJECT_MANAGER | ✅ PASS |
+| 2 | should return 400 if no file is attached | ✅ PASS |
+| 3 | should return 400 for invalid projectId format | ✅ PASS |
+| 4 | should return 403 if VIEWER tries to upload | ✅ PASS |
+| 5 | should return 401 if not authenticated | ✅ PASS |
+| 6 | should return all documents for authenticated user | ✅ PASS |
+| 7 | should filter by projectId | ✅ PASS |
+| 8 | should filter by status | ✅ PASS |
+| 9 | should paginate results | ✅ PASS |
+| 10 | should return 401 if not authenticated | ✅ PASS |
+| 11 | should return a document by ID with full detail | ✅ PASS |
+| 12 | should return 404 for non-existent document | ✅ PASS |
+| 13 | should return 400 for invalid ID format | ✅ PASS |
+| 14 | should return 401 if not authenticated | ✅ PASS |
+| 15 | should update document metadata as PROJECT_MANAGER | ✅ PASS |
+| 16 | should return 400 if no updatable fields are provided | ✅ PASS |
+| 17 | should return 403 if VIEWER tries to update | ✅ PASS |
+| 18 | should return 404 for non-existent document | ✅ PASS |
+| 19 | should allow the document owner to delete | ✅ PASS |
+| 20 | should allow ADMIN to delete any document | ✅ PASS |
+| 21 | should deny INSPECTOR from deleting another user's document | ✅ PASS |
+| 22 | should approve a document as INSPECTOR | ✅ PASS |
+| 23 | should return 400 if document is already approved | ✅ PASS |
+| 24 | should return 403 if PROJECT_MANAGER tries to approve | ✅ PASS |
+| 25 | should reject a document with a reason as INSPECTOR | ✅ PASS |
+| 26 | should return 400 if rejection reason is missing | ✅ PASS |
+| 27 | should return 400 if document is already rejected | ✅ PASS |
+| 28 | should return 403 if PROJECT_MANAGER tries to reject | ✅ PASS |
+| 29 | should create a new version and archive the old one | ✅ PASS |
+| 30 | should return 400 if no file is attached | ✅ PASS |
+| 31 | should return 404 for non-existent document | ✅ PASS |
+| 32 | should return 403 if VIEWER tries to create a version | ✅ PASS |
+| 33 | should redirect to the Cloudinary file URL for authenticated user | ✅ PASS |
+| 34 | should return 404 for non-existent document | ✅ PASS |
+| 35 | should return 401 if not authenticated | ✅ PASS |
+| 36 | should search documents by title keyword | ✅ PASS |
+| 37 | should filter by documentType | ✅ PASS |
+| 38 | should return pagination metadata | ✅ PASS |
+| 39 | should transition Draft → Under Review | ✅ PASS |
+| 40 | should reject invalid transition (Draft → Approved) | ✅ PASS |
+| 41 | should allow INSPECTOR to approve after Under Review | ✅ PASS |
+
+**Result: 41 / 41 passed**
+
+---
+
+### 2.5 Compliance Management — `compliance.test.ts`
+
+Tests compliance checklists, item-level updates, project compliance score, and safety inspections.
+
+| # | Test | Result |
+|---|------|--------|
+| 1 | should create a checklist and auto-calculate compliance score | ✅ PASS |
+| 2 | should create a checklist with no items (score = 0) | ✅ PASS |
+| 3 | should return 400 if required fields are missing | ✅ PASS |
+| 4 | should return 400 for invalid projectId format | ✅ PASS |
+| 5 | should return 403 if VIEWER tries to create | ✅ PASS |
+| 6 | should return 401 if not authenticated | ✅ PASS |
+| 7 | should return all checklists for authenticated user | ✅ PASS |
+| 8 | should filter by projectId | ✅ PASS |
+| 9 | should filter by category | ✅ PASS |
+| 10 | should return 401 if not authenticated | ✅ PASS |
+| 11 | should return a checklist with populated items | ✅ PASS |
+| 12 | should return 404 for non-existent checklist | ✅ PASS |
+| 13 | should return 400 for invalid ID format | ✅ PASS |
+| 14 | should update checklist name and recalculate score when items change | ✅ PASS |
+| 15 | should auto-set completedBy when marking item complete | ✅ PASS |
+| 16 | should return 404 for non-existent checklist | ✅ PASS |
+| 17 | should return 403 if VIEWER tries to update | ✅ PASS |
+| 18 | should allow ADMIN to delete a checklist | ✅ PASS |
+| 19 | should deny PROJECT_MANAGER from deleting | ✅ PASS |
+| 20 | should return 404 for non-existent checklist | ✅ PASS |
+| 21 | should create an inspection as INSPECTOR | ✅ PASS |
+| 22 | should return 400 if required fields are missing | ✅ PASS |
+| 23 | should return 400 for invalid projectId | ✅ PASS |
+| 24 | should return 403 if PROJECT_MANAGER tries to create | ✅ PASS |
+| 25 | should return 401 if not authenticated | ✅ PASS |
+| 26 | should return all inspections for authenticated user | ✅ PASS |
+| 27 | should filter by riskLevel | ✅ PASS |
+| 28 | should filter by isResolved | ✅ PASS |
+| 29 | should return 401 if not authenticated | ✅ PASS |
+| 30 | should return an inspection by ID | ✅ PASS |
+| 31 | should return 404 for non-existent inspection | ✅ PASS |
+| 32 | should return 400 for invalid ID format | ✅ PASS |
+| 33 | should update inspection fields as INSPECTOR | ✅ PASS |
+| 34 | should auto-set isResolved when actionStatus is set to Completed | ✅ PASS |
+| 35 | should return 404 for non-existent inspection | ✅ PASS |
+| 36 | should return 403 if PROJECT_MANAGER tries to update | ✅ PASS |
+| 37 | should allow ADMIN to delete an inspection | ✅ PASS |
+| 38 | should deny INSPECTOR from deleting | ✅ PASS |
+| 39 | should return 404 for non-existent inspection | ✅ PASS |
+| 40 | should mark item as completed and update compliance score | ✅ PASS |
+| 41 | should update item notes without changing completion status | ✅ PASS |
+| 42 | should return 404 for non-existent item | ✅ PASS |
+| 43 | should return aggregated compliance score across all checklists | ✅ PASS |
+| 44 | should return zero score for project with no checklists | ✅ PASS |
+
+**Result: 44 / 44 passed**
+
+---
+
+### 2.6 Safety Inspections — `safety.test.ts`
+
+Tests the dedicated `/api/safety` router including the high-risk filter endpoint.
+
+| # | Test | Result |
+|---|------|--------|
+| 1 | should allow INSPECTOR to create an inspection | ✅ PASS |
+| 2 | should deny VIEWER from creating an inspection | ✅ PASS |
+| 3 | should list inspections for a project | ✅ PASS |
+| 4 | should return only unresolved High/Critical inspections | ✅ PASS |
+| 5 | should return a single inspection by ID | ✅ PASS |
+| 6 | should return 404 for non-existent inspection | ✅ PASS |
+| 7 | should allow INSPECTOR to update an inspection | ✅ PASS |
+| 8 | should deny VIEWER from updating | ✅ PASS |
+
+**Result: 8 / 8 passed**
+
+---
+
+### 2.7 Material Management — `material.test.ts`
+
+Tests material CRUD, stock management, cost summary, and SUPPLIER role scoping.
+
+| # | Test | Result |
+|---|------|--------|
+| 1 | should create a material as project manager | ✅ PASS |
+| 2 | should create a material as admin | ✅ PASS |
+| 3 | should not allow viewer to create material | ✅ PASS |
+| 4 | should return 404 for non-existent project | ✅ PASS |
+| 5 | should return 404 for non-existent supplier | ✅ PASS |
+| 6 | should return all materials | ✅ PASS |
+| 7 | should filter materials by category | ✅ PASS |
+| 8 | should filter materials by projectId | ✅ PASS |
+| 9 | should return a material by ID | ✅ PASS |
+| 10 | should return 404 for non-existent material | ✅ PASS |
+| 11 | should update a material | ✅ PASS |
+| 12 | should not allow viewer to update | ✅ PASS |
+| 13 | should delete a material as admin | ✅ PASS |
+| 14 | should not allow pm to delete | ✅ PASS |
+| 15 | should update material status | ✅ PASS |
+| 16 | should set currentStock when delivered | ✅ PASS |
+| 17 | should record material usage | ✅ PASS |
+| 18 | should not allow usage exceeding current stock | ✅ PASS |
+| 19 | should return low stock materials | ✅ PASS |
+| 20 | should return cost summary for project | ✅ PASS |
+| 21 | should return only materials linked to the SUPPLIER user's supplierId | ✅ PASS |
+| 22 | should return empty list for SUPPLIER with no supplierId linked | ✅ PASS |
+
+**Result: 22 / 22 passed**
+
+---
+
+### 2.8 Equipment Management — `equipment.test.ts`
+
+Tests equipment CRUD, assignment, maintenance scheduling, and status management.
+
+| # | Test | Result |
+|---|------|--------|
+| 1 | should create equipment as project manager | ✅ PASS |
+| 2 | should create equipment as admin | ✅ PASS |
+| 3 | should not allow viewer to create equipment | ✅ PASS |
+| 4 | should return all equipment | ✅ PASS |
+| 5 | should filter equipment by type | ✅ PASS |
+| 6 | should filter equipment by status | ✅ PASS |
+| 7 | should return equipment by ID | ✅ PASS |
+| 8 | should return 404 for non-existent equipment | ✅ PASS |
+| 9 | should update equipment | ✅ PASS |
+| 10 | should not allow viewer to update | ✅ PASS |
+| 11 | should delete equipment as admin | ✅ PASS |
+| 12 | should not allow pm to delete | ✅ PASS |
+| 13 | should assign equipment to project | ✅ PASS |
+| 14 | should not assign unavailable equipment | ✅ PASS |
+| 15 | should schedule maintenance for equipment | ✅ PASS |
+| 16 | should mark equipment as under maintenance for repair | ✅ PASS |
+| 17 | should update equipment status | ✅ PASS |
+| 18 | should clear assignment when marked available | ✅ PASS |
+| 19 | should return available equipment | ✅ PASS |
+| 20 | should filter available equipment by type | ✅ PASS |
+
+**Result: 20 / 20 passed**
+
+---
+
+### 2.9 Supplier Management — `supplier.test.ts`
+
+Tests supplier CRUD, rating system, and performance metrics.
+
+| # | Test | Result |
+|---|------|--------|
+| 1 | should create a supplier as project manager | ✅ PASS |
+| 2 | should create a supplier as admin | ✅ PASS |
+| 3 | should not allow viewer to create supplier | ✅ PASS |
+| 4 | should reject invalid email | ✅ PASS |
+| 5 | should return all suppliers | ✅ PASS |
+| 6 | should filter suppliers by isActive | ✅ PASS |
+| 7 | should filter suppliers by isPreferred | ✅ PASS |
+| 8 | should search suppliers by company name | ✅ PASS |
+| 9 | should return supplier by ID | ✅ PASS |
+| 10 | should return 404 for non-existent supplier | ✅ PASS |
+| 11 | should update a supplier | ✅ PASS |
+| 12 | should not allow viewer to update | ✅ PASS |
+| 13 | should delete a supplier as admin | ✅ PASS |
+| 14 | should not allow pm to delete | ✅ PASS |
+| 15 | should rate a supplier | ✅ PASS |
+| 16 | should reject invalid rating | ✅ PASS |
+| 17 | should calculate average rating correctly | ✅ PASS |
+| 18 | should return supplier performance metrics | ✅ PASS |
+| 19 | should return 404 for non-existent supplier | ✅ PASS |
+
+**Result: 19 / 19 passed**
+
+---
+
+### 2.10 User Management — `user.test.ts`
+
+Tests ADMIN-only user management: listing, filtering, role updates, and soft-delete.
+
+| # | Test | Result |
+|---|------|--------|
+| 1 | should return paginated user list for ADMIN | ✅ PASS |
+| 2 | should deny non-ADMIN access | ✅ PASS |
+| 3 | should filter by role | ✅ PASS |
+| 4 | should search by name | ✅ PASS |
+| 5 | should return a user by ID for ADMIN | ✅ PASS |
+| 6 | should return 404 for non-existent user | ✅ PASS |
+| 7 | should allow ADMIN to deactivate a user | ✅ PASS |
+| 8 | should allow ADMIN to change role | ✅ PASS |
+| 9 | should prevent ADMIN from changing their own role | ✅ PASS |
+| 10 | should deny non-ADMIN from updating users | ✅ PASS |
+| 11 | should soft-delete (deactivate) a user | ✅ PASS |
+| 12 | should prevent ADMIN from deactivating themselves | ✅ PASS |
+
+**Result: 12 / 12 passed**
+
+---
+
+## 3. Code Coverage
+
+Generated with `npm test -- --coverage`. Run date: April 2026.
+
+| Module | Statements | Branches | Functions | Lines |
+|--------|-----------|----------|-----------|-------|
+| `controllers/auth.controller.ts` | 54.94% | 35.41% | 60% | 52.32% |
+| `controllers/compliance.controller.ts` | 80.93% | 63.74% | 100% | 84.12% |
+| `controllers/document.controller.ts` | 74.44% | 58.38% | 78.94% | 74.69% |
+| `controllers/project.controller.ts` | 64.49% | 32.81% | 66.66% | 64% |
+| `controllers/resource.controller.ts` | 76.69% | 52.04% | 100% | 75.2% |
+| `controllers/sustainability.controller.ts` | 78.15% | 41.79% | 100% | 82.28% |
+| `controllers/user.controller.ts` | 76.38% | 63.41% | 100% | 75.38% |
+| `middleware/auth.ts` | 100% | 83.33% | 100% | 100% |
+| `models/ComplianceChecklist.ts` | 100% | 100% | 100% | 100% |
+| `models/Document.ts` | 100% | 92.85% | 100% | 100% |
+| `models/User.ts` | 95% | 100% | 100% | 95% |
+| `routes/*.ts` | 91.66% | 100% | 12.5% | 95.06% |
+| `validation/auth.validation.ts` | 100% | 100% | 100% | 100% |
+
+> Full HTML coverage report: `apps/backend/coverage/lcov-report/index.html`  
+> Generate: `cd apps/backend && npm test -- --coverage`
+
+---
+
+## 4. Performance Tests (k6)
+
+Performance tests use [k6](https://k6.io) and run against a live backend server. They are **not** run against the in-memory test database.
+
+### Prerequisites
+
+```bash
+# Install k6
+brew install k6          # macOS
+sudo apt install k6      # Ubuntu/Debian
+
+# Start the backend server
+cd apps/backend
+npm run dev
+```
+
+### Test Scenarios
+
+| Script | Scenario | VUs | Duration |
+|--------|----------|-----|----------|
+| `smoke.test.js` | Single user, basic health check | 1 | 10s |
+| `load-scenarios.test.js` | Normal expected load | 0 → 10 → 0 | ~2 min |
+| `stress-test.test.js` | Beyond normal capacity | 0 → 100 | ~2.5 min |
+| `endurance-test.test.js` | Sustained load | 10 | Extended |
+
+### Run Commands
+
+```bash
+cd apps/backend
+
+# Smoke test
+npm run perf:smoke
+
+# Load test
+npm run perf:load
+
+# Stress test
+npm run perf:stress
+
+# Against deployed Render API
+BASE_URL=https://sustainsite-api.onrender.com npm run perf:smoke
+```
+
+### Pass/Fail Thresholds
+
+| Metric | Threshold | Purpose |
+|--------|-----------|---------|
+| `http_req_duration` p(95) | < 500 ms | 95% of requests respond within 500ms |
+| `http_req_duration` p(99) | < 1000 ms | 99% of requests respond within 1 second |
+| `http_req_failed` rate | < 1% | Less than 1% of requests fail |
+| `http_reqs` rate | > 10 req/s | Minimum throughput |
+| Custom `errors` rate | < 5% | Application-level error rate |
+
+### Endpoints Covered by k6 Tests
+
+- `POST /api/auth/login` — authentication
+- `GET /api/projects` — project listing
+- `GET /api/sustainability` — metric listing
+- `GET /api/documents` — document listing
+- `GET /api/materials` — material listing
+- `GET /api/equipment` — equipment listing
+- `GET /api/suppliers` — supplier listing
+
+> **Note:** Rate limiting is automatically disabled during performance tests via `DISABLE_RATE_LIMIT=true` (set in `npm run perf:all`).
+
+---
+
+## 5. Test Environment Configuration
+
+| Setting | Value |
+|---------|-------|
+| Node.js version | ≥ 18 |
+| Test framework | Jest 30 |
+| HTTP testing | Supertest 7 |
+| In-memory database | `mongodb-memory-server` 11 |
+| Performance testing | k6 (latest) |
+| `NODE_ENV` during tests | `test` |
+| Rate limiting in tests | Disabled automatically (`NODE_ENV=test`) |
+| External services | Cloudinary mocked; SendGrid not called |
+| Test isolation | Database cleared via `beforeEach` in each suite |
+
+### Jest Configuration (from `package.json`)
+
+```json
+{
+  "test": "jest --coverage",
+  "test:watch": "jest --watch",
+  "test:ci": "jest --ci --coverage --maxWorkers=2"
+}
+```
+
+### Test Setup File — `src/__tests__/setup.ts`
+
+- Starts `mongodb-memory-server` before all tests
+- Connects Mongoose to the in-memory instance
+- Clears all collections between tests
+- Stops the server after all tests complete
+
+---
+
+## 6. Third-Party API Testing
+
+The following third-party integrations are tested indirectly through integration tests:
+
+| Service | How tested |
+|---------|-----------|
+| **Cloudinary** | Mocked in `document.test.ts` — `uploadToCloudinary` and `deleteFromCloudinary` return fixed responses |
+| **SendGrid** | Mocked in `safety.test.ts` — `sendEmail` is a no-op jest mock; real calls only happen when `SENDGRID_API_KEY` is set |
+| **MongoDB Atlas** | Integration tests use `mongodb-memory-server`; production uses Atlas |
+
+---
+
+*Report generated from test run on April 10, 2026 — 268/268 tests passing.*

@@ -1,8 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { canCreateProject, canLogSustainabilityMetrics } from '@/lib/rbac';
 import DashboardLayout from '@/components/common/DashboardLayout';
 import StatCards from '@/components/dashboard/StatCards';
 import ProjectOverview from '@/components/dashboard/ProjectOverview';
+import SecondaryColumn from '@/components/dashboard/SecondaryColumn';
 import { dashboardApi } from '@/lib/api';
 import { useDashboardStore } from '@/store';
 
@@ -10,7 +14,7 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const userName = user?.fullName || 'User';
 
-  const { setDashboard, setDashboardLoading, isDashboardLoading } = useDashboardStore();
+  const { setDashboard, setDashboardLoading, isDashboardLoading, projects } = useDashboardStore();
 
   useEffect(() => {
     const load = async () => {
@@ -25,11 +29,11 @@ export default function DashboardPage() {
             dashboardApi.getUpcomingChecklists(),
           ]);
 
-        const projects = projectsRes.data;
+        const projectList = projectsRes.data;
         const avgSustainability =
-          projects.length > 0
+          projectList.length > 0
             ? Math.round(
-                projects.reduce((s, p) => s + (p.sustainabilityScore ?? 0), 0) / projects.length
+                projectList.reduce((s, p) => s + (p.sustainabilityScore ?? 0), 0) / projectList.length
               )
             : 0;
 
@@ -38,9 +42,10 @@ export default function DashboardPage() {
           .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
           .slice(0, 5);
 
-        setDashboard({ projects, activeCount, pendingApprovals, highRiskCount, avgSustainability, upcomingDueDates });
+        setDashboard({ projects: projectList, activeCount, pendingApprovals, highRiskCount, avgSustainability, upcomingDueDates });
       } catch (err) {
         console.error('Dashboard load failed:', err);
+        toast.error('Failed to load dashboard data');
       } finally {
         setDashboardLoading(false);
       }
@@ -50,7 +55,24 @@ export default function DashboardPage() {
 
   if (!user) return null;
 
+  const showQuickActions = canCreateProject(user.role) || canLogSustainabilityMetrics(user.role);
+
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  const firstProjectId = projects[0]?._id;
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   return (
     <DashboardLayout>
@@ -66,25 +88,54 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="relative group">
-          <button className="px-5 py-2.5 bg-primary text-white font-bold text-sm rounded-lg flex items-center gap-2 shadow-lg shadow-primary/10 hover:brightness-110 active:scale-95 transition-all outline-none cursor-pointer font-headline translate-y-2 lg:translate-y-0">
+        {showQuickActions && (
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setMenuOpen(o => !o)}
+            aria-haspopup="true"
+            aria-expanded={menuOpen}
+            className="px-5 py-2.5 bg-primary text-white font-bold text-sm rounded-lg flex items-center gap-2 shadow-lg shadow-primary/10 hover:brightness-110 active:scale-95 transition-all outline-none cursor-pointer font-headline translate-y-2 lg:translate-y-0"
+          >
             <span className="material-symbols-outlined text-lg">add_circle</span>
             Quick Action
-            <span className="material-symbols-outlined text-lg">expand_more</span>
+            <span className={`material-symbols-outlined text-lg transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`}>expand_more</span>
           </button>
-          <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-slate-100 py-2 hidden group-hover:block z-20">
-            <a className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 font-medium font-headline" href="/projects/new">
-              <span className="material-symbols-outlined text-lg">architecture</span> New Project
-            </a>
-            <a className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 font-medium font-headline" href="#">
-              <span className="material-symbols-outlined text-lg">monitoring</span> Log Metrics
-            </a>
-          </div>
+          {menuOpen && (
+            <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-slate-100 py-2 z-20">
+              {canCreateProject(user.role) && (
+              <Link
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 font-medium font-headline"
+                to="/projects/new"
+              >
+                <span className="material-symbols-outlined text-lg">architecture</span> New Project
+              </Link>
+              )}
+              {canLogSustainabilityMetrics(user.role) && (
+              <Link
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 font-medium font-headline"
+                to={projects.length === 1 ? `/projects/${firstProjectId}/sustainability/record` : '/projects'}
+              >
+                <span className="material-symbols-outlined text-lg">monitoring</span> Log Metrics
+              </Link>
+              )}
+            </div>
+          )}
         </div>
+        )}
       </header>
 
       <StatCards isLoading={isDashboardLoading} />
-      <ProjectOverview isLoading={isDashboardLoading} />
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mt-8 pb-10">
+        <div className="xl:col-span-2">
+          <ProjectOverview isLoading={isDashboardLoading} />
+        </div>
+        <div className="xl:col-span-1">
+          <SecondaryColumn />
+        </div>
+      </div>
     </DashboardLayout>
   );
 }

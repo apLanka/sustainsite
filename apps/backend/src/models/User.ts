@@ -9,7 +9,7 @@ export interface IUser extends Document {
   role: UserRole;
   jobTitle: string;
   assignedProjects: mongoose.Types.ObjectId[];
-
+  supplierId?: mongoose.Types.ObjectId | null;
   isActive: boolean;
   lastLogin?: Date;
   createdAt: Date;
@@ -61,6 +61,13 @@ const userSchema = new Schema<IUser>(
         ref: 'Project',
       },
     ],
+
+    // Optional link to a Supplier document — used to scope SUPPLIER role access to their own materials
+    supplierId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Supplier',
+      default: null,
+    },
 
     isActive: {
       type: Boolean,

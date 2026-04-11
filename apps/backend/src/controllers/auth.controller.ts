@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import User from '../models/User';
 import { generateToken } from '../middleware/auth';
+import logger from '../utils/logger';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -40,7 +41,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       },
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    logger.error('Registration error', { error });
 
     if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
       res.status(409).json({
@@ -99,6 +100,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       userId: user._id.toString(),
       email: user.email,
       role: user.role,
+      supplierId: user.supplierId?.toString(),
     });
 
     res.status(200).json({
@@ -115,7 +117,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       },
     });
   } catch (error) {
-    console.error('Login error:', error);
+    logger.error('Login error', { error });
     res.status(500).json({
       success: false,
       message: 'An error occurred during login',
@@ -168,7 +170,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
       },
     });
   } catch (error) {
-    console.error('Update profile error:', error);
+    logger.error('Update profile error', { error });
     res.status(500).json({
       success: false,
       message: error instanceof Error ? error.message : 'An error occurred while updating profile',
@@ -202,7 +204,7 @@ export const changePassword = async (req: Request, res: Response): Promise<void>
 
     res.status(200).json({ success: true, data: { message: 'Password changed successfully' } });
   } catch (error) {
-    console.error('Change password error:', error);
+    logger.error('Change password error', { error });
     res.status(500).json({
       success: false,
       message: error instanceof Error ? error.message : 'An error occurred while changing password',
@@ -246,7 +248,7 @@ export const getCurrentUser = async (req: Request, res: Response): Promise<void>
       },
     });
   } catch (error) {
-    console.error('Get current user error:', error);
+    logger.error('Get current user error', { error });
     res.status(500).json({
       success: false,
       message: 'An error occurred while fetching user data',

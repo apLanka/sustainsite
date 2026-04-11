@@ -31,6 +31,18 @@ router.get(
   getProjects
 );
 
+// Must be before /:id to avoid "status" being treated as a project ID
+router.get(
+  '/status/:status',
+  authenticate,
+  authorize(UserRole.ADMIN, UserRole.PROJECT_MANAGER, UserRole.INSPECTOR, UserRole.VIEWER),
+  (req, _res, next) => {
+    req.query.status = req.params.status;
+    next();
+  },
+  getProjects
+);
+
 router.get('/:id', authenticate, checkProjectMembership('params.id'), getProjectById);
 
 router.put('/:id', authenticate, checkProjectManager('params.id'), updateProject);

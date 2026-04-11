@@ -1,7 +1,9 @@
 import { Cloud, ShieldCheck, Package, BarChart3, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 
 const Features = () => {
+  const navigate = useNavigate();
   return (
     <section className="py-24 px-6 lg:px-12 bg-surface-container-low">
       <div className="max-w-7xl mx-auto">
@@ -52,8 +54,11 @@ const Features = () => {
               <h3 className="text-2xl font-headline font-bold mb-3">Document Compliance</h3>
               <p className="text-white/70 text-sm font-medium">Automated LEED and BREEAM certification workflows with smart contract triggers.</p>
             </div>
-            <button className="mt-4 text-secondary-container font-bold text-sm flex items-center gap-2 hover:gap-3 transition-all cursor-pointer">
-              Learn more <ArrowRight className="w-4 h-4" />
+            <button
+              onClick={() => navigate('/register')}
+              className="mt-4 text-secondary-container font-bold text-sm flex items-center gap-2 hover:gap-3 transition-all cursor-pointer"
+            >
+              Get Started <ArrowRight className="w-4 h-4" />
             </button>
           </motion.div>
 
@@ -95,8 +100,9 @@ const Features = () => {
             </div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             whileHover={{ scale: 1.01 }}
+            onClick={() => navigate('/register')}
             className="md:col-span-2 lg:col-span-3 h-[320px] rounded-3xl overflow-hidden relative group cursor-pointer"
           >
             <img 

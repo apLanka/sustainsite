@@ -77,8 +77,11 @@ const StatCards = ({ isLoading }: { isLoading: boolean }) => {
           )}
           <p className="text-sm font-semibold text-slate-500 mt-1 uppercase tracking-wider font-headline">Pending Approvals</p>
         </div>
-        {!isLoading && pendingApprovals > 0 && firstProjectId && (
-          <Link to={`/projects/${firstProjectId}/documents?status=Under Review`} className="mt-4 inline-flex items-center text-xs font-bold text-amber-700 hover:underline group-hover:gap-2 transition-all gap-1 cursor-pointer">
+        {!isLoading && pendingApprovals > 0 && (
+          <Link
+            to={projects.length === 1 ? `/projects/${firstProjectId}/documents?status=Under Review` : '/projects'}
+            className="mt-4 inline-flex items-center text-xs font-bold text-amber-700 hover:underline group-hover:gap-2 transition-all gap-1 cursor-pointer"
+          >
             Review Now <span className="material-symbols-outlined !text-sm">arrow_forward</span>
           </Link>
         )}
