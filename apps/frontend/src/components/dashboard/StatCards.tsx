@@ -16,7 +16,7 @@ const StatCards = ({ isLoading }: { isLoading: boolean }) => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
 
       {/* Active Projects */}
-      <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col justify-between group hover:shadow-md transition-shadow">
+      <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col justify-between group transition-all">
         <div className="flex justify-between items-start mb-4">
           <div className="w-14 h-14 bg-emerald-50 rounded-xl flex items-center justify-center text-secondary">
             <span className="material-symbols-outlined !text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>foundation</span>
@@ -33,7 +33,7 @@ const StatCards = ({ isLoading }: { isLoading: boolean }) => {
       </div>
 
       {/* Sustainability Score */}
-      <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col items-center justify-center text-center group hover:shadow-md transition-shadow">
+      <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col items-center justify-center text-center group transition-all">
         <div className="relative w-36 h-36 flex items-center justify-center mb-3">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 144 144">
             <circle className="stroke-slate-100 fill-none" cx="72" cy="72" r={CIRC_R} strokeWidth="10" />
@@ -63,7 +63,7 @@ const StatCards = ({ isLoading }: { isLoading: boolean }) => {
       </div>
 
       {/* Pending Approvals */}
-      <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col justify-between group hover:shadow-md transition-shadow">
+      <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col justify-between group transition-all">
         <div className="flex justify-between items-start">
           <div className="w-14 h-14 bg-amber-50 rounded-xl flex items-center justify-center text-amber-700">
             <span className="material-symbols-outlined !text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>pending_actions</span>
@@ -88,7 +88,7 @@ const StatCards = ({ isLoading }: { isLoading: boolean }) => {
       </div>
 
       {/* High-Risk Inspections */}
-      <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col justify-between group hover:shadow-md transition-shadow">
+      <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-slate-100/50 flex flex-col justify-between group transition-all">
         <div className="flex justify-between items-start mb-4">
           <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${highRiskCount > 0 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-secondary'}`}>
             <span className="material-symbols-outlined !text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>

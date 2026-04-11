@@ -64,7 +64,7 @@ const MilestoneTimeline = ({ milestones, onEdit }: Props) => {
               <div className={`p-8 rounded-3xl transition-all duration-500 border ${
                 isActive
                   ? 'bg-emerald-950 text-white border-emerald-800 shadow-2xl shadow-emerald-950/40 -translate-y-1'
-                  : 'bg-surface-container-lowest border-slate-100/50 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-950/5'
+                  : 'bg-surface-container-lowest border-slate-100/50 hover:border-emerald-200'
               }`}>
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                   <div className="flex-1 min-w-0">

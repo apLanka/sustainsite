@@ -27,7 +27,7 @@ const ProjectStats = ({ project }: Props) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
       {/* Budget */}
-      <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-slate-100/50 hover:shadow-xl hover:shadow-emerald-950/5 transition-all group">
+      <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-slate-100/50 transition-all group">
         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 group-hover:text-secondary transition-colors leading-none">
           Budget Utilized
         </p>
@@ -43,7 +43,7 @@ const ProjectStats = ({ project }: Props) => {
       </div>
 
       {/* Days Elapsed */}
-      <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-slate-100/50 hover:shadow-xl hover:shadow-emerald-950/5 transition-all group">
+      <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-slate-100/50 transition-all group">
         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 group-hover:text-secondary transition-colors leading-none">
           Days Elapsed
         </p>
@@ -57,7 +57,7 @@ const ProjectStats = ({ project }: Props) => {
       </div>
 
       {/* Sustainability Score */}
-      <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-slate-100/50 hover:shadow-xl hover:shadow-emerald-950/5 transition-all group">
+      <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-slate-100/50 transition-all group">
         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 group-hover:text-secondary transition-colors leading-none">
           Sustainability Score
         </p>
@@ -75,7 +75,7 @@ const ProjectStats = ({ project }: Props) => {
       </div>
 
       {/* Completion */}
-      <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-slate-100/50 hover:shadow-xl hover:shadow-emerald-950/5 transition-all group">
+      <div className="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-slate-100/50 transition-all group">
         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 group-hover:text-secondary transition-colors leading-none">
           Completion
         </p>

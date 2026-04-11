@@ -35,7 +35,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
   const budgetOver = project.budgetVariance < 0;
 
   return (
-    <div className="relative bg-white rounded-2xl border border-slate-100 shadow-sm group hover:shadow-xl hover:shadow-emerald-950/5 transition-all duration-300 hover:-translate-y-0.5 flex flex-col cursor-pointer">
+    <div className="relative bg-white rounded-2xl border border-slate-100 shadow-sm group transition-all duration-300 hover:-translate-y-0.5 flex flex-col cursor-pointer">
 
       {/* ── Top bar: status + completion ── */}
       <div className="flex items-center justify-between px-5 pt-5 pb-0">
