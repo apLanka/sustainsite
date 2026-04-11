@@ -6,7 +6,10 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "turbo run format",
-    "check-types": "turbo run check-types"
+    "check-types": "turbo run check-types",
+    "docs:export-openapi": "cd apps/backend && npx ts-node scripts/export-openapi-for-fern.ts",
+    "docs:fern-check": "cd fern && npx fern-api@0.56.12 check",
+    "docs:fern-check-links": "cd fern && npx fern-api@0.56.12 check --broken-links"
   },
   "devDependencies": {
     "prettier": "^3.7.4",
