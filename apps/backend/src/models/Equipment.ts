@@ -222,7 +222,7 @@ const equipmentSchema = new Schema<IEquipment>(
   }
 );
 
-equipmentSchema.index({ serialNumber: 1 }, { unique: true, sparse: true });
+// serialNumber: unique+sparse on the path above already creates this index
 equipmentSchema.index({ status: 1 });
 equipmentSchema.index({ currentProjectId: 1 });
 equipmentSchema.index({ nextScheduledMaintenance: 1 });

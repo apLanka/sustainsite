@@ -26,6 +26,10 @@ try {
 
 const app: Application = express();
 
+// JSON APIs: avoid 304 Not Modified on repeat GETs (Express ETag + If-None-Match).
+// Clients like React Query expect a 200 body unless they implement cache revalidation.
+app.set('etag', false);
+
 const corsOptions = {
   origin: function (
     origin: string | undefined,

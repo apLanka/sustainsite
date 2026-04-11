@@ -219,7 +219,7 @@ const supplierSchema = new Schema<ISupplier>(
   }
 );
 
-supplierSchema.index({ companyName: 1 }, { unique: true });
+// companyName: unique on the path above already creates this index
 supplierSchema.index({ email: 1 });
 supplierSchema.index({ isActive: 1 });
 supplierSchema.index({ averageRating: -1 });
