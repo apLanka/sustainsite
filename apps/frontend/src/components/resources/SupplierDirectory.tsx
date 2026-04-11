@@ -199,7 +199,7 @@ export default function SupplierDirectory() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {filteredSuppliers.map(supplier => (
-            <div key={supplier._id} className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden">
+            <div key={supplier._id} className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-sm transition-all group relative overflow-hidden">
               {supplier.isSustainabilityCertified && (
                 <div className="absolute top-0 right-0 p-4">
                   <div className="flex items-center gap-1.5 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-200 shadow-sm">

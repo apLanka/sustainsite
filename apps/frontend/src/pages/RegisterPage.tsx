@@ -173,7 +173,7 @@ export default function RegisterPage() {
         </div>
 
         <button
-          className="signature-gradient w-full py-4 rounded-xl font-headline font-bold text-white shadow-xl hover:shadow-primary/20 hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
+          className="signature-gradient w-full py-4 rounded-xl font-headline font-bold text-white shadow-xl hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
           type="submit"
           disabled={isSubmitting}
         >
