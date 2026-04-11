@@ -15,7 +15,7 @@ const Features = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
           <motion.div 
             whileHover={{ y: -5 }}
-            className="md:col-span-2 bg-surface-container-lowest p-8 rounded-3xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between min-h-[320px]"
+            className="md:col-span-2 bg-surface-container-lowest p-8 rounded-3xl shadow-sm transition-all flex flex-col justify-between min-h-[320px]"
           >
             <div>
               <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center mb-6">
@@ -64,7 +64,7 @@ const Features = () => {
 
           <motion.div 
             whileHover={{ y: -5 }}
-            className="bg-surface-container-lowest p-8 rounded-3xl shadow-sm hover:shadow-md transition-all min-h-[320px] flex flex-col"
+            className="bg-surface-container-lowest p-8 rounded-3xl shadow-sm transition-all min-h-[320px] flex flex-col"
           >
             <div className="w-12 h-12 rounded-2xl bg-tertiary-container/10 flex items-center justify-center mb-6">
               <Package className="text-tertiary-container w-6 h-6" />

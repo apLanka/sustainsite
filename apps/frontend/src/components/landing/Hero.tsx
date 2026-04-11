@@ -33,7 +33,7 @@ const Hero = () => {
           <div className="flex flex-col sm:flex-row items-center gap-6 pt-4">
             <button
               onClick={() => navigate('/register')}
-              className="w-full sm:w-auto signature-gradient text-white px-12 py-5 rounded-2xl font-bold text-lg shadow-[0_20px_40px_rgba(1,45,29,0.25)] hover:shadow-none hover:translate-y-1 transition-all duration-300 cursor-pointer"
+              className="w-full sm:w-auto signature-gradient text-white px-12 py-5 rounded-2xl font-bold text-lg shadow-[0_20px_40px_rgba(1,45,29,0.25)] hover:translate-y-1 transition-all duration-300 cursor-pointer"
             >
               Get Started
             </button>
