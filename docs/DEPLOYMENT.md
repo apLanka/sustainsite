@@ -1,6 +1,6 @@
 # Deployment Report — SustainSite
 
-**Related documents:** [README / Setup & API Docs](../README.md) · [Testing Instruction Report](./TESTING.md) · [Test Report](./TEST_REPORT.md)
+**Related documents:** [README / Setup & API Docs](../README.md) · [SE3040 documentation (Fern)](https://sustain-site-api.docs.buildwithfern.com/) · [Testing Instruction Report](./TESTING.md) · [Test Report](./TEST_REPORT.md)
 
 ---
 
@@ -51,6 +51,7 @@
 | Backend API | Render Web Service | `https://sustainsite-api.onrender.com` |
 | Frontend | Vercel | `https://sustainsite.vercel.app` |
 | API Docs (Swagger) | Render (served by backend) | `https://sustainsite-api.onrender.com/api-docs` |
+| SE3040 docs (Fern) | Fern | [https://sustain-site-api.docs.buildwithfern.com/](https://sustain-site-api.docs.buildwithfern.com/) |
 | Database | MongoDB Atlas | Cloud-hosted (M0 Free Tier) |
 
 > Replace the URLs above with your actual deployed URLs once available.
@@ -234,6 +235,8 @@ curl https://sustainsite-api.onrender.com/api
 Open `https://sustainsite-api.onrender.com/api-docs` in a browser.  
 You should see the interactive OpenAPI documentation with all endpoints listed.
 
+**SE3040 submission docs (Fern):** [https://sustain-site-api.docs.buildwithfern.com/](https://sustain-site-api.docs.buildwithfern.com/) — deployment report, testing instructions, test report, and OpenAPI-style API reference (mirrors repo `fern/` content when published).
+
 ### 5.3 Authentication Flow
 
 ```bash
@@ -276,9 +279,10 @@ Create a project and assign a project manager. Verify the assignment email is re
 | 7 | SendGrid sender identity is verified | ☐ |
 | 8 | `GET /health` returns 200 after deploy | ☐ |
 | 9 | Swagger UI loads at `/api-docs` | ☐ |
-| 10 | Frontend loads and can log in | ☐ |
-| 11 | CORS: no errors in browser console | ☐ |
-| 12 | File upload works end-to-end | ☐ |
+| 10 | Fern docs site opens ([sustain-site-api.docs.buildwithfern.com](https://sustain-site-api.docs.buildwithfern.com/)) | ☐ |
+| 11 | Frontend loads and can log in | ☐ |
+| 12 | CORS: no errors in browser console | ☐ |
+| 13 | File upload works end-to-end | ☐ |
 
 ---
 

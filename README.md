@@ -225,6 +225,8 @@ npm run build -- --filter=backend
 
 ## 📚 API Documentation
 
+**Hosted documentation (SE3040 — Fern):** [https://sustain-site-api.docs.buildwithfern.com/](https://sustain-site-api.docs.buildwithfern.com/) — deployment report, testing instructions, test report, API overview, and OpenAPI reference.
+
 Base URL: `http://localhost:5000/api`
 
 ### Authentication
@@ -1512,6 +1514,7 @@ On the free tier, Render spins down the service after 15 minutes of inactivity. 
 | Document | Description |
 |----------|-------------|
 | [README.md](../README.md) | This file — Setup instructions, API documentation, deployment guide |
+| [SE3040 documentation (Fern)](https://sustain-site-api.docs.buildwithfern.com/) | Published docs site — same deliverables as below, plus browsable API reference |
 | [Deployment Report](./docs/DEPLOYMENT.md) | Formal deployment report: architecture, step-by-step Render + Vercel setup, env vars, post-deploy verification |
 | [Testing Instruction Report](./docs/TESTING.md) | How to run unit, integration, and performance tests; environment configuration |
 | [Test Report](./docs/TEST_REPORT.md) | Full test results — 268/268 tests passing, coverage table, k6 performance results |
@@ -1520,6 +1523,7 @@ On the free tier, Render spins down the service after 15 minutes of inactivity. 
 
 - [Project Specification](./docs/project-spec.md) - Complete technical specification
 - [Backend Tasks Checklist](./docs/BACKEND_TASKS.md) - Phase 1 & 2 completion tracker
+- [SE3040 documentation (Fern)](https://sustain-site-api.docs.buildwithfern.com/) — deployment, testing, test report, API reference
 - [Swagger UI](http://localhost:5000/api-docs) - Interactive API documentation (when server is running)
 - [Express.js Documentation](https://expressjs.com/)
 - [React Documentation](https://react.dev/)
