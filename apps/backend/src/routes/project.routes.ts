@@ -32,7 +32,11 @@ router.get(
   authenticate,
   authorize(UserRole.ADMIN, UserRole.PROJECT_MANAGER, UserRole.INSPECTOR, UserRole.VIEWER),
   (req, _res, next) => {
-    req.query.status = req.params.status;
+    Object.defineProperty(req, 'query', {
+      value: { ...req.query, status: req.params.status },
+      writable: true,
+      configurable: true,
+    });
     next();
   },
   getProjects

@@ -12,6 +12,13 @@ import type {
   IssueIdentified,
 } from '@/types/compliance';
 import { InspectionType, RiskLevel, ActionStatus, IssueSeverity } from '@/types/compliance';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 const RISK_COLORS: Record<string, string> = {
   Low: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   Medium: 'bg-amber-50 text-amber-700 border-amber-200',
@@ -242,48 +249,38 @@ export default function SafetyPage() {
         )}
 
         <div className="flex flex-wrap gap-3">
-          <select
-            value={filterRisk}
-            onChange={(e) => {
-              setFilterRisk(e.target.value);
-              setPage(1);
-            }}
-            className="input-standard h-10 text-xs px-3 min-w-[140px]"
-          >
-            <option value="">All Risk Levels</option>
-            {Object.values(RiskLevel).map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
-          <select
-            value={filterStatus}
-            onChange={(e) => {
-              setFilterStatus(e.target.value);
-              setPage(1);
-            }}
-            className="input-standard h-10 text-xs px-3 min-w-[140px]"
-          >
-            <option value="">All Statuses</option>
-            {Object.values(ActionStatus).map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-          <select
-            value={filterResolved}
-            onChange={(e) => {
-              setFilterResolved(e.target.value);
-              setPage(1);
-            }}
-            className="input-standard h-10 text-xs px-3 min-w-[140px]"
-          >
-            <option value="">All</option>
-            <option value="false">Unresolved</option>
-            <option value="true">Resolved</option>
-          </select>
+          <Select value={filterRisk || 'all'} onValueChange={(v) => { setFilterRisk(v === 'all' ? '' : v); setPage(1); }}>
+            <SelectTrigger className="input-standard h-11 py-2.5 px-3 min-w-[140px] text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Risk Levels</SelectItem>
+              {Object.values(RiskLevel).map((r) => (
+                <SelectItem key={r} value={r}>{r}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterStatus || 'all'} onValueChange={(v) => { setFilterStatus(v === 'all' ? '' : v); setPage(1); }}>
+            <SelectTrigger className="input-standard h-11 py-2.5 px-3 min-w-[140px] text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              {Object.values(ActionStatus).map((s) => (
+                <SelectItem key={s} value={s}>{s}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterResolved || 'all'} onValueChange={(v) => { setFilterResolved(v === 'all' ? '' : v); setPage(1); }}>
+            <SelectTrigger className="input-standard h-11 py-2.5 px-3 min-w-[140px] text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="false">Unresolved</SelectItem>
+              <SelectItem value="true">Resolved</SelectItem>
+            </SelectContent>
+          </Select>
           {(filterRisk || filterStatus || filterResolved) && (
             <button
               onClick={() => {
@@ -496,23 +493,19 @@ export default function SafetyPage() {
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                     Type
                   </label>
-                  <select
-                    className="input-standard w-full h-10 text-sm"
+                  <Select
                     value={form.inspectionType}
-                    onChange={(e) =>
-                      setForm((f) => ({
-                        ...f,
-                        inspectionType: e.target
-                          .value as (typeof InspectionType)[keyof typeof InspectionType],
-                      }))
-                    }
+                    onValueChange={(v) => setForm((f) => ({ ...f, inspectionType: v as (typeof InspectionType)[keyof typeof InspectionType] }))}
                   >
-                    {Object.values(InspectionType).map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="input-standard w-full h-11 py-2.5 px-3 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(InspectionType).map((t) => (
+                        <SelectItem key={t} value={t}>{t}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div className="space-y-1.5">
@@ -618,23 +611,19 @@ export default function SafetyPage() {
                     value={newIssue.issue}
                     onChange={(e) => setNewIssue((n) => ({ ...n, issue: e.target.value }))}
                   />
-                  <select
-                    className="input-standard h-9 text-xs px-2"
+                  <Select
                     value={newIssue.severity}
-                    onChange={(e) =>
-                      setNewIssue((n) => ({
-                        ...n,
-                        severity: e.target
-                          .value as (typeof IssueSeverity)[keyof typeof IssueSeverity],
-                      }))
-                    }
+                    onValueChange={(v) => setNewIssue((n) => ({ ...n, severity: v as (typeof IssueSeverity)[keyof typeof IssueSeverity] }))}
                   >
-                    {Object.values(IssueSeverity).map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="input-standard h-11 py-2.5 px-3 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(IssueSeverity).map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <button
                     onClick={() => {
                       if (!newIssue.issue.trim()) return;
@@ -885,23 +874,19 @@ export default function SafetyPage() {
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                     Type
                   </label>
-                  <select
-                    className="input-standard w-full h-10 text-sm"
+                  <Select
                     value={editForm.inspectionType ?? ''}
-                    onChange={(e) =>
-                      setEditForm((f) => ({
-                        ...f,
-                        inspectionType: e.target
-                          .value as (typeof InspectionType)[keyof typeof InspectionType],
-                      }))
-                    }
+                    onValueChange={(v) => setEditForm((f) => ({ ...f, inspectionType: v as (typeof InspectionType)[keyof typeof InspectionType] }))}
                   >
-                    {Object.values(InspectionType).map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="input-standard w-full h-11 py-2.5 px-3 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(InspectionType).map((t) => (
+                        <SelectItem key={t} value={t}>{t}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div className="space-y-1.5">

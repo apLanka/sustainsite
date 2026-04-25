@@ -94,14 +94,18 @@ export const checkProjectMembership = (projectIdField: string) => {
         });
         return;
       }
+      if (
+        req.user.role === UserRole.ADMIN ||
+        req.user.role === UserRole.PROJECT_MANAGER ||
+        req.user.role === UserRole.INSPECTOR
+      ) {
+        next();
+        return;
+      }
       const userId = req.user.userId;
       const projectManagerId = project.projectManager.toString();
       const teamMemberIds = project.teamMembers.map((id) => id.toString());
       const isMember = projectManagerId === userId || teamMemberIds.includes(userId);
-      if (req.user.role === UserRole.ADMIN) {
-        next();
-        return;
-      }
       if (!isMember) {
         res.status(403).json({
           success: false,
