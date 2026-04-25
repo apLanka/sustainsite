@@ -7,7 +7,7 @@ import ProjectStats from '@/components/projects/ProjectStats';
 import MilestoneTimeline from '@/components/projects/MilestoneTimeline';
 import ProjectHeader from '@/components/project/ProjectHeader';
 import SmoothTabs from '@/components/ui/SmoothTabs';
-import { projectApi } from '@/lib/api';
+import { projectApi, userApi } from '@/lib/api';
 import { useProjectStore } from '@/store';
 import { useAuth } from '@/contexts/AuthContext';
 import { canDeleteProject, isAssignedProjectManager } from '@/lib/rbac';
@@ -19,6 +19,7 @@ import type {
   UpdateProjectPayload,
 } from '@/types/project';
 import { MilestoneStatus, ProjectStatus } from '@/types/project';
+import { UserRole } from '@/types/auth';
 export default function ProjectDetailPage() {
   const { id } = useParams<{
     id: string;
@@ -52,6 +53,9 @@ export default function ProjectDetailPage() {
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showTeamModal, setShowTeamModal] = useState(false);
+  const [teamUsers, setTeamUsers] = useState<Array<{ _id: string; fullName: string; email: string; role: string }>>([]);
+  const [teamUsersLoading, setTeamUsersLoading] = useState(false);
   const canEditAsManager = isAssignedProjectManager(selectedProject, user?.userId);
   const canDeleteProj = canDeleteProject(user?.role);
   const tabs = [
@@ -191,6 +195,43 @@ export default function ProjectDetailPage() {
       setShowDeleteConfirm(false);
     }
   };
+
+  const openTeamModal = async () => {
+    setShowTeamModal(true);
+    setTeamUsersLoading(true);
+    try {
+      const res = await userApi.getUsers({ limit: 100 });
+      setTeamUsers(res.data);
+    } catch (err) {
+      toast.error('Failed to load users');
+    } finally {
+      setTeamUsersLoading(false);
+    }
+  };
+
+  const updateTeamMembers = async (managerId: string | undefined, memberIds: string[]) => {
+    if (!id) return;
+    try {
+      const updateData: Record<string, unknown> = {};
+      if (managerId !== undefined) {
+        updateData.projectManager = managerId;
+      }
+      if (memberIds !== undefined) {
+        updateData.teamMembers = memberIds;
+      }
+      await projectApi.updateProject(id, updateData);
+      const updated = await projectApi.getProjectById(id);
+      setSelectedProject(updated.data);
+      setShowTeamModal(false);
+      toast.success('Team updated successfully');
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ??
+        'Failed to update team.';
+      toast.error(msg);
+    }
+  };
+
   const milestones = selectedProject?.milestones ?? [];
   useEffect(() => {
     if (!selectedProject || milestones.length === 0) return;
@@ -378,6 +419,14 @@ export default function ProjectDetailPage() {
                         <span className="ml-auto text-[10px] font-bold text-slate-400 normal-case tracking-normal">
                           {selectedProject.teamMembers?.length ?? 0} members
                         </span>
+                        {(canEditAsManager || canDeleteProj) && (
+                          <button
+                            onClick={openTeamModal}
+                            className="ml-4 px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full hover:bg-emerald-200 transition-colors"
+                          >
+                            + Manage
+                          </button>
+                        )}
                       </h3>
                       {!selectedProject.teamMembers || selectedProject.teamMembers.length === 0 ? (
                         <div className="text-center py-8">
@@ -788,6 +837,113 @@ export default function ProjectDetailPage() {
                   className="flex-[2] py-4 bg-rose-600 text-white font-black rounded-2xl hover:brightness-110 active:scale-95 transition-all cursor-pointer disabled:opacity-60"
                 >
                   {isDeleting ? 'Deleting...' : 'Delete Project'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showTeamModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+          <div
+            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
+            onClick={() => setShowTeamModal(false)}
+          />
+          <div className="bg-white rounded-[40px] w-full max-w-2xl relative overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
+            <div className="bg-emerald-950 p-8 text-white sticky top-0">
+              <h3 className="text-2xl font-black tracking-tighter leading-none">Manage Team</h3>
+              <p className="text-emerald-200 text-xs font-bold uppercase tracking-widest mt-2">
+                Assign project manager and team members
+              </p>
+            </div>
+            <div className="p-8 space-y-8">
+              <div className="space-y-3">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                  Project Manager
+                </label>
+                {teamUsersLoading ? (
+                  <p className="text-sm text-slate-400">Loading...</p>
+                ) : (
+                  <select
+                    className="input-standard w-full h-12"
+                    value={selectedProject?.projectManager?._id || ''}
+                    onChange={(e) => {
+                      const managerId = e.target.value || undefined;
+                      const currentMembers =
+                        selectedProject?.teamMembers?.map((m: { _id: string }) => m._id) || [];
+                      updateTeamMembers(managerId, currentMembers);
+                    }}
+                  >
+                    <option value="">Select project manager</option>
+                    {teamUsers
+                      .filter((u) => u.role === UserRole.ADMIN || u.role === UserRole.PROJECT_MANAGER)
+                      .map((user) => (
+                        <option key={user._id} value={user._id}>
+                          {user.fullName} ({user.role})
+                        </option>
+                      ))}
+                  </select>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                  Team Members
+                </label>
+                {teamUsersLoading ? (
+                  <p className="text-sm text-slate-400">Loading...</p>
+                ) : (
+                  <div className="flex flex-wrap gap-2 p-4 border border-slate-200 rounded-xl min-h-[100px] bg-slate-50">
+                    {teamUsers
+                      .filter((u) => u._id !== selectedProject?.projectManager?._id)
+                      .map((user) => {
+                        const isSelected =
+                          selectedProject?.teamMembers?.some((m: { _id: string }) => m._id === user._id) ||
+                          false;
+                        return (
+                          <button
+                            key={user._id}
+                            type="button"
+                            onClick={async () => {
+                              const currentMembers =
+                                selectedProject?.teamMembers?.map((m: { _id: string }) => m._id) || [];
+                              let newMembers: string[];
+                              if (isSelected) {
+                                newMembers = currentMembers.filter((id) => id !== user._id);
+                              } else {
+                                newMembers = [...currentMembers, user._id];
+                              }
+                              await updateTeamMembers(
+                                selectedProject?.projectManager?._id || undefined,
+                                newMembers
+                              );
+                            }}
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                              isSelected
+                                ? 'bg-emerald-100 text-emerald-700 border-2 border-emerald-400'
+                                : 'bg-white text-slate-600 border border-slate-200 hover:border-emerald-300'
+                            }`}
+                          >
+                            {isSelected && <span className="mr-1">✓</span>}
+                            {user.fullName}
+                          </button>
+                        );
+                      })}
+                  </div>
+                )}
+                <p className="text-xs text-slate-400 ml-1">
+                  {selectedProject?.teamMembers?.length || 0} member
+                  {(selectedProject?.teamMembers?.length || 0) !== 1 ? 's' : ''} assigned
+                </p>
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <button
+                  onClick={() => setShowTeamModal(false)}
+                  className="px-8 py-3 bg-slate-100 text-primary font-bold rounded-xl hover:bg-slate-200 transition-all cursor-pointer"
+                >
+                  Close
                 </button>
               </div>
             </div>
