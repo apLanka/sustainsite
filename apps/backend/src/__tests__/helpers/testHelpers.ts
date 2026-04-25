@@ -1,10 +1,6 @@
 import User, { IUser } from '../../models/User';
 import { UserRole } from '../../types';
 import { generateToken } from '../../middleware/auth';
-
-/**
- * Create a test user in the database
- */
 export const createTestUser = async (overrides: Partial<IUser> = {}): Promise<IUser> => {
   const defaultUser = {
     fullName: 'Test User',
@@ -13,21 +9,17 @@ export const createTestUser = async (overrides: Partial<IUser> = {}): Promise<IU
     role: UserRole.VIEWER,
     isActive: true,
   };
-
   const user = await User.create({ ...defaultUser, ...overrides });
   return user;
 };
-
-/**
- * Generate authentication token for testing
- */
-export const getAuthToken = (userId: string, email: string, role: UserRole, supplierId?: string): string => {
+export const getAuthToken = (
+  userId: string,
+  email: string,
+  role: UserRole,
+  supplierId?: string
+): string => {
   return generateToken({ userId, email, role, supplierId });
 };
-
-/**
- * Predefined test user data
- */
 export const testUsers = {
   admin: {
     fullName: 'Admin User',
@@ -60,10 +52,6 @@ export const testUsers = {
     role: UserRole.VIEWER,
   },
 };
-
-/**
- * Valid registration data for testing
- */
 export const validRegistrationData = {
   fullName: 'John Silva',
   email: 'john.silva@example.com',
@@ -71,10 +59,6 @@ export const validRegistrationData = {
   role: UserRole.PROJECT_MANAGER,
   phoneNumber: '+94771234567',
 };
-
-/**
- * Valid login data for testing
- */
 export const validLoginData = {
   email: 'test@example.com',
   password: 'TestPass123',

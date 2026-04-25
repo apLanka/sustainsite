@@ -1,40 +1,35 @@
 export const DocumentType = {
-  BLUEPRINT:     'Blueprint',
-  PERMIT:        'Permit',
-  CERTIFICATE:   'Certificate',
+  BLUEPRINT: 'Blueprint',
+  PERMIT: 'Permit',
+  CERTIFICATE: 'Certificate',
   SAFETY_REPORT: 'Safety Report',
-  CONTRACT:      'Contract',
-  OTHER:         'Other',
+  CONTRACT: 'Contract',
+  OTHER: 'Other',
 } as const;
-export type DocumentType = typeof DocumentType[keyof typeof DocumentType];
-
+export type DocumentType = (typeof DocumentType)[keyof typeof DocumentType];
 export const DocumentStatus = {
-  DRAFT:        'Draft',
+  DRAFT: 'Draft',
   UNDER_REVIEW: 'Under Review',
-  APPROVED:     'Approved',
-  REJECTED:     'Rejected',
+  APPROVED: 'Approved',
+  REJECTED: 'Rejected',
 } as const;
-export type DocumentStatus = typeof DocumentStatus[keyof typeof DocumentStatus];
-
+export type DocumentStatus = (typeof DocumentStatus)[keyof typeof DocumentStatus];
 export interface PopulatedUser {
   _id: string;
   name: string;
   email: string;
 }
-
 export interface PreviousVersion {
   version: string;
   fileUrl: string;
   uploadedAt: string;
   uploadedBy: string | PopulatedUser;
 }
-
 export interface AccessLogEntry {
   userId: string | PopulatedUser;
   action: 'view' | 'download' | 'edit';
   timestamp: string;
 }
-
 export interface ProjectDocument {
   _id: string;
   projectId: string;
@@ -58,14 +53,12 @@ export interface ProjectDocument {
   createdAt: string;
   updatedAt: string;
 }
-
 export interface DocumentPagination {
   total: number;
   page: number;
   limit: number;
   pages: number;
 }
-
 export interface DocumentFilters {
   projectId?: string;
   search?: string;
@@ -75,7 +68,6 @@ export interface DocumentFilters {
   page: number;
   limit: number;
 }
-
 export interface UploadDocumentPayload {
   file: File;
   projectId: string;
@@ -85,7 +77,6 @@ export interface UploadDocumentPayload {
   version?: string;
   tags?: string[];
 }
-
 export interface UpdateDocumentPayload {
   title?: string;
   description?: string;

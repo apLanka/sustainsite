@@ -1,4 +1,4 @@
-import {Router} from 'express';
+import { Router } from 'express';
 import {
   addMilestone,
   createProject,
@@ -18,20 +18,15 @@ import {
   requireAdmin,
   requireManager,
 } from '../middleware';
-import {UserRole} from '../types';
-
+import { UserRole } from '../types';
 const router = Router();
-
 router.post('/', authenticate, requireManager(), createProject);
-
 router.get(
   '/',
   authenticate,
   authorize(UserRole.ADMIN, UserRole.PROJECT_MANAGER, UserRole.INSPECTOR, UserRole.VIEWER),
   getProjects
 );
-
-// Must be before /:id to avoid "status" being treated as a project ID
 router.get(
   '/status/:status',
   authenticate,
@@ -42,24 +37,21 @@ router.get(
   },
   getProjects
 );
-
 router.get('/:id', authenticate, checkProjectMembership('params.id'), getProjectById);
-
 router.put('/:id', authenticate, checkProjectManager('params.id'), updateProject);
-
 router.delete('/:id', authenticate, requireAdmin(), deleteProject);
-
 router.post('/:id/milestones', authenticate, checkProjectManager('params.id'), addMilestone);
-
 router.put(
   '/:id/milestones/:milestoneId',
   authenticate,
   checkProjectManager('params.id'),
   updateMilestone
 );
-
 router.get('/:id/timeline', authenticate, checkProjectMembership('params.id'), getProjectTimeline);
-
-router.get('/:id/financial-summary', authenticate, checkProjectMembership('params.id'), getFinancialSummary);
-
+router.get(
+  '/:id/financial-summary',
+  authenticate,
+  checkProjectMembership('params.id'),
+  getFinancialSummary
+);
 export default router;

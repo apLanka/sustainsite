@@ -1,0 +1,122 @@
+---
+title: Deployment Report
+subtitle: Backend & Frontend deployment to Render, Vercel, and MongoDB Atlas
+---
+
+## Architecture
+
+```
+┌──────────────┐        HTTPS        ┌───────────────┐
+│   Vercel     │ ─────────────────►  │    Render    │
+│  (Frontend)  │                     │   (Backend)   │
+└──────────────┘                     └───────┬───────┘
+                                              │
+                                     ┌────────▼────────┐
+                                     │  MongoDB Atlas  │
+                                     │   (Database)   │
+                                     └────────────────┘
+```
+
+| Service | Platform | URL |
+|---------|----------|-----|
+| Frontend | Vercel | `https://sustainsite.vercel.app` |
+| Backend API | Render | `https://sustainsite-api.onrender.com` |
+| Database | MongoDB Atlas | M0 Free Tier |
+| API Docs | Swagger | `/api-docs` |
+
+---
+
+## Backend Deploy (Render)
+
+### Configuration
+
+| Setting | Value |
+|---------|-------|
+| Service Type | Web Service |
+| Region | Singapore |
+| Root Directory | `apps/backend` |
+| Build Command | `npm install && npm run build` |
+| Start Command | `npm start` |
+| Health Check | `/health` |
+
+### Steps
+
+1. Go to [render.com](https://render.com) → **New → Web Service**
+2. Connect GitHub repository
+3. Set Root Directory: `apps/backend`
+4. Build Command: `npm install && npm run build`
+5. Start Command: `npm start`
+6. Add environment variables (see below)
+7. Deploy
+
+### Environment Variables
+
+```env
+NODE_ENV=production
+PORT=5000
+MONGODB_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/sustainsite
+JWT_SECRET=your_jwt_secret_key_min_64_chars
+JWT_EXPIRE=24h
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+SENDGRID_API_KEY=your_sendgrid_key
+FROM_EMAIL=noreply@sustainsite.com
+FRONTEND_URL=https://sustainsite.vercel.app
+```
+
+### Verify Deployment
+
+```bash
+curl https://sustainsite-api.onrender.com/health
+# {"status":"ok","timestamp":"...","environment":"production"}
+```
+
+---
+
+## Frontend Deploy (Vercel)
+
+### Configuration
+
+| Setting | Value |
+|---------|-------|
+| Framework | Vite |
+| Root Directory | `apps/frontend` |
+| Build Command | `npm run build` |
+| Output Directory | `dist` |
+
+### Steps
+
+1. Go to [vercel.com](https://vercel.com) → **Add New → Project**
+2. Import GitHub repository
+3. Set Root Directory: `apps/frontend`
+4. Click Deploy
+5. Add environment variable: `VITE_API_URL=https://sustainsite-api.onrender.com/api`
+6. Redeploy to apply
+
+---
+
+## Post-Deployment Checks
+
+| Check | Command |
+|-------|---------|
+| API Health | `curl https://sustainsite-api.onrender.com/health` |
+| Swagger UI | Open `/api-docs` in browser |
+| Register | `POST /api/auth/register` |
+| Login | `POST /api/auth/login` |
+
+---
+
+## Known Limitations
+
+- **Render Free Tier**: Cold start after 15 min inactivity (30-60s delay)
+- **MongoDB Atlas Free Tier**: 512 MB storage limit
+- **Vercel Hobby**: 100 GB bandwidth/month
+
+---
+
+## Related Docs
+
+- [Testing Instructions](./testing-instructions)
+- [Test Report](./test-report)
+- [API Overview](./api-overview)

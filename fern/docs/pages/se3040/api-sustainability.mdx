@@ -1,0 +1,278 @@
+---
+title: Sustainability API
+subtitle: Carbon footprint, energy metrics, scores, and environmental impact
+---
+
+## Base URL
+
+```
+http://localhost:5000/api/sustainability
+```
+
+## Overview
+
+The Sustainability API monitors environmental metrics including carbon emissions, energy consumption, waste management, and water usage. It also calculates sustainability scores and trends.
+
+## User Roles
+
+| Role | Create | Update | Delete | View |
+|------|--------|--------|--------|------|
+| ADMIN | ✓ | ✓ | ✓ | All |
+| PROJECT_MANAGER | ✓ | ✓ | - | Own |
+| INSPECTOR | ✓ | ✓ | - | Own |
+| VIEWER | - | - | - | Assigned |
+
+## Endpoints
+
+### POST /
+
+Create sustainability metric.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER, INSPECTOR
+
+**Request Body:**
+
+```json
+{
+  "projectId": "607e5f3a2b8c4d3a1b4e3d2c1",
+  "carbonEmissions": 150.5,
+  "energyConsumption": 25000,
+  "wasteManagement": 85.2,
+  "waterUsage": 1200,
+  "recordedDate": "2026-04-01"
+}
+```
+
+**Example Request:**
+
+```bash
+curl -X POST http://localhost:5000/api/sustainability \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"projectId":"607e5f3a2b8c4d3a1b4e3d2c1","carbonEmissions":150.5,"energyConsumption":25000,"wasteManagement":85.2,"waterUsage":1200}'
+```
+
+**Success Response (201):**
+
+```json
+{
+  "success": true,
+  "metric": {
+    "_id": "607e5f3a2b8c4d3a1b4e3d2c3",
+    "projectId": "607e5f3a2b8c4d3a1b4e3d2c1",
+    "carbonEmissions": 150.5,
+    "energyConsumption": 25000,
+    "wasteManagement": 85.2,
+    "waterUsage": 1200,
+    "sustainabilityScore": 72,
+    "treesEquivalent": 6.8
+  }
+}
+```
+
+---
+
+### POST /metrics
+
+Alias for creating sustainability metric (alternate path).
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER, INSPECTOR
+
+---
+
+### GET /
+
+List all sustainability metrics.
+
+- **Auth Required:** Yes
+- **Roles:** All
+
+**Example Request:**
+
+```bash
+curl -X GET http://localhost:5000/api/sustainability \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### GET /:id
+
+Get specific metric by ID.
+
+- **Auth Required:** Yes
+- **Roles:** All
+
+---
+
+### GET /projects/:projectId/metrics
+
+Get all metrics for a project.
+
+- **Auth Required:** Yes
+- **Roles:** Project Members
+
+**Example Request:**
+
+```bash
+curl -X GET http://localhost:5000/api/sustainability/projects/607e5f3a2b8c4d3a1b4e3d2c1/metrics \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### GET /projects/:projectId/metrics/latest
+
+Get most recent metric for a project.
+
+- **Auth Required:** Yes
+- **Roles:** Project Members
+
+---
+
+### GET /projects/:projectId/score
+
+Get sustainability score.
+
+- **Auth Required:** Yes
+- **Roles:** Project Members
+
+**Example Request:**
+
+```bash
+curl -X GET http://localhost:5000/api/sustainability/projects/607e5f3a2b8c4d3a1b4e3d2c1/score \
+  -H "Authorization: Bearer <token>"
+```
+
+**Success Response (200):**
+
+```json
+{
+  "score": {
+    "current": 72,
+    "breakdown": {
+      "carbonEmissions": 25,
+      "energyConsumption": 20,
+      "wasteManagement": 15,
+      "waterUsage": 12
+    },
+    "trend": "improving",
+    "recommendations": [
+      "Reduce energy consumption by 10%",
+      "Increase waste recycling rate"
+    ]
+  }
+}
+```
+
+---
+
+### GET /projects/:projectId/trends
+
+Get historical trends and comparisons.
+
+- **Auth Required:** Yes
+- **Roles:** Project Members
+
+**Example Request:**
+
+```bash
+curl -X GET http://localhost:5000/api/sustainability/projects/607e5f3a2b8c4d3a1b4e3d2c1/trends \
+  -H "Authorization: Bearer <token>"
+```
+
+**Success Response (200):**
+
+```json
+{
+  "trends": {
+    "monthOverMonth": [
+      {"month": "2026-03", "score": 68},
+      {"month": "2026-04", "score": 72}
+    ],
+    "projectedTarget": 85
+  }
+}
+```
+
+---
+
+### GET /projects/:projectId/compare
+
+Compare with industry averages.
+
+- **Auth Required:** Yes
+- **Roles:** Project Members
+
+---
+
+### POST /calculate-impact
+
+Calculate environmental impact without saving.
+
+- **Auth Required:** Yes
+- **Roles:** All
+
+**Request Body:**
+
+```json
+{
+  "carbonEmissions": 500,
+  "energyConsumption": 10000,
+  "wasteManagement": 200,
+  "waterUsage": 5000
+}
+```
+
+**Example Request:**
+
+```bash
+curl -X POST http://localhost:5000/api/sustainability/calculate-impact \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"carbonEmissions":500,"energyConsumption":10000}'
+```
+
+**Success Response (200):**
+
+```json
+{
+  "impact": {
+    "carbonEmissions": 500,
+    "treesEquivalent": 22.7,
+    "sustainabilityScore": 68,
+    "breakdown": {...}
+  }
+}
+```
+
+---
+
+## Sustainability Score Calculation
+
+The sustainability score (0-100) is calculated using weighted metrics:
+
+| Metric | Weight |
+|--------|-------|
+| Carbon Emissions | 25% |
+| Energy Consumption | 20% |
+| Waste Management | 15% |
+| Water Usage | 12% |
+
+---
+
+## Trees Equivalent
+
+Carbon offset calculated as trees needed to absorb emissions:
+- 1 tree absorbs ~22 kg CO₂ per year
+- Formula: `carbonEmissions / 22 = treesEquivalent`
+
+---
+
+## Related Documentation
+
+- [Projects API](./api-projects)
+- [Testing Instructions](../testing-instructions)
+- [Deployment Report](../deployment-report)

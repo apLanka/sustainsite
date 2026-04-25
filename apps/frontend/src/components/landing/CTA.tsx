@@ -1,12 +1,11 @@
 import { TreePine, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
-
 const CTA = () => {
   return (
     <section className="py-32 px-6 lg:px-12 text-center bg-surface">
       <div className="max-w-4xl mx-auto space-y-12">
-        <motion.div 
+        <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           whileInView={{ scale: 1, opacity: 1 }}
           className="flex justify-center"
@@ -16,13 +15,14 @@ const CTA = () => {
           </div>
         </motion.div>
         <h2 className="text-4xl lg:text-7xl font-headline font-extrabold text-primary tracking-tight leading-none">
-          Ready to lead the <br/> sustainable revolution?
+          Ready to lead the <br /> sustainable revolution?
         </h2>
         <p className="text-xl text-on-surface-variant font-medium max-w-2xl mx-auto">
-          Join hundreds of industry leaders using SustainSite to build the next generation of infrastructure.
+          Join hundreds of industry leaders using SustainSite to build the next generation of
+          infrastructure.
         </p>
         <div className="flex justify-center pt-4">
-          <Link 
+          <Link
             to="/register"
             className="group signature-gradient text-white px-12 py-5 rounded-2xl font-bold text-xl shadow-2xl hover:scale-105 transition-all cursor-pointer flex items-center gap-3 justify-center"
           >
@@ -34,5 +34,4 @@ const CTA = () => {
     </section>
   );
 };
-
 export default CTA;

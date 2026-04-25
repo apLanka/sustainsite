@@ -1,0 +1,289 @@
+---
+title: Documents API
+subtitle: Document upload, versioning, approval workflow, and file management
+---
+
+## Base URL
+
+```
+http://localhost:5000/api/documents
+```
+
+## Overview
+
+The Documents API handles file uploads, document versioning, approval workflows, and access control for construction documents like blueprints, permits, and certificates.
+
+## User Roles
+
+| Role | Upload | Update | Approve/Reject | Delete | View |
+|------|--------|--------|----------------|--------|------|
+| ADMIN | ✓ | ✓ | ✓ | ✓ | All |
+| PROJECT_MANAGER | ✓ | ✓ | - | Own | Own |
+| INSPECTOR | ✓ | ✓ | ✓ | Own | Own |
+| VIEWER | - | - | - | - | Assigned |
+
+## Endpoints
+
+### POST /
+
+Upload a document.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER, INSPECTOR
+- **Content-Type:** multipart/form-data
+
+**Request Fields:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| file | File | Yes | Document file |
+| projectId | string | Yes | Associated project ID |
+| title | string | Yes | Document title |
+| documentType | string | Yes | Type (Blueprint, Permit, Certificate, Report, Other) |
+
+**documentType Values:**
+- `Blueprint`
+- `Permit`
+- `Certificate`
+- `Report`
+- `Other`
+
+**Example Request:**
+
+```bash
+curl -X POST http://localhost:5000/api/documents \
+  -H "Authorization: Bearer <token>" \
+  -F "file=@blueprint.pdf" \
+  -F "projectId=607e5f3a2b8c4d3a1b4e3d2c1" \
+  -F "title=Building Blueprint v1" \
+  -F "documentType=Blueprint"
+```
+
+**Success Response (201):**
+
+```json
+{
+  "success": true,
+  "document": {
+    "_id": "607e5f3a2b8c4d3a1b4e3d2c4",
+    "title": "Building Blueprint v1",
+    "documentType": "Blueprint",
+    "fileUrl": "https://res.cloudinary.com/.../blueprint.pdf",
+    "status": "Draft",
+    "version": 1,
+    "projectId": "607e5f3a2b8c4d3a1b4e3d2c1"
+  }
+}
+```
+
+---
+
+### GET /
+
+List all documents.
+
+- **Auth Required:** Yes
+- **Roles:** All
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| page | number | Page number |
+| limit | number | Items per page |
+| projectId | string | Filter by project |
+| status | string | Filter by status |
+| documentType | string | Filter by type |
+
+**Example Request:**
+
+```bash
+curl -X GET "http://localhost:5000/api/documents?projectId=607e5f3a2b8c4d3a1b4e3d2c1" \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### GET /search
+
+Search documents by title.
+
+- **Auth Required:** Yes
+
+**Example Request:**
+
+```bash
+curl -X GET "http://localhost:5000/api/documents/search?q=blueprint" \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### GET /:id
+
+Get document by ID.
+
+- **Auth Required:** Yes
+- **Roles:** All
+
+**Example Request:**
+
+```bash
+curl -X GET http://localhost:5000/api/documents/607e5f3a2b8c4d3a1b4e3d2c4 \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### PUT /:id
+
+Update document metadata.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER, INSPECTOR
+
+**Request Body:**
+
+```json
+{
+  "title": "Building Blueprint v2"
+}
+```
+
+---
+
+### PUT /:id/approve
+
+Approve document.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, INSPECTOR
+- **Status Required:** Document must be "Under Review"
+
+**Example Request:**
+
+```bash
+curl -X PUT http://localhost:5000/api/documents/607e5f3a2b8c4d3a1b4e3d2c4/approve \
+  -H "Authorization: Bearer <token>"
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Document approved"
+}
+```
+
+---
+
+### PUT /:id/reject
+
+Reject document with reason.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, INSPECTOR
+
+**Request Body:**
+
+```json
+{
+  "rejectionReason": "Missing structural engineer signature"
+}
+```
+
+**Example Request:**
+
+```bash
+curl -X PUT http://localhost:5000/api/documents/607e5f3a2b8c4d3a1b4e3d2c4/reject \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"rejectionReason":"Missing signature"}'
+```
+
+---
+
+### POST /:id/version
+
+Create new version.
+
+- **Auth Required:** Yes
+- **Roles:** ADMIN, PROJECT_MANAGER, INSPECTOR
+- **Content-Type:** multipart/form-data
+
+**Example Request:**
+
+```bash
+curl -X POST http://localhost:5000/api/documents/607e5f3a2b8c4d3a1b4e3d2c4/version \
+  -H "Authorization: Bearer <token>" \
+  -F "file=@blueprint-v2.pdf"
+```
+
+**Success Response (201):**
+
+```json
+{
+  "success": true,
+  "message": "New version created",
+  "document": {
+    "version": 2,
+    "previousVersions": [...]
+  }
+}
+```
+
+---
+
+### GET /:id/download
+
+Download document (redirects to Cloudinary URL).
+
+- **Auth Required:** Yes
+
+**Example Request:**
+
+```bash
+curl -X GET http://localhost:5000/api/documents/607e5f3a2b8c4d3a1b4e3d2c4/download \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### DELETE /:id
+
+Delete document.
+
+- **Auth Required:** Yes
+- **Roles:** Owner or ADMIN
+
+**Example Request:**
+
+```bash
+curl -X DELETE http://localhost:5000/api/documents/607e5f3a2b8c4d3a1b4e3d2c4 \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+## Document Status Workflow
+
+```
+Draft → Under Review → Approved
+                  ↘ Rejected
+```
+
+| Status | Description |
+|--------|-------------|
+| Draft | Initial state after upload |
+| Under Review | Submitted for approval |
+| Approved | Reviewed and accepted |
+| Rejected | Reviewed and rejected |
+
+---
+
+## Related Documentation
+
+- [Projects API](./api-projects)
+- [Compliance API](./api-compliance)
+- [Testing Instructions](../testing-instructions)

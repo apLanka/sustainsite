@@ -1,12 +1,10 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
-
 export enum ComplianceCategory {
   ENVIRONMENTAL = 'Environmental',
   SAFETY = 'Safety',
   BUILDING_CODE = 'Building Code',
   SUSTAINABILITY_CERTIFICATION = 'Sustainability Certification',
 }
-
 interface IComplianceItem {
   itemId: string;
   itemName: string;
@@ -17,7 +15,6 @@ interface IComplianceItem {
   attachedDocuments: mongoose.Types.ObjectId[];
   notes?: string;
 }
-
 export interface IComplianceChecklist extends Document {
   projectId: mongoose.Types.ObjectId;
   checklistName: string;
@@ -32,7 +29,6 @@ export interface IComplianceChecklist extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
-
 const complianceItemSchema = new Schema<IComplianceItem>(
   {
     itemId: {
@@ -72,7 +68,6 @@ const complianceItemSchema = new Schema<IComplianceItem>(
   },
   { _id: false }
 );
-
 const complianceChecklistSchema = new Schema<IComplianceChecklist>(
   {
     projectId: {
@@ -123,33 +118,25 @@ const complianceChecklistSchema = new Schema<IComplianceChecklist>(
     timestamps: true,
   }
 );
-
 complianceChecklistSchema.index({ projectId: 1 });
 complianceChecklistSchema.index({ category: 1 });
 complianceChecklistSchema.index({ complianceScore: 1 });
-
 complianceChecklistSchema.pre('save', async function () {
-
   this.totalItems = this.items.length;
-
   this.completedItems = this.items.filter((item) => item.isCompleted).length;
-
   if (this.totalItems > 0) {
     this.complianceScore = Math.round((this.completedItems / this.totalItems) * 100);
   } else {
     this.complianceScore = 0;
   }
-
   this.items.forEach((item) => {
     if (item.isCompleted && !item.completedDate) {
       item.completedDate = new Date();
     }
   });
 });
-
 const ComplianceChecklist: Model<IComplianceChecklist> = mongoose.model<IComplianceChecklist>(
   'ComplianceChecklist',
   complianceChecklistSchema
 );
-
 export default ComplianceChecklist;

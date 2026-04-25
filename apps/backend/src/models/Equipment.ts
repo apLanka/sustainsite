@@ -1,5 +1,4 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
-
 export enum EquipmentType {
   EXCAVATOR = 'Excavator',
   CRANE = 'Crane',
@@ -8,7 +7,6 @@ export enum EquipmentType {
   LOADER = 'Loader',
   OTHER = 'Other',
 }
-
 export enum EquipmentStatus {
   AVAILABLE = 'Available',
   IN_USE = 'In Use',
@@ -16,13 +14,11 @@ export enum EquipmentStatus {
   DAMAGED = 'Damaged',
   RETIRED = 'Retired',
 }
-
 export enum MaintenanceType {
   ROUTINE = 'Routine',
   REPAIR = 'Repair',
   OVERHAUL = 'Overhaul',
 }
-
 export interface IMaintenanceRecord {
   maintenanceDate: Date;
   maintenanceType: MaintenanceType;
@@ -31,7 +27,6 @@ export interface IMaintenanceRecord {
   performedBy?: string;
   nextMaintenanceDate?: Date;
 }
-
 interface IAssignmentRecord {
   projectId: mongoose.Types.ObjectId;
   assignedDate: Date;
@@ -40,7 +35,6 @@ interface IAssignmentRecord {
   hoursUsed?: number;
   fuelConsumed?: number;
 }
-
 export interface IEquipment extends Document {
   equipmentName: string;
   equipmentType: EquipmentType;
@@ -70,7 +64,6 @@ export interface IEquipment extends Document {
     operatorId?: mongoose.Types.ObjectId
   ): Promise<IEquipment>;
 }
-
 const maintenanceRecordSchema = new Schema<IMaintenanceRecord>(
   {
     maintenanceDate: {
@@ -100,7 +93,6 @@ const maintenanceRecordSchema = new Schema<IMaintenanceRecord>(
   },
   { _id: false }
 );
-
 const assignmentRecordSchema = new Schema<IAssignmentRecord>(
   {
     projectId: {
@@ -130,7 +122,6 @@ const assignmentRecordSchema = new Schema<IAssignmentRecord>(
   },
   { _id: false }
 );
-
 const equipmentSchema = new Schema<IEquipment>(
   {
     equipmentName: {
@@ -221,18 +212,14 @@ const equipmentSchema = new Schema<IEquipment>(
     timestamps: true,
   }
 );
-
-equipmentSchema.index({ serialNumber: 1 }, { unique: true, sparse: true });
 equipmentSchema.index({ status: 1 });
 equipmentSchema.index({ currentProjectId: 1 });
 equipmentSchema.index({ nextScheduledMaintenance: 1 });
-
 equipmentSchema.methods.scheduleNextMaintenance = function (months: number) {
   const nextDate = new Date();
   nextDate.setMonth(nextDate.getMonth() + months);
   this.nextScheduledMaintenance = nextDate;
 };
-
 equipmentSchema.methods.assignToProject = async function (
   projectId: mongoose.Types.ObjectId,
   operatorId?: mongoose.Types.ObjectId
@@ -240,20 +227,15 @@ equipmentSchema.methods.assignToProject = async function (
   if (this.status !== EquipmentStatus.AVAILABLE) {
     throw new Error('Equipment is not available for assignment');
   }
-
   this.assignmentHistory.push({
     projectId,
     assignedDate: new Date(),
     operatorId,
   });
-
   this.currentProjectId = projectId;
   this.assignedTo = operatorId;
   this.status = EquipmentStatus.IN_USE;
-
   return this.save();
 };
-
 const Equipment: Model<IEquipment> = mongoose.model<IEquipment>('Equipment', equipmentSchema);
-
 export default Equipment;

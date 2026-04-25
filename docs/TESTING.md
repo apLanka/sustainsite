@@ -3,7 +3,7 @@
 > **SE3040 – Application Frameworks**  
 > This document covers unit tests, integration tests, and performance (k6) tests for the backend API.
 
-**Related documents:** [README / Setup & API Docs](../README.md) · [Deployment Report](./DEPLOYMENT.md) · [Test Report](./TEST_REPORT.md)
+**Related documents:** [README / Setup & API Docs](../README.md) · [SE3040 documentation (Fern)](https://sustain-site-api.docs.buildwithfern.com/) · [Deployment Report](./DEPLOYMENT.md) · [Test Report](./TEST_REPORT.md)
 
 ---
 

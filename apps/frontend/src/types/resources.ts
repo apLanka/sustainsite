@@ -1,15 +1,32 @@
-export type MaterialStatus = 'Ordered' | 'In Transit' | 'Delivered' | 'In Stock' | 'Used' | 'Cancelled';
-
-export type MaterialCategory = 'Cement' | 'Steel' | 'Wood' | 'Aggregates' | 'Bricks' | 'Equipment' | 'Other';
-
-/** API may return a raw ObjectId string or a populated supplier document. */
+export type MaterialStatus =
+  | 'Ordered'
+  | 'In Transit'
+  | 'Delivered'
+  | 'In Stock'
+  | 'Used'
+  | 'Cancelled';
+export type MaterialCategory =
+  | 'Cement'
+  | 'Steel'
+  | 'Wood'
+  | 'Aggregates'
+  | 'Bricks'
+  | 'Equipment'
+  | 'Other';
 export type MaterialSupplierRef =
   | string
-  | { _id: string; companyName?: string; email?: string; phoneNumber?: string };
-
-/** API may populate project with projectName. */
-export type MaterialProjectRef = string | { _id?: string; projectName?: string };
-
+  | {
+      _id: string;
+      companyName?: string;
+      email?: string;
+      phoneNumber?: string;
+    };
+export type MaterialProjectRef =
+  | string
+  | {
+      _id?: string;
+      projectName?: string;
+    };
 export interface MaterialAsset {
   _id: string;
   projectId: MaterialProjectRef;
@@ -33,7 +50,6 @@ export interface MaterialAsset {
   actualDeliveryDate?: string;
   lastUpdated: string;
 }
-
 export interface CreateMaterialPayload {
   projectId: string;
   materialName: string;
@@ -49,11 +65,8 @@ export interface CreateMaterialPayload {
   recycledContent?: number;
   description?: string;
 }
-
 export type EquipmentStatus = 'Available' | 'In Use' | 'Under Maintenance' | 'Damaged' | 'Retired';
-
 export type EquipmentType = 'Excavator' | 'Crane' | 'Bulldozer' | 'Mixer' | 'Loader' | 'Other';
-
 export interface EquipmentAsset {
   _id: string;
   currentProjectId?: string;
@@ -75,7 +88,6 @@ export interface EquipmentAsset {
   depreciationRate?: number;
   rentalRatePerDay?: number;
 }
-
 export interface CreateEquipmentPayload {
   equipmentName: string;
   equipmentType: EquipmentType;
@@ -91,7 +103,6 @@ export interface CreateEquipmentPayload {
   currentLocation?: string;
   notes?: string;
 }
-
 export interface Supplier {
   _id: string;
   companyName: string;
@@ -115,23 +126,21 @@ export interface Supplier {
   totalOrders: number;
   completedOrders: number;
 }
-
 export interface CreateSupplierPayload {
-    companyName: string;
-    contactPerson: string;
-    email: string;
-    phoneNumber: string;
-    address?: {
-        street?: string;
-        city?: string;
-        state?: string;
-        country?: string;
-        postalCode?: string;
-    };
-    materialsSupplied: string[];
-    isSustainabilityCertified?: boolean;
+  companyName: string;
+  contactPerson: string;
+  email: string;
+  phoneNumber: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+  };
+  materialsSupplied: string[];
+  isSustainabilityCertified?: boolean;
 }
-
 export interface ResourceExpense {
   id: string;
   projectId: string;
@@ -141,7 +150,6 @@ export interface ResourceExpense {
   date: string;
   supplierId?: string;
 }
-
 export interface UpdateMaterialPayload {
   materialName?: string;
   category?: MaterialCategory;
@@ -158,7 +166,6 @@ export interface UpdateMaterialPayload {
   description?: string;
   notes?: string;
 }
-
 export interface UpdateEquipmentPayload {
   equipmentName?: string;
   equipmentType?: EquipmentType;
@@ -171,12 +178,10 @@ export interface UpdateEquipmentPayload {
   currentValue?: number;
   rentalRatePerDay?: number;
 }
-
 export interface AssignEquipmentPayload {
   projectId: string;
   operatorId?: string;
 }
-
 export interface MaintenancePayload {
   maintenanceDate: string;
   maintenanceType: 'Routine' | 'Repair' | 'Overhaul';
@@ -185,7 +190,6 @@ export interface MaintenancePayload {
   performedBy?: string;
   nextMaintenanceDate?: string;
 }
-
 export interface UpdateSupplierPayload {
   companyName?: string;
   contactPerson?: string;
@@ -203,14 +207,12 @@ export interface UpdateSupplierPayload {
   isActive?: boolean;
   isPreferred?: boolean;
 }
-
 export interface ResourceSummary {
   totalInventoryValue: number;
   activeEquipmentCount: number;
   lowStockAlerts: number;
   monthlySpend: number;
 }
-
 export interface FinancialSummary {
   projectId: string;
   projectName: string;
@@ -220,5 +222,9 @@ export interface FinancialSummary {
   spendPercentage: number;
   remainingValue: number;
   materialCount: number;
-  allocationMix: { category: string; cost: number; percentage: number }[];
+  allocationMix: {
+    category: string;
+    cost: number;
+    percentage: number;
+  }[];
 }

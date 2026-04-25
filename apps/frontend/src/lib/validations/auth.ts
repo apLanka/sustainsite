@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { UserRole } from '@/types/auth';
-
 export const loginSchema = z.object({
   email: z
     .string()
@@ -10,9 +9,7 @@ export const loginSchema = z.object({
     .trim(),
   password: z.string().min(1, 'Password is required'),
 });
-
 export type LoginFormData = z.infer<typeof loginSchema>;
-
 export const registerSchema = z.object({
   fullName: z
     .string()
@@ -35,7 +32,5 @@ export const registerSchema = z.object({
   role: z.nativeEnum(UserRole, {
     error: 'Please select a valid role',
   }),
-
 });
-
 export type RegisterFormData = z.infer<typeof registerSchema>;

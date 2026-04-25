@@ -8,13 +8,11 @@ import { useAuthStore } from '@/store';
 import { loginHomePath } from '@/lib/rbac';
 import { registerSchema, type RegisterFormData } from '@/lib/validations/auth';
 import { UserRole } from '@/types/auth';
-
 export default function RegisterPage() {
   const { register: registerUser } = useAuth();
   const navigate = useNavigate();
   const [serverError, setServerError] = useState<string | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -22,7 +20,6 @@ export default function RegisterPage() {
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
-
   const onSubmit = async (data: RegisterFormData) => {
     if (!termsAccepted) {
       setServerError('You must accept the Terms of Service to continue.');
@@ -35,11 +32,14 @@ export default function RegisterPage() {
       navigate(loginHomePath(role), { replace: true });
     } catch (err: unknown) {
       const message =
-        (err as { message?: string })?.message ?? 'Registration failed. Please try again.';
+        (
+          err as {
+            message?: string;
+          }
+        )?.message ?? 'Registration failed. Please try again.';
       setServerError(message);
     }
   };
-
   return (
     <AuthLayout
       title="Create Account"
@@ -47,14 +47,12 @@ export default function RegisterPage() {
       imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuDqlVZdn5qbtL3m8aXquUJUnjpXPv0101sZZ_XZqsR7Kv8nGOIYwIx0yNzOSPpycRVihRk_VTwSAUuiebuEtCCiGp6DQwAoDrUSfm-Sb9_wS-G2XumgXzZjUTlJZhFaGbbdG77yC3qe5wgV1hR1tS9d2fUcYFhKPRQkwoJeT_ivEeIONGOIF3NEJqA84tErcznEQWbFXUqZtMkXMjA35tyyaKi6R2WTuq2fMpEEznWlcuuDtoTRu3941R8bKq0aFx0WmfN469Pn1C0"
     >
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
-
         {serverError && (
           <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-600 font-medium">
             {serverError}
           </div>
         )}
 
-        {/* Full Name */}
         <div className="space-y-2">
           <label
             className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant font-label"
@@ -74,7 +72,6 @@ export default function RegisterPage() {
           )}
         </div>
 
-        {/* Email */}
         <div className="space-y-2">
           <label
             className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant font-label"
@@ -94,7 +91,6 @@ export default function RegisterPage() {
           )}
         </div>
 
-        {/* Role + Password */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label
@@ -145,7 +141,6 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* Terms */}
         <div className="flex items-start gap-3 py-2">
           <div className="flex items-center h-5">
             <input
@@ -173,7 +168,7 @@ export default function RegisterPage() {
         </div>
 
         <button
-          className="signature-gradient w-full py-4 rounded-xl font-headline font-bold text-white shadow-xl hover:shadow-primary/20 hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
+          className="signature-gradient w-full py-4 rounded-xl font-headline font-bold text-white shadow-xl hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
           type="submit"
           disabled={isSubmitting}
         >

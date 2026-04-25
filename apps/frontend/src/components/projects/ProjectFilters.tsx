@@ -1,17 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useProjectStore } from '@/store';
 import { ProjectStatus } from '@/types/project';
-
 const ProjectFilters = () => {
   const { filters, setFilters } = useProjectStore();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [searchInput, setSearchInput] = useState(filters.search ?? '');
-
-  // Keep local input in sync when filters.search is reset externally
   useEffect(() => {
     setSearchInput(filters.search ?? '');
   }, [filters.search]);
-
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchInput(value);
@@ -20,17 +16,14 @@ const ProjectFilters = () => {
       setFilters({ search: value, page: 1 });
     }, 400);
   };
-
   const handleStatus = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFilters({ status: e.target.value as ProjectStatus | '', page: 1 });
   };
-
   useEffect(() => {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, []);
-
   return (
     <div className="flex flex-col sm:flex-row gap-4 w-full mb-8">
       <div className="relative group flex-1">
@@ -65,5 +58,4 @@ const ProjectFilters = () => {
     </div>
   );
 };
-
 export default ProjectFilters;

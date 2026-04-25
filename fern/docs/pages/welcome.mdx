@@ -1,0 +1,47 @@
+---
+title: Welcome
+subtitle: SustainSite developer & assignment documentation (Fern)
+---
+
+This site bundles **SE3040 — Application Frameworks** submission materials for **SustainSite** (sustainable construction project management): deployment, testing, API orientation, and the official assignment specification PDF.
+
+**Published site:** [https://sustain-site-api.docs.buildwithfern.com/](https://sustain-site-api.docs.buildwithfern.com/)
+
+## Quick links
+
+Use the **left navigation** for the full site. The main SE3040 deliverables are:
+
+- **Specification & deliverables** — assignment PDF + checklist  
+- **Deployment report** — Render, Vercel, MongoDB Atlas, env vars, verification  
+- **Testing instructions** — Jest, integration tests, k6, CI  
+- **Test report** — suite summary and pass rates  
+- **API overview & endpoints** — route map, Swagger, Postman  
+- **SustainSite API** (sidebar) — OpenAPI reference from `fern/openapi/openapi.json` (paths maintained in `apps/backend/src/config/openapi.paths.ts`)
+
+## Local preview
+
+From the repository root (with [Fern CLI](https://buildwithfern.com/learn/cli-api-reference/cli-reference/overview) installed):
+
+```bash
+cd fern && npx fern-api@0.56.12 docs dev
+```
+
+## Regenerate API spec for Fern
+
+After adding or changing routes, update `apps/backend/src/config/openapi.paths.ts`, then:
+
+```bash
+npm run docs:export-openapi
+```
+
+This updates `fern/openapi/openapi.json`. Commit the result so Fern CI/build stays in sync.
+
+## Publish (Fern Cloud)
+
+```bash
+cd fern
+npx fern-api@0.56.12 login              # once per machine
+npx fern-api@0.56.12 generate --docs    # or --no-prompt in CI with FERN_TOKEN
+```
+
+Update `fern.config.json` **organization** and `docs.yml` **instances[0].url** to match your Fern dashboard org.

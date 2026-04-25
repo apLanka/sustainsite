@@ -20,7 +20,6 @@ import SettingsPage from '@/pages/SettingsPage';
 import SafetyPage from '@/pages/SafetyPage';
 import AdminUsersPage from '@/pages/AdminUsersPage';
 import SupplierMaterialsPage from '@/pages/SupplierMaterialsPage';
-
 export default function App() {
   return (
     <BrowserRouter>
@@ -31,7 +30,7 @@ export default function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            
+
             <Route
               path="/dashboard"
               element={
@@ -68,7 +67,6 @@ export default function App() {
               }
             />
 
-            {/* Nested Project Modules */}
             <Route
               path="/projects/:id/sustainability"
               element={
@@ -88,7 +86,7 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            
+
             <Route
               path="/projects/:id/documents"
               element={
@@ -97,7 +95,7 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            
+
             <Route
               path="/projects/:id/compliance"
               element={

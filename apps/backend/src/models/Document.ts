@@ -1,5 +1,4 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
-
 export enum DocumentType {
   BLUEPRINT = 'Blueprint',
   PERMIT = 'Permit',
@@ -8,33 +7,28 @@ export enum DocumentType {
   CONTRACT = 'Contract',
   OTHER = 'Other',
 }
-
 export enum DocumentStatus {
   DRAFT = 'Draft',
   UNDER_REVIEW = 'Under Review',
   APPROVED = 'Approved',
   REJECTED = 'Rejected',
 }
-
 export enum AccessAction {
   VIEW = 'view',
   DOWNLOAD = 'download',
   EDIT = 'edit',
 }
-
 interface IPreviousVersion {
   version: string;
   fileUrl: string;
   uploadedAt: Date;
   uploadedBy: mongoose.Types.ObjectId;
 }
-
 interface IAccessLog {
   userId: mongoose.Types.ObjectId;
   action: AccessAction;
   timestamp: Date;
 }
-
 export interface IDocument extends Document {
   projectId: mongoose.Types.ObjectId;
   documentType: DocumentType;
@@ -59,7 +53,6 @@ export interface IDocument extends Document {
   addAccessLog(userId: mongoose.Types.ObjectId, action: AccessAction): void;
   createNewVersion(fileUrl: string, uploadedBy: mongoose.Types.ObjectId): void;
 }
-
 const previousVersionSchema = new Schema<IPreviousVersion>(
   {
     version: { type: String, required: true },
@@ -73,7 +66,6 @@ const previousVersionSchema = new Schema<IPreviousVersion>(
   },
   { _id: false }
 );
-
 const accessLogSchema = new Schema<IAccessLog>(
   {
     userId: {
@@ -93,7 +85,6 @@ const accessLogSchema = new Schema<IAccessLog>(
   },
   { _id: false }
 );
-
 const documentSchema = new Schema<IDocument>(
   {
     projectId: {
@@ -173,12 +164,10 @@ const documentSchema = new Schema<IDocument>(
     timestamps: true,
   }
 );
-
 documentSchema.index({ projectId: 1 });
 documentSchema.index({ documentType: 1 });
 documentSchema.index({ status: 1 });
 documentSchema.index({ uploadedBy: 1 });
-
 documentSchema.pre('save', async function () {
   if (this.isModified('status') && this.status === DocumentStatus.APPROVED) {
     if (!this.approvalDate) {
@@ -186,7 +175,6 @@ documentSchema.pre('save', async function () {
     }
   }
 });
-
 documentSchema.methods.addAccessLog = function (
   userId: mongoose.Types.ObjectId,
   action: AccessAction
@@ -198,19 +186,16 @@ documentSchema.methods.addAccessLog = function (
   });
   return this.save();
 };
-
 documentSchema.methods.createNewVersion = function (
   fileUrl: string,
   uploadedBy: mongoose.Types.ObjectId
 ) {
-
   this.previousVersions.push({
     version: this.version,
     fileUrl: this.fileUrl,
     uploadedAt: new Date(),
     uploadedBy: this.uploadedBy,
   });
-
   const versionParts = this.version.split('.');
   const majorVersion = parseInt(versionParts[0]);
   const minorVersion = parseInt(versionParts[1] || '0');
@@ -218,10 +203,7 @@ documentSchema.methods.createNewVersion = function (
   this.fileUrl = fileUrl;
   this.uploadedBy = uploadedBy;
   this.status = DocumentStatus.UNDER_REVIEW;
-
   return this.save();
 };
-
 const DocumentModel: Model<IDocument> = mongoose.model<IDocument>('Document', documentSchema);
-
 export default DocumentModel;

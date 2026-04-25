@@ -1,7 +1,6 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { UserRole } from '../types';
-
 export interface IUser extends Document {
   fullName: string;
   email: string;
@@ -16,7 +15,6 @@ export interface IUser extends Document {
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
-
 const userSchema = new Schema<IUser>(
   {
     fullName: {
@@ -61,14 +59,11 @@ const userSchema = new Schema<IUser>(
         ref: 'Project',
       },
     ],
-
-    // Optional link to a Supplier document — used to scope SUPPLIER role access to their own materials
     supplierId: {
       type: Schema.Types.ObjectId,
       ref: 'Supplier',
       default: null,
     },
-
     isActive: {
       type: Boolean,
       default: true,
@@ -81,19 +76,14 @@ const userSchema = new Schema<IUser>(
     timestamps: true,
   }
 );
-
 userSchema.index({ role: 1 });
-
 userSchema.pre('save', async function () {
-
   if (!this.isModified('password')) {
     return;
   }
-
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
-
 userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
   try {
     return await bcrypt.compare(candidatePassword, this.password);
@@ -101,13 +91,10 @@ userSchema.methods.comparePassword = async function (candidatePassword: string):
     return false;
   }
 };
-
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
   return obj;
 };
-
 const User: Model<IUser> = mongoose.model<IUser>('User', userSchema);
-
 export default User;

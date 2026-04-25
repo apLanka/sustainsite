@@ -6,14 +6,18 @@ import Project from '../models/Project';
 import User from '../models/User';
 import { sendEmail, emailTemplates } from '../config/email';
 import logger from '../utils/logger';
-
-/** insertMany skips ComplianceChecklist pre-save; recover rollups when items exist but totals stayed at defaults. */
 function effectiveChecklistRollup(c: {
-  items?: { isCompleted?: boolean }[];
+  items?: {
+    isCompleted?: boolean;
+  }[];
   totalItems?: number;
   completedItems?: number;
   complianceScore?: number;
-}): { totalItems: number; completedItems: number; complianceScore: number } {
+}): {
+  totalItems: number;
+  completedItems: number;
+  complianceScore: number;
+} {
   const items = c.items ?? [];
   const n = items.length;
   const done = items.filter((i) => i.isCompleted).length;
@@ -32,26 +36,21 @@ function effectiveChecklistRollup(c: {
     complianceScore: Number(c.complianceScore) || 0,
   };
 }
-
 function checklistDocToResponse(doc: Document): Record<string, unknown> {
   const plain = doc.toObject();
   return { ...plain, ...effectiveChecklistRollup(plain) };
 }
-
 export const createChecklist = async (req: Request, res: Response): Promise<void> => {
   try {
     const { projectId, checklistName, category, items, dueDate, lastReviewDate } = req.body;
-
     if (!projectId || !checklistName) {
       res.status(400).json({ success: false, error: 'projectId and checklistName are required' });
       return;
     }
-
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
       res.status(400).json({ success: false, error: 'Invalid projectId format' });
       return;
     }
-
     const checklist = await ComplianceChecklist.create({
       projectId,
       checklistName,
@@ -61,7 +60,6 @@ export const createChecklist = async (req: Request, res: Response): Promise<void
       lastReviewDate,
       createdBy: req.user!.userId,
     });
-
     res.status(201).json({ success: true, data: checklist });
   } catch (error: unknown) {
     res.status(500).json({
@@ -70,13 +68,10 @@ export const createChecklist = async (req: Request, res: Response): Promise<void
     });
   }
 };
-
 export const getChecklists = async (req: Request, res: Response): Promise<void> => {
   try {
     const { projectId, category, page = '1', limit = '10' } = req.query;
-
     const filter: Record<string, unknown> = {};
-
     if (projectId) {
       if (!mongoose.Types.ObjectId.isValid(projectId as string)) {
         res.status(400).json({ success: false, error: 'Invalid projectId format' });
@@ -84,13 +79,10 @@ export const getChecklists = async (req: Request, res: Response): Promise<void> 
       }
       filter.projectId = projectId;
     }
-
     if (category) filter.category = category;
-
     const pageNum = Math.max(1, parseInt(page as string, 10));
     const limitNum = Math.min(100, Math.max(1, parseInt(limit as string, 10)));
     const skip = (pageNum - 1) * limitNum;
-
     const [checklists, total] = await Promise.all([
       ComplianceChecklist.find(filter)
         .populate('createdBy', 'fullName email')
@@ -99,7 +91,6 @@ export const getChecklists = async (req: Request, res: Response): Promise<void> 
         .limit(limitNum),
       ComplianceChecklist.countDocuments(filter),
     ]);
-
     res.status(200).json({
       success: true,
       data: checklists.map((c) => checklistDocToResponse(c)),
@@ -117,26 +108,21 @@ export const getChecklists = async (req: Request, res: Response): Promise<void> 
     });
   }
 };
-
 export const getChecklistById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
       res.status(400).json({ success: false, error: 'Invalid checklist ID format' });
       return;
     }
-
     const checklist = await ComplianceChecklist.findById(id)
       .populate('createdBy', 'fullName email')
       .populate('items.completedBy', 'fullName email')
       .populate('items.attachedDocuments', 'title fileUrl fileName documentType');
-
     if (!checklist) {
       res.status(404).json({ success: false, error: 'Checklist not found' });
       return;
     }
-
     res.status(200).json({ success: true, data: checklistDocToResponse(checklist) });
   } catch (error: unknown) {
     res.status(500).json({
@@ -145,46 +131,36 @@ export const getChecklistById = async (req: Request, res: Response): Promise<voi
     });
   }
 };
-
 export const updateChecklist = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
       res.status(400).json({ success: false, error: 'Invalid checklist ID format' });
       return;
     }
-
     const checklist = await ComplianceChecklist.findById(id);
-
     if (!checklist) {
       res.status(404).json({ success: false, error: 'Checklist not found' });
       return;
     }
-
     const { checklistName, category, dueDate, lastReviewDate, items } = req.body;
-
     if (checklistName !== undefined) checklist.checklistName = checklistName;
     if (category !== undefined) checklist.category = category;
     if (dueDate !== undefined) checklist.dueDate = dueDate;
     if (lastReviewDate !== undefined) checklist.lastReviewDate = lastReviewDate;
-
     if (items !== undefined) {
       checklist.items = items.map((item: Record<string, unknown>) => ({
         ...item,
-
-        completedBy: item.isCompleted && !item.completedBy
-          ? new mongoose.Types.ObjectId(req.user!.userId)
-          : item.completedBy,
+        completedBy:
+          item.isCompleted && !item.completedBy
+            ? new mongoose.Types.ObjectId(req.user!.userId)
+            : item.completedBy,
       }));
     }
-
     await checklist.save();
-
     await checklist.populate('createdBy', 'fullName email');
     await checklist.populate('items.completedBy', 'fullName email');
     await checklist.populate('items.attachedDocuments', 'title fileUrl fileName documentType');
-
     res.status(200).json({ success: true, data: checklist });
   } catch (error: unknown) {
     res.status(500).json({
@@ -193,23 +169,18 @@ export const updateChecklist = async (req: Request, res: Response): Promise<void
     });
   }
 };
-
 export const deleteChecklist = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
       res.status(400).json({ success: false, error: 'Invalid checklist ID format' });
       return;
     }
-
     const checklist = await ComplianceChecklist.findByIdAndDelete(id);
-
     if (!checklist) {
       res.status(404).json({ success: false, error: 'Checklist not found' });
       return;
     }
-
     res.status(200).json({ success: true, message: 'Checklist deleted successfully' });
   } catch (error: unknown) {
     res.status(500).json({
@@ -218,7 +189,6 @@ export const deleteChecklist = async (req: Request, res: Response): Promise<void
     });
   }
 };
-
 export const createInspection = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
@@ -237,7 +207,6 @@ export const createInspection = async (req: Request, res: Response): Promise<voi
       followUpDate,
       followUpNotes,
     } = req.body;
-
     if (!projectId || !inspectionDate || !findings || !riskLevel) {
       res.status(400).json({
         success: false,
@@ -245,12 +214,10 @@ export const createInspection = async (req: Request, res: Response): Promise<voi
       });
       return;
     }
-
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
       res.status(400).json({ success: false, error: 'Invalid projectId format' });
       return;
     }
-
     const inspection = await SafetyInspection.create({
       projectId,
       inspectionType,
@@ -268,10 +235,7 @@ export const createInspection = async (req: Request, res: Response): Promise<voi
       followUpDate,
       followUpNotes,
     });
-
     await inspection.populate('inspector', 'fullName email');
-
-    // Email project manager for High/Critical risk inspections
     if (process.env.SENDGRID_API_KEY && (riskLevel === 'High' || riskLevel === 'Critical')) {
       try {
         const project = await Project.findById(projectId).select('projectManager projectName');
@@ -289,7 +253,6 @@ export const createInspection = async (req: Request, res: Response): Promise<voi
         logger.warn('Safety inspection email failed', { emailErr });
       }
     }
-
     res.status(201).json({ success: true, data: inspection });
   } catch (error: unknown) {
     res.status(500).json({
@@ -298,7 +261,6 @@ export const createInspection = async (req: Request, res: Response): Promise<voi
     });
   }
 };
-
 export const getInspections = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
@@ -310,9 +272,7 @@ export const getInspections = async (req: Request, res: Response): Promise<void>
       page = '1',
       limit = '10',
     } = req.query;
-
     const filter: Record<string, unknown> = {};
-
     if (projectId) {
       if (!mongoose.Types.ObjectId.isValid(projectId as string)) {
         res.status(400).json({ success: false, error: 'Invalid projectId format' });
@@ -320,16 +280,13 @@ export const getInspections = async (req: Request, res: Response): Promise<void>
       }
       filter.projectId = projectId;
     }
-
     if (riskLevel) filter.riskLevel = riskLevel;
     if (actionStatus) filter.actionStatus = actionStatus;
     if (inspectionType) filter.inspectionType = inspectionType;
     if (isResolved !== undefined) filter.isResolved = isResolved === 'true';
-
     const pageNum = Math.max(1, parseInt(page as string, 10));
     const limitNum = Math.min(100, Math.max(1, parseInt(limit as string, 10)));
     const skip = (pageNum - 1) * limitNum;
-
     const [inspections, total] = await Promise.all([
       SafetyInspection.find(filter)
         .populate('inspector', 'fullName email')
@@ -338,7 +295,6 @@ export const getInspections = async (req: Request, res: Response): Promise<void>
         .limit(limitNum),
       SafetyInspection.countDocuments(filter),
     ]);
-
     res.status(200).json({
       success: true,
       data: inspections,
@@ -356,25 +312,20 @@ export const getInspections = async (req: Request, res: Response): Promise<void>
     });
   }
 };
-
 export const getInspectionById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
       res.status(400).json({ success: false, error: 'Invalid inspection ID format' });
       return;
     }
-
     const inspection = await SafetyInspection.findById(id)
       .populate('inspector', 'fullName email')
       .populate('attachments', 'title fileUrl fileName documentType');
-
     if (!inspection) {
       res.status(404).json({ success: false, error: 'Inspection not found' });
       return;
     }
-
     res.status(200).json({ success: true, data: inspection });
   } catch (error: unknown) {
     res.status(500).json({
@@ -383,23 +334,18 @@ export const getInspectionById = async (req: Request, res: Response): Promise<vo
     });
   }
 };
-
 export const updateInspection = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
       res.status(400).json({ success: false, error: 'Invalid inspection ID format' });
       return;
     }
-
     const inspection = await SafetyInspection.findById(id);
-
     if (!inspection) {
       res.status(404).json({ success: false, error: 'Inspection not found' });
       return;
     }
-
     const {
       inspectionType,
       inspectionDate,
@@ -417,7 +363,6 @@ export const updateInspection = async (req: Request, res: Response): Promise<voi
       followUpDate,
       followUpNotes,
     } = req.body;
-
     if (inspectionType !== undefined) inspection.inspectionType = inspectionType;
     if (inspectionDate !== undefined) inspection.inspectionDate = inspectionDate;
     if (inspectorNotes !== undefined) inspection.inspectorNotes = inspectorNotes;
@@ -433,12 +378,9 @@ export const updateInspection = async (req: Request, res: Response): Promise<voi
     if (photos !== undefined) inspection.photos = photos;
     if (followUpDate !== undefined) inspection.followUpDate = followUpDate;
     if (followUpNotes !== undefined) inspection.followUpNotes = followUpNotes;
-
     await inspection.save();
-
     await inspection.populate('inspector', 'fullName email');
     await inspection.populate('attachments', 'title fileUrl fileName documentType');
-
     res.status(200).json({ success: true, data: inspection });
   } catch (error: unknown) {
     res.status(500).json({
@@ -447,23 +389,18 @@ export const updateInspection = async (req: Request, res: Response): Promise<voi
     });
   }
 };
-
 export const deleteInspection = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
       res.status(400).json({ success: false, error: 'Invalid inspection ID format' });
       return;
     }
-
     const inspection = await SafetyInspection.findByIdAndDelete(id);
-
     if (!inspection) {
       res.status(404).json({ success: false, error: 'Inspection not found' });
       return;
     }
-
     res.status(200).json({ success: true, message: 'Inspection deleted successfully' });
   } catch (error: unknown) {
     res.status(500).json({
@@ -472,32 +409,24 @@ export const deleteInspection = async (req: Request, res: Response): Promise<voi
     });
   }
 };
-
-// ─── T-13: Granular checklist item update ────────────────────────────────────
-
 export const updateChecklistItem = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id, itemId } = req.params;
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
       res.status(400).json({ success: false, error: 'Invalid checklist ID format' });
       return;
     }
-
     const checklist = await ComplianceChecklist.findById(id);
     if (!checklist) {
       res.status(404).json({ success: false, error: 'Checklist not found' });
       return;
     }
-
     const itemIndex = checklist.items.findIndex((item) => item.itemId === itemId);
     if (itemIndex === -1) {
       res.status(404).json({ success: false, error: 'Checklist item not found' });
       return;
     }
-
     const { isCompleted, notes, attachedDocuments } = req.body;
-
     if (isCompleted !== undefined) {
       checklist.items[itemIndex].isCompleted = isCompleted;
       if (isCompleted) {
@@ -509,14 +438,12 @@ export const updateChecklistItem = async (req: Request, res: Response): Promise<
       }
     }
     if (notes !== undefined) checklist.items[itemIndex].notes = notes;
-    if (attachedDocuments !== undefined) checklist.items[itemIndex].attachedDocuments = attachedDocuments;
-
+    if (attachedDocuments !== undefined)
+      checklist.items[itemIndex].attachedDocuments = attachedDocuments;
     await checklist.save();
-
     await checklist.populate('createdBy', 'fullName email');
     await checklist.populate('items.completedBy', 'fullName email');
     await checklist.populate('items.attachedDocuments', 'title fileUrl fileName documentType');
-
     res.status(200).json({ success: true, data: checklist });
   } catch (error: unknown) {
     res.status(500).json({
@@ -525,20 +452,14 @@ export const updateChecklistItem = async (req: Request, res: Response): Promise<
     });
   }
 };
-
-// ─── T-14: Project-level compliance score ────────────────────────────────────
-
 export const getProjectComplianceScore = async (req: Request, res: Response): Promise<void> => {
   try {
     const { projectId } = req.params;
-
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
       res.status(400).json({ success: false, error: 'Invalid projectId format' });
       return;
     }
-
     const checklists = await ComplianceChecklist.find({ projectId });
-
     if (!checklists.length) {
       res.status(200).json({
         success: true,
@@ -554,13 +475,11 @@ export const getProjectComplianceScore = async (req: Request, res: Response): Pr
       });
       return;
     }
-
     const rollups = checklists.map((c) => effectiveChecklistRollup(c));
     const totalItems = rollups.reduce((sum, r) => sum + r.totalItems, 0);
     const completedItems = rollups.reduce((sum, r) => sum + r.completedItems, 0);
     const overallScore = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
     const completedChecklists = rollups.filter((r) => r.complianceScore === 100).length;
-
     const breakdown = checklists.map((c, i) => ({
       checklistId: c._id,
       checklistName: c.checklistName,
@@ -570,7 +489,6 @@ export const getProjectComplianceScore = async (req: Request, res: Response): Pr
       completedItems: rollups[i].completedItems,
       dueDate: c.dueDate,
     }));
-
     res.status(200).json({
       success: true,
       data: {
@@ -590,18 +508,13 @@ export const getProjectComplianceScore = async (req: Request, res: Response): Pr
     });
   }
 };
-
-// ─── T-15 helper: High-risk inspections for /api/safety ──────────────────────
-
 export const getHighRiskInspections = async (req: Request, res: Response): Promise<void> => {
   try {
     const { projectId } = req.params;
-
     if (!mongoose.Types.ObjectId.isValid(projectId)) {
       res.status(400).json({ success: false, error: 'Invalid projectId format' });
       return;
     }
-
     const inspections = await SafetyInspection.find({
       projectId,
       riskLevel: { $in: ['High', 'Critical'] },
@@ -609,7 +522,6 @@ export const getHighRiskInspections = async (req: Request, res: Response): Promi
     })
       .populate('inspector', 'fullName email')
       .sort({ inspectionDate: -1 });
-
     res.status(200).json({ success: true, data: inspections, count: inspections.length });
   } catch (error: unknown) {
     res.status(500).json({

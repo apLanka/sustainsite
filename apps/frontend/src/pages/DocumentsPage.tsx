@@ -11,53 +11,50 @@ import { DocumentStatus, DocumentType } from '@/types/document';
 import type { ProjectDocument, PreviousVersion } from '@/types/document';
 import { UserRole } from '@/types/auth';
 import api from '@/lib/api';
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
 const fmt = (iso: string) =>
   new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
 const fmtSize = (bytes?: number) => {
   if (!bytes) return '—';
-  return bytes >= 1_000_000
-    ? `${(bytes / 1_000_000).toFixed(1)} MB`
-    : `${(bytes / 1_024).toFixed(0)} KB`;
+  return bytes >= 1000000
+    ? `${(bytes / 1000000).toFixed(1)} MB`
+    : `${(bytes / 1024).toFixed(0)} KB`;
 };
-
-const statusConfig: Record<DocumentStatus, { bg: string; text: string }> = {
-  [DocumentStatus.APPROVED]:     { bg: 'bg-emerald-50',  text: 'text-emerald-700' },
-  [DocumentStatus.UNDER_REVIEW]: { bg: 'bg-amber-50',    text: 'text-amber-700'   },
-  [DocumentStatus.DRAFT]:        { bg: 'bg-slate-100',   text: 'text-slate-500'   },
-  [DocumentStatus.REJECTED]:     { bg: 'bg-rose-50',     text: 'text-rose-600'    },
+const statusConfig: Record<
+  DocumentStatus,
+  {
+    bg: string;
+    text: string;
+  }
+> = {
+  [DocumentStatus.APPROVED]: { bg: 'bg-emerald-50', text: 'text-emerald-700' },
+  [DocumentStatus.UNDER_REVIEW]: { bg: 'bg-amber-50', text: 'text-amber-700' },
+  [DocumentStatus.DRAFT]: { bg: 'bg-slate-100', text: 'text-slate-500' },
+  [DocumentStatus.REJECTED]: { bg: 'bg-rose-50', text: 'text-rose-600' },
 };
-
 const docTypeIcon: Record<DocumentType, string> = {
-  [DocumentType.BLUEPRINT]:     'architecture',
-  [DocumentType.PERMIT]:        'verified',
-  [DocumentType.CERTIFICATE]:   'workspace_premium',
+  [DocumentType.BLUEPRINT]: 'architecture',
+  [DocumentType.PERMIT]: 'verified',
+  [DocumentType.CERTIFICATE]: 'workspace_premium',
   [DocumentType.SAFETY_REPORT]: 'health_and_safety',
-  [DocumentType.CONTRACT]:      'gavel',
-  [DocumentType.OTHER]:         'description',
+  [DocumentType.CONTRACT]: 'gavel',
+  [DocumentType.OTHER]: 'description',
 };
-
 const ALL_DOC_TYPES = Object.values(DocumentType);
-const ALL_STATUSES  = Object.values(DocumentStatus);
-
-// ─── Status badge ─────────────────────────────────────────────────────────────
-
+const ALL_STATUSES = Object.values(DocumentStatus);
 const StatusBadge = ({ status }: { status: DocumentStatus }) => {
   const sc = statusConfig[status] ?? { bg: 'bg-slate-100', text: 'text-slate-500' };
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${sc.bg} ${sc.text}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${sc.bg} ${sc.text}`}
+    >
       {status}
     </span>
   );
 };
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function DocumentsPage() {
-  const { id: projectId } = useParams<{ id: string }>();
+  const { id: projectId } = useParams<{
+    id: string;
+  }>();
   const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
   const {
@@ -74,61 +71,47 @@ export default function DocumentsPage() {
     setDocLoading,
     setUploading,
   } = useDocumentStore();
-
-  // ── Upload modal ──────────────────────────────────────────────────────────
-  const [showUploadModal, setShowUploadModal]   = useState(false);
-  const [selectedFile, setSelectedFile]         = useState<File | null>(null);
-  const [uploadForm, setUploadForm]             = useState<{ title: string; documentType: DocumentType; description: string; version: string; tags: string }>({
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadForm, setUploadForm] = useState<{
+    title: string;
+    documentType: DocumentType;
+    description: string;
+    version: string;
+    tags: string;
+  }>({
     title: '',
     documentType: DocumentType.OTHER,
     description: '',
     version: '1.0',
     tags: '',
   });
-  const [uploadError, setUploadError]           = useState<string | null>(null);
-  const [uploadProgress, setUploadProgress]     = useState(0);
-
-  // ── Version history modal ─────────────────────────────────────────────────
-  const [showHistoryModal, setShowHistoryModal]         = useState(false);
-  const [historyDoc, setHistoryDoc]                     = useState<ProjectDocument | null>(null);
-  const [isLoadingHistory, setIsLoadingHistory]         = useState(false);
-
-  // ── New version modal ─────────────────────────────────────────────────────
-  const [showNewVersionModal, setShowNewVersionModal]   = useState(false);
-  const [newVersionDoc, setNewVersionDoc]               = useState<ProjectDocument | null>(null);
-  const [newVersionFile, setNewVersionFile]             = useState<File | null>(null);
-  const [isVersioning, setIsVersioning]                 = useState(false);
-  const [versionError, setVersionError]                 = useState<string | null>(null);
-
-  // ── Reject modal ──────────────────────────────────────────────────────────
-  const [rejectingDoc, setRejectingDoc]                 = useState<ProjectDocument | null>(null);
-  const [rejectionReason, setRejectionReason]           = useState('');
-  const [isRejecting, setIsRejecting]                   = useState(false);
-  const [rejectError, setRejectError]                   = useState<string | null>(null);
-
-  // ── Delete confirm ────────────────────────────────────────────────────────
-  const [deletingId, setDeletingId]                     = useState<string | null>(null);
-  const [isDeleting, setIsDeleting]                     = useState(false);
-
-  // ── Search (debounced, server-side via API) ───────────────────────────────
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [historyDoc, setHistoryDoc] = useState<ProjectDocument | null>(null);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [showNewVersionModal, setShowNewVersionModal] = useState(false);
+  const [newVersionDoc, setNewVersionDoc] = useState<ProjectDocument | null>(null);
+  const [newVersionFile, setNewVersionFile] = useState<File | null>(null);
+  const [isVersioning, setIsVersioning] = useState(false);
+  const [versionError, setVersionError] = useState<string | null>(null);
+  const [rejectingDoc, setRejectingDoc] = useState<ProjectDocument | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [rejectError, setRejectError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-
-  const canModerate =
-    user?.role === UserRole.ADMIN || user?.role === UserRole.INSPECTOR;
-
-  // Status counts loaded separately for accurate sidebar totals
+  const canModerate = user?.role === UserRole.ADMIN || user?.role === UserRole.INSPECTOR;
   const [statusCounts, setStatusCounts] = useState<Record<string, number>>({});
-
-  // ── Fetch documents ───────────────────────────────────────────────────────
+  const statusFromUrl = searchParams.get('status') ?? '';
   useEffect(() => {
     if (!projectId) return;
-    // Allow ?status= URL param to pre-filter (e.g. from dashboard "Review Now")
-    const urlStatus = (searchParams.get('status') ?? '') as DocumentStatus | '';
+    const urlStatus = statusFromUrl as DocumentStatus | '';
     setDocFilters({ projectId, status: urlStatus, documentType: '', tag: '', page: 1, limit: 10 });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId, searchParams.get('status')]);
-
+  }, [projectId, statusFromUrl, setDocFilters]);
   useEffect(() => {
     if (!docFilters.projectId) return;
     const fetch = async () => {
@@ -145,14 +128,12 @@ export default function DocumentsPage() {
     };
     fetch();
   }, [docFilters, setDocuments, setDocLoading]);
-
-  // Load per-status counts for sidebar (separate from current page)
   useEffect(() => {
     if (!docFilters.projectId) return;
     const loadCounts = async () => {
       try {
         const results = await Promise.allSettled(
-          ALL_STATUSES.map(s =>
+          ALL_STATUSES.map((s) =>
             documentApi.getDocuments({ projectId: docFilters.projectId, status: s, limit: 1 })
           )
         );
@@ -162,15 +143,10 @@ export default function DocumentsPage() {
           counts[s] = r.status === 'fulfilled' ? (r.value.pagination?.total ?? 0) : 0;
         });
         setStatusCounts(counts);
-      } catch {
-        // non-critical
-      }
+      } catch {}
     };
     loadCounts();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [docFilters.projectId]);
-
-  // ── Debounce search → push to docFilters (server-side) ───────────────────
   useEffect(() => {
     const t = setTimeout(() => {
       setDebouncedSearch(searchQuery.trim());
@@ -178,11 +154,7 @@ export default function DocumentsPage() {
     }, 400);
     return () => clearTimeout(t);
   }, [searchQuery, setDocFilters]);
-
-  // visibleDocs = documents (search is now server-side)
   const visibleDocs = useMemo(() => documents, [documents]);
-
-  // ── Upload ────────────────────────────────────────────────────────────────
   const handleUpload = async () => {
     if (!projectId || !selectedFile) {
       setUploadError('Please select a file first.');
@@ -203,8 +175,16 @@ export default function DocumentsPage() {
       form.append('title', uploadForm.title.trim());
       if (uploadForm.description.trim()) form.append('description', uploadForm.description.trim());
       form.append('version', uploadForm.version.trim() || '1.0');
-      if (uploadForm.tags.trim()) form.append('tags', JSON.stringify(uploadForm.tags.split(',').map(t => t.trim()).filter(Boolean)));
-
+      if (uploadForm.tags.trim())
+        form.append(
+          'tags',
+          JSON.stringify(
+            uploadForm.tags
+              .split(',')
+              .map((t) => t.trim())
+              .filter(Boolean)
+          )
+        );
       const res = await api.post('/documents', form, {
         headers: { 'Content-Type': undefined },
         onUploadProgress: (event) => {
@@ -216,11 +196,26 @@ export default function DocumentsPage() {
       appendDocument(res.data.data);
       setShowUploadModal(false);
       setSelectedFile(null);
-      setUploadForm({ title: '', documentType: DocumentType.OTHER, description: '', version: '1.0', tags: '' });
+      setUploadForm({
+        title: '',
+        documentType: DocumentType.OTHER,
+        description: '',
+        version: '1.0',
+        tags: '',
+      });
       toast.success('Document uploaded successfully');
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } }; message?: string })
-        ?.response?.data?.message ?? 'Upload failed.';
+      const msg =
+        (
+          err as {
+            response?: {
+              data?: {
+                message?: string;
+              };
+            };
+            message?: string;
+          }
+        )?.response?.data?.message ?? 'Upload failed.';
       setUploadError(msg);
       toast.error(msg);
     } finally {
@@ -228,8 +223,6 @@ export default function DocumentsPage() {
       setUploadProgress(0);
     }
   };
-
-  // ── Version history ───────────────────────────────────────────────────────
   const handleOpenHistory = async (doc: ProjectDocument) => {
     setShowHistoryModal(true);
     setHistoryDoc(doc);
@@ -244,8 +237,6 @@ export default function DocumentsPage() {
       setIsLoadingHistory(false);
     }
   };
-
-  // ── New version upload ────────────────────────────────────────────────────
   const handleCreateVersion = async () => {
     if (!newVersionDoc || !newVersionFile) return;
     setVersionError(null);
@@ -268,16 +259,23 @@ export default function DocumentsPage() {
       setUploadProgress(0);
       toast.success('New version uploaded successfully');
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } }; message?: string })
-        ?.response?.data?.message ?? 'Failed to create new version.';
+      const msg =
+        (
+          err as {
+            response?: {
+              data?: {
+                message?: string;
+              };
+            };
+            message?: string;
+          }
+        )?.response?.data?.message ?? 'Failed to create new version.';
       setVersionError(msg);
       toast.error(msg);
     } finally {
       setIsVersioning(false);
     }
   };
-
-  // ── Approve ───────────────────────────────────────────────────────────────
   const handleApprove = async (doc: ProjectDocument) => {
     try {
       const res = await documentApi.approve(doc._id);
@@ -288,8 +286,6 @@ export default function DocumentsPage() {
       toast.error('Failed to approve document');
     }
   };
-
-  // ── Reject ────────────────────────────────────────────────────────────────
   const handleReject = async () => {
     if (!rejectingDoc || !rejectionReason.trim()) {
       setRejectError('Rejection reason is required.');
@@ -304,15 +300,18 @@ export default function DocumentsPage() {
       setRejectionReason('');
       toast.success('Document rejected');
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message ?? 'Failed to reject document.';
+      const msg =
+        (
+          err as {
+            message?: string;
+          }
+        )?.message ?? 'Failed to reject document.';
       setRejectError(msg);
       toast.error(msg);
     } finally {
       setIsRejecting(false);
     }
   };
-
-  // ── Delete ────────────────────────────────────────────────────────────────
   const handleDelete = async () => {
     if (!deletingId) return;
     setIsDeleting(true);
@@ -328,13 +327,9 @@ export default function DocumentsPage() {
       setIsDeleting(false);
     }
   };
-
-  // ── View ─────────────────────────────────────────────────────────────────
   const handleView = (doc: ProjectDocument) => {
     window.open(doc.fileUrl, '_blank', 'noopener,noreferrer');
   };
-
-  // ── Download ──────────────────────────────────────────────────────────────
   const handleDownload = (doc: ProjectDocument) => {
     const a = document.createElement('a');
     a.href = doc.fileUrl;
@@ -343,13 +338,11 @@ export default function DocumentsPage() {
     a.rel = 'noopener noreferrer';
     a.click();
   };
-
   return (
     <DashboardLayout>
       <ProjectHeader />
 
       <div className="px-10">
-        {/* Header */}
         <header className="py-10 flex flex-col md:flex-row justify-between items-end md:items-center gap-6">
           <div>
             <h3 className="text-2xl font-black text-primary tracking-tighter leading-none font-headline">
@@ -388,7 +381,6 @@ export default function DocumentsPage() {
               )}
             </div>
 
-            {/* Type filter */}
             <select
               className="input-standard h-11 text-xs font-bold cursor-pointer"
               value={docFilters.documentType ?? ''}
@@ -397,10 +389,13 @@ export default function DocumentsPage() {
               }
             >
               <option value="">All Types</option>
-              {ALL_DOC_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+              {ALL_DOC_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
             </select>
 
-            {/* Status filter */}
             <select
               className="input-standard h-11 text-xs font-bold cursor-pointer"
               value={docFilters.status ?? ''}
@@ -409,13 +404,16 @@ export default function DocumentsPage() {
               }
             >
               <option value="">All Statuses</option>
-              {ALL_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+              {ALL_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
             </select>
           </div>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-10 pb-20">
-          {/* Left sidebar */}
           <div className="lg:col-span-1 space-y-8">
             <div onClick={() => setShowUploadModal(true)} className="cursor-pointer">
               <DocumentUploader
@@ -444,8 +442,14 @@ export default function DocumentsPage() {
                   const sc = statusConfig[s];
                   return (
                     <div key={s} className="flex items-center justify-between">
-                      <span className="text-[9px] font-bold text-emerald-400/50 uppercase tracking-wider">{s}</span>
-                      <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${sc.bg} ${sc.text}`}>{count}</span>
+                      <span className="text-[9px] font-bold text-emerald-400/50 uppercase tracking-wider">
+                        {s}
+                      </span>
+                      <span
+                        className={`text-[9px] font-black px-2 py-0.5 rounded-full ${sc.bg} ${sc.text}`}
+                      >
+                        {count}
+                      </span>
                     </div>
                   );
                 })}
@@ -453,7 +457,6 @@ export default function DocumentsPage() {
             </div>
           </div>
 
-          {/* Document table */}
           <div className="lg:col-span-3">
             {isDocLoading ? (
               <div className="bg-surface-container-lowest rounded-3xl p-6 border border-slate-100/50 animate-pulse space-y-4">
@@ -470,7 +473,9 @@ export default function DocumentsPage() {
                   {debouncedSearch ? `No results for "${debouncedSearch}"` : 'No documents found'}
                 </p>
                 <p className="text-xs text-slate-300 mt-1">
-                  {debouncedSearch ? 'Try a different name' : 'Upload the first document to get started'}
+                  {debouncedSearch
+                    ? 'Try a different name'
+                    : 'Upload the first document to get started'}
                 </p>
               </div>
             ) : (
@@ -478,17 +483,26 @@ export default function DocumentsPage() {
                 <table className="w-full text-left">
                   <thead>
                     <tr className="border-b border-slate-50">
-                      <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Document</th>
-                      <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Type</th>
-                      <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
-                      <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Owner / Date</th>
-                      <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                      <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Document
+                      </th>
+                      <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        Type
+                      </th>
+                      <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
+                        Status
+                      </th>
+                      <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">
+                        Owner / Date
+                      </th>
+                      <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
                     {visibleDocs.map((doc) => (
                       <tr key={doc._id} className="group hover:bg-slate-50/50 transition-colors">
-                        {/* Title */}
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-secondary/10 group-hover:text-secondary transition-colors shrink-0">
@@ -501,7 +515,9 @@ export default function DocumentsPage() {
                                 {doc.title}
                               </p>
                               <div className="flex items-center gap-2 mt-0.5">
-                                <span className="text-[10px] font-medium text-slate-400">v{doc.version}</span>
+                                <span className="text-[10px] font-medium text-slate-400">
+                                  v{doc.version}
+                                </span>
                                 {doc.fileName && (
                                   <>
                                     <span className="w-1 h-1 rounded-full bg-slate-200" />
@@ -513,7 +529,9 @@ export default function DocumentsPage() {
                                 {doc.fileSize && (
                                   <>
                                     <span className="w-1 h-1 rounded-full bg-slate-200" />
-                                    <span className="text-[10px] font-medium text-slate-400">{fmtSize(doc.fileSize)}</span>
+                                    <span className="text-[10px] font-medium text-slate-400">
+                                      {fmtSize(doc.fileSize)}
+                                    </span>
                                   </>
                                 )}
                               </div>
@@ -521,24 +539,24 @@ export default function DocumentsPage() {
                           </div>
                         </td>
 
-                        {/* Type */}
                         <td className="px-6 py-5">
                           <span className="px-3 py-1 bg-white border border-slate-100 rounded-lg text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">
                             {doc.documentType}
                           </span>
                         </td>
 
-                        {/* Status */}
                         <td className="px-6 py-5 text-center">
                           <StatusBadge status={doc.status} />
                           {doc.rejectionReason && (
-                            <p className="text-[9px] text-rose-400 mt-1 max-w-[120px] mx-auto line-clamp-1" title={doc.rejectionReason}>
+                            <p
+                              className="text-[9px] text-rose-400 mt-1 max-w-[120px] mx-auto line-clamp-1"
+                              title={doc.rejectionReason}
+                            >
                               {doc.rejectionReason}
                             </p>
                           )}
                         </td>
 
-                        {/* Owner / Date */}
                         <td className="px-6 py-5 text-right">
                           <p className="text-xs font-bold text-primary">
                             {doc.uploadedBy?.name ?? '—'}
@@ -548,7 +566,6 @@ export default function DocumentsPage() {
                           </p>
                         </td>
 
-                        {/* Actions */}
                         <td className="px-6 py-5 text-right">
                           <div className="flex justify-end items-center gap-1">
                             <button
@@ -576,7 +593,10 @@ export default function DocumentsPage() {
                             </button>
 
                             <button
-                              onClick={() => { setNewVersionDoc(doc); setShowNewVersionModal(true); }}
+                              onClick={() => {
+                                setNewVersionDoc(doc);
+                                setShowNewVersionModal(true);
+                              }}
                               className="p-2 text-slate-400 hover:text-primary hover:bg-slate-50 rounded-lg transition-all"
                               title="Upload New Version"
                             >
@@ -589,13 +609,19 @@ export default function DocumentsPage() {
                                 className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
                                 title="Approve"
                               >
-                                <span className="material-symbols-outlined text-xl">check_circle</span>
+                                <span className="material-symbols-outlined text-xl">
+                                  check_circle
+                                </span>
                               </button>
                             )}
 
                             {canModerate && doc.status !== DocumentStatus.REJECTED && (
                               <button
-                                onClick={() => { setRejectingDoc(doc); setRejectionReason(''); setRejectError(null); }}
+                                onClick={() => {
+                                  setRejectingDoc(doc);
+                                  setRejectionReason('');
+                                  setRejectError(null);
+                                }}
                                 className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
                                 title="Reject"
                               >
@@ -608,7 +634,9 @@ export default function DocumentsPage() {
                               className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
                               title="Delete"
                             >
-                              <span className="material-symbols-outlined text-xl">delete_outline</span>
+                              <span className="material-symbols-outlined text-xl">
+                                delete_outline
+                              </span>
                             </button>
                           </div>
                         </td>
@@ -617,7 +645,6 @@ export default function DocumentsPage() {
                   </tbody>
                 </table>
 
-                {/* Pagination */}
                 {docPagination && docPagination.pages > 1 && (
                   <div className="flex justify-center items-center gap-3 py-4 border-t border-slate-50">
                     <button
@@ -645,10 +672,12 @@ export default function DocumentsPage() {
         </div>
       </div>
 
-      {/* ── Upload Modal ── */}
       {showUploadModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-          <div className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm" onClick={() => setShowUploadModal(false)} />
+          <div
+            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
+            onClick={() => setShowUploadModal(false)}
+          />
           <div className="bg-white rounded-[40px] w-full max-w-2xl relative overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
             <div className="bg-emerald-950 p-8 text-white">
               <h3 className="text-2xl font-black tracking-tighter leading-none">Upload Document</h3>
@@ -689,9 +718,15 @@ export default function DocumentsPage() {
                   <select
                     className="input-standard w-full h-12 cursor-pointer"
                     value={uploadForm.documentType}
-                    onChange={(e) => setUploadForm((f) => ({ ...f, documentType: e.target.value as DocumentType }))}
+                    onChange={(e) =>
+                      setUploadForm((f) => ({ ...f, documentType: e.target.value as DocumentType }))
+                    }
                   >
-                    {ALL_DOC_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                    {ALL_DOC_TYPES.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -770,10 +805,12 @@ export default function DocumentsPage() {
         </div>
       )}
 
-      {/* ── Version History Modal ── */}
       {showHistoryModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-          <div className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm" onClick={() => setShowHistoryModal(false)} />
+          <div
+            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
+            onClick={() => setShowHistoryModal(false)}
+          />
           <div className="bg-white rounded-[40px] w-full max-w-xl relative overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
             <div className="bg-emerald-950 p-8 text-white">
               <h3 className="text-2xl font-black tracking-tighter leading-none">Version History</h3>
@@ -790,11 +827,11 @@ export default function DocumentsPage() {
                 </div>
               ) : (
                 <>
-                  {/* Current version */}
                   {historyDoc && (
                     <div className="flex gap-4 items-start pb-6 border-b border-slate-50">
                       <div className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-black shrink-0">
-                        v{historyDoc.version} <span className="text-[9px] font-bold ml-1 opacity-60">CURRENT</span>
+                        v{historyDoc.version}{' '}
+                        <span className="text-[9px] font-bold ml-1 opacity-60">CURRENT</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-primary">Active version</p>
@@ -805,33 +842,37 @@ export default function DocumentsPage() {
                     </div>
                   )}
 
-                  {/* Previous versions */}
                   {(historyDoc?.previousVersions ?? []).length === 0 ? (
                     <p className="text-xs text-slate-400 font-medium text-center py-4">
                       No previous versions
                     </p>
                   ) : (
-                    [...(historyDoc?.previousVersions ?? [])].reverse().map((v: PreviousVersion, i) => (
-                      <div key={i} className="flex gap-4 items-start pb-6 border-b border-slate-50 last:border-0 last:pb-0">
-                        <div className="px-3 py-1 bg-slate-100 rounded-lg text-xs font-black text-primary shrink-0">
-                          v{v.version}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-primary">Previous version</p>
-                          <p className="text-[10px] font-medium text-slate-400 mt-0.5 uppercase tracking-widest">
-                            {fmt(v.uploadedAt)}
-                          </p>
-                        </div>
-                        <a
-                          href={v.fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[10px] font-black text-secondary uppercase tracking-[0.2em] hover:underline shrink-0"
+                    [...(historyDoc?.previousVersions ?? [])]
+                      .reverse()
+                      .map((v: PreviousVersion, i) => (
+                        <div
+                          key={i}
+                          className="flex gap-4 items-start pb-6 border-b border-slate-50 last:border-0 last:pb-0"
                         >
-                          Download
-                        </a>
-                      </div>
-                    ))
+                          <div className="px-3 py-1 bg-slate-100 rounded-lg text-xs font-black text-primary shrink-0">
+                            v{v.version}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-primary">Previous version</p>
+                            <p className="text-[10px] font-medium text-slate-400 mt-0.5 uppercase tracking-widest">
+                              {fmt(v.uploadedAt)}
+                            </p>
+                          </div>
+                          <a
+                            href={v.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[10px] font-black text-secondary uppercase tracking-[0.2em] hover:underline shrink-0"
+                          >
+                            Download
+                          </a>
+                        </div>
+                      ))
                   )}
                 </>
               )}
@@ -847,10 +888,12 @@ export default function DocumentsPage() {
         </div>
       )}
 
-      {/* ── New Version Modal ── */}
       {showNewVersionModal && newVersionDoc && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-          <div className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm" onClick={() => setShowNewVersionModal(false)} />
+          <div
+            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
+            onClick={() => setShowNewVersionModal(false)}
+          />
           <div className="bg-white rounded-[40px] w-full max-w-lg relative overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
             <div className="bg-primary p-8 text-white">
               <h3 className="text-2xl font-black tracking-tighter leading-none">New Version</h3>
@@ -866,12 +909,12 @@ export default function DocumentsPage() {
               )}
               <p className="text-xs text-slate-500 font-medium">
                 Upload the revised file. The current version will be archived and the version number
-                will be auto-incremented (e.g. {newVersionDoc.version} → {
-                  (() => {
-                    const [maj, min] = newVersionDoc.version.split('.');
-                    return `${maj}.${(parseInt(min ?? '0') + 1)}`;
-                  })()
-                }).
+                will be auto-incremented (e.g. {newVersionDoc.version} →{' '}
+                {(() => {
+                  const [maj, min] = newVersionDoc.version.split('.');
+                  return `${maj}.${parseInt(min ?? '0') + 1}`;
+                })()}
+                ).
               </p>
               <DocumentUploader
                 onFileSelect={(f) => setNewVersionFile(f)}
@@ -879,7 +922,10 @@ export default function DocumentsPage() {
               />
               <div className="flex gap-4 pt-2">
                 <button
-                  onClick={() => { setShowNewVersionModal(false); setNewVersionFile(null); }}
+                  onClick={() => {
+                    setShowNewVersionModal(false);
+                    setNewVersionFile(null);
+                  }}
                   className="flex-1 py-4 bg-slate-100 text-primary font-bold rounded-2xl hover:bg-slate-200 transition-all cursor-pointer"
                 >
                   Cancel
@@ -897,10 +943,12 @@ export default function DocumentsPage() {
         </div>
       )}
 
-      {/* ── Reject Modal ── */}
       {rejectingDoc && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-          <div className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm" onClick={() => setRejectingDoc(null)} />
+          <div
+            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
+            onClick={() => setRejectingDoc(null)}
+          />
           <div className="bg-white rounded-[40px] w-full max-w-md relative overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
             <div className="bg-amber-600 p-8 text-white">
               <h3 className="text-2xl font-black tracking-tighter leading-none">Reject Document</h3>
@@ -946,17 +994,20 @@ export default function DocumentsPage() {
         </div>
       )}
 
-      {/* ── Delete Confirm ── */}
       {deletingId && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-          <div className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm" onClick={() => setDeletingId(null)} />
+          <div
+            className="absolute inset-0 bg-emerald-950/40 backdrop-blur-sm"
+            onClick={() => setDeletingId(null)}
+          />
           <div className="bg-white rounded-[40px] w-full max-w-sm relative overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300 p-10">
             <div className="flex items-center gap-3 text-rose-500 mb-4">
               <span className="material-symbols-outlined text-2xl">warning</span>
               <p className="text-lg font-black">Delete Document?</p>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed mb-8">
-              This is permanent. The file will be removed from cloud storage and all version history will be lost.
+              This is permanent. The file will be removed from cloud storage and all version history
+              will be lost.
             </p>
             <div className="flex gap-3">
               <button

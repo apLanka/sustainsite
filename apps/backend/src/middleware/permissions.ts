@@ -1,8 +1,7 @@
-import {NextFunction, Request, Response} from 'express';
-import mongoose, {Model} from 'mongoose';
+import { NextFunction, Request, Response } from 'express';
+import mongoose, { Model } from 'mongoose';
 import Project from '../models/Project';
-import {UserRole} from '../types';
-
+import { UserRole } from '../types';
 export const checkOwnership = (
   resourceModel: Model<any>,
   resourceIdField: string,
@@ -17,9 +16,7 @@ export const checkOwnership = (
         });
         return;
       }
-
       const resourceId = getNestedValue(req, resourceIdField);
-
       if (!resourceId) {
         res.status(400).json({
           success: false,
@@ -27,7 +24,6 @@ export const checkOwnership = (
         });
         return;
       }
-
       if (!mongoose.Types.ObjectId.isValid(resourceId)) {
         res.status(400).json({
           success: false,
@@ -35,9 +31,7 @@ export const checkOwnership = (
         });
         return;
       }
-
       const resource = await resourceModel.findById(resourceId);
-
       if (!resource) {
         res.status(404).json({
           success: false,
@@ -45,15 +39,12 @@ export const checkOwnership = (
         });
         return;
       }
-
       if (req.user.role === UserRole.ADMIN) {
         next();
         return;
       }
-
       const ownerId = resource[ownerField]?.toString();
       const userId = req.user.userId;
-
       if (ownerId !== userId) {
         res.status(403).json({
           success: false,
@@ -61,7 +52,6 @@ export const checkOwnership = (
         });
         return;
       }
-
       next();
     } catch (error) {
       res.status(500).json({
@@ -71,7 +61,6 @@ export const checkOwnership = (
     }
   };
 };
-
 export const checkProjectMembership = (projectIdField: string) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -82,9 +71,7 @@ export const checkProjectMembership = (projectIdField: string) => {
         });
         return;
       }
-
       const projectId = getNestedValue(req, projectIdField);
-
       if (!projectId) {
         res.status(400).json({
           success: false,
@@ -92,7 +79,6 @@ export const checkProjectMembership = (projectIdField: string) => {
         });
         return;
       }
-
       if (!mongoose.Types.ObjectId.isValid(projectId)) {
         res.status(400).json({
           success: false,
@@ -100,9 +86,7 @@ export const checkProjectMembership = (projectIdField: string) => {
         });
         return;
       }
-
       const project = await Project.findById(projectId);
-
       if (!project) {
         res.status(404).json({
           success: false,
@@ -110,18 +94,14 @@ export const checkProjectMembership = (projectIdField: string) => {
         });
         return;
       }
-
       const userId = req.user.userId;
       const projectManagerId = project.projectManager.toString();
       const teamMemberIds = project.teamMembers.map((id) => id.toString());
-
       const isMember = projectManagerId === userId || teamMemberIds.includes(userId);
-
       if (req.user.role === UserRole.ADMIN) {
         next();
         return;
       }
-
       if (!isMember) {
         res.status(403).json({
           success: false,
@@ -129,9 +109,7 @@ export const checkProjectMembership = (projectIdField: string) => {
         });
         return;
       }
-
       (req as any).project = project;
-
       next();
     } catch (error) {
       res.status(500).json({
@@ -141,7 +119,6 @@ export const checkProjectMembership = (projectIdField: string) => {
     }
   };
 };
-
 export const checkProjectManager = (projectIdField: string) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -152,9 +129,7 @@ export const checkProjectManager = (projectIdField: string) => {
         });
         return;
       }
-
       const projectId = getNestedValue(req, projectIdField);
-
       if (!projectId) {
         res.status(400).json({
           success: false,
@@ -162,7 +137,6 @@ export const checkProjectManager = (projectIdField: string) => {
         });
         return;
       }
-
       if (!mongoose.Types.ObjectId.isValid(projectId)) {
         res.status(400).json({
           success: false,
@@ -170,9 +144,7 @@ export const checkProjectManager = (projectIdField: string) => {
         });
         return;
       }
-
       const project = await Project.findById(projectId);
-
       if (!project) {
         res.status(404).json({
           success: false,
@@ -180,10 +152,8 @@ export const checkProjectManager = (projectIdField: string) => {
         });
         return;
       }
-
       const userId = req.user.userId;
       const projectManagerId = project.projectManager.toString();
-
       if (projectManagerId !== userId) {
         res.status(403).json({
           success: false,
@@ -191,9 +161,7 @@ export const checkProjectManager = (projectIdField: string) => {
         });
         return;
       }
-
       (req as any).project = project;
-
       next();
     } catch (error) {
       res.status(500).json({
@@ -203,18 +171,15 @@ export const checkProjectManager = (projectIdField: string) => {
     }
   };
 };
-
 export const combinePermissions = (...checks: any[]) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-
       for (const check of checks) {
         await new Promise<void>((resolve, reject) => {
           check(req, res, (error?: any) => {
             if (error) {
               reject(error);
             } else if (res.headersSent) {
-
               reject(new Error('Permission denied'));
             } else {
               resolve();
@@ -224,7 +189,6 @@ export const combinePermissions = (...checks: any[]) => {
       }
       next();
     } catch (error) {
-
       if (!res.headersSent) {
         res.status(500).json({
           success: false,
@@ -234,7 +198,6 @@ export const combinePermissions = (...checks: any[]) => {
     }
   };
 };
-
 function getNestedValue(obj: any, path: string): any {
   return path.split('.').reduce((current, key) => current?.[key], obj);
 }

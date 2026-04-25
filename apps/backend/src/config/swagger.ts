@@ -1,8 +1,5 @@
-// swagger-jsdoc is an optional dependency — this file is only loaded at runtime
-// when the package is present (guarded by the try/catch in app.ts)
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const swaggerJsdoc = require('swagger-jsdoc');
-
+import { manualPaths, manualComponents } from './openapi.paths';
+import swaggerJsdoc from 'swagger-jsdoc';
 const options = {
   definition: {
     openapi: '3.0.0',
@@ -10,7 +7,8 @@ const options = {
       title: 'Sustainable Construction Management API',
       version: '1.0.0',
       description:
-        'RESTful API for the Sustainable Construction Project Management System — SE3040 Application Frameworks',
+        'RESTful API for the Sustainable Construction Project Management System — SE3040 Application Frameworks. ' +
+        'Materials, equipment, and suppliers are mounted at `/api/{resource}` and again under `/api/resources/{resource}` with identical routes.',
       contact: {
         name: 'SustainSite Team',
       },
@@ -29,9 +27,13 @@ const options = {
           bearerFormat: 'JWT',
         },
       },
+      parameters: manualComponents.parameters,
+      schemas: manualComponents.schemas,
     },
     security: [{ bearerAuth: [] }],
+    paths: manualPaths,
     tags: [
+      { name: 'Health', description: 'Service health' },
       { name: 'Auth', description: 'Authentication & user session' },
       { name: 'Projects', description: 'Construction project management' },
       { name: 'Milestones', description: 'Project milestones' },
@@ -45,8 +47,6 @@ const options = {
       { name: 'Users', description: 'User management (ADMIN only)' },
     ],
   },
-  // Scan all route and controller files for JSDoc @swagger annotations
-  apis: ['./src/routes/*.ts', './src/controllers/*.ts'],
+  apis: [],
 };
-
 export const swaggerSpec = swaggerJsdoc(options);

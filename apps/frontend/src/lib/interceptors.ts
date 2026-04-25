@@ -1,12 +1,10 @@
 import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { tokenManager } from './api';
-
 export interface ApiError {
   message: string;
   status?: number;
   errors?: string[];
 }
-
 export function attachInterceptors(instance: AxiosInstance): void {
   instance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
@@ -18,24 +16,24 @@ export function attachInterceptors(instance: AxiosInstance): void {
     },
     (error: AxiosError) => Promise.reject(error)
   );
-
   instance.interceptors.response.use(
     (response: AxiosResponse) => response,
-    (error: AxiosError<{ message?: string; errors?: string[] }>) => {
-      // Only redirect on 401 if a token exists (expired session).
-      // If there's no token we're on an auth endpoint — let the error propagate.
+    (
+      error: AxiosError<{
+        message?: string;
+        errors?: string[];
+      }>
+    ) => {
       if (error.response?.status === 401 && tokenManager.getToken()) {
         tokenManager.removeToken();
         localStorage.removeItem('user');
         window.location.href = '/login';
       }
-
       const apiError: ApiError = {
         message: error.response?.data?.message ?? error.message ?? 'An unexpected error occurred',
         status: error.response?.status,
         errors: error.response?.data?.errors,
       };
-
       return Promise.reject(apiError);
     }
   );

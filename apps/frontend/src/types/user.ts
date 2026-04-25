@@ -1,5 +1,4 @@
 import type { UserRole } from './auth';
-
 export interface AdminUser {
   _id: string;
   fullName: string;
@@ -13,7 +12,6 @@ export interface AdminUser {
   createdAt: string;
   updatedAt: string;
 }
-
 export interface UserFilters {
   search?: string;
   role?: UserRole | '';
@@ -21,7 +19,6 @@ export interface UserFilters {
   page: number;
   limit: number;
 }
-
 export interface UpdateUserPayload {
   role?: UserRole;
   isActive?: boolean;

@@ -17,7 +17,8 @@
     "perf:load": "k6 run src/__tests__/performance/load-scenarios.test.js",
     "perf:stress": "k6 run src/__tests__/performance/stress-test.test.js",
     "perf:endurance": "k6 run src/__tests__/performance/endurance-test.test.js",
-    "perf:all": "DISABLE_RATE_LIMIT=true k6 run src/__tests__/performance/smoke.test.js && DISABLE_RATE_LIMIT=true k6 run src/__tests__/performance/load-scenarios.test.js"
+    "perf:all": "DISABLE_RATE_LIMIT=true k6 run src/__tests__/performance/smoke.test.js && DISABLE_RATE_LIMIT=true k6 run src/__tests__/performance/load-scenarios.test.js",
+    "export-openapi-for-fern": "npx ts-node scripts/export-openapi-for-fern.ts"
   },
   "keywords": [
     "construction",

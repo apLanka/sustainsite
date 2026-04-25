@@ -1,4 +1,3 @@
-
 export interface EnvConfig {
   NODE_ENV: string;
   PORT: number;
@@ -14,7 +13,6 @@ export interface EnvConfig {
   CARBON_INTERFACE_API_KEY?: string;
   FRONTEND_URL: string;
 }
-
 export enum UserRole {
   ADMIN = 'ADMIN',
   PROJECT_MANAGER = 'PROJECT_MANAGER',
@@ -22,20 +20,17 @@ export enum UserRole {
   SUPPLIER = 'SUPPLIER',
   VIEWER = 'VIEWER',
 }
-
 export enum ProjectStatus {
   PLANNING = 'Planning',
   IN_PROGRESS = 'In Progress',
   ON_HOLD = 'On Hold',
   COMPLETED = 'Completed',
 }
-
 export enum MilestoneStatus {
   PENDING = 'Pending',
   IN_PROGRESS = 'In Progress',
   COMPLETED = 'Completed',
 }
-
 export enum DocumentType {
   BLUEPRINT = 'Blueprint',
   PERMIT = 'Permit',
@@ -44,14 +39,12 @@ export enum DocumentType {
   CONTRACT = 'Contract',
   OTHER = 'Other',
 }
-
 export enum DocumentStatus {
   DRAFT = 'Draft',
   UNDER_REVIEW = 'Under Review',
   APPROVED = 'Approved',
   REJECTED = 'Rejected',
 }
-
 export enum MaterialStatus {
   ORDERED = 'Ordered',
   IN_TRANSIT = 'In Transit',
@@ -60,7 +53,6 @@ export enum MaterialStatus {
   USED = 'Used',
   CANCELLED = 'Cancelled',
 }
-
 export enum EquipmentStatus {
   AVAILABLE = 'Available',
   IN_USE = 'In Use',
@@ -68,34 +60,29 @@ export enum EquipmentStatus {
   DAMAGED = 'Damaged',
   RETIRED = 'Retired',
 }
-
 export enum RiskLevel {
   LOW = 'Low',
   MEDIUM = 'Medium',
   HIGH = 'High',
   CRITICAL = 'Critical',
 }
-
 export enum ScoreCategory {
   RED = 'Red',
   YELLOW = 'Yellow',
   GREEN = 'Green',
 }
-
 export interface JWTPayload {
   userId: string;
   email: string;
   role: UserRole;
   supplierId?: string;
 }
-
 export interface ApiResponse<T = any> {
   success: boolean;
   message?: string;
   data?: T;
   error?: string;
 }
-
 export interface PaginatedResponse<T> extends ApiResponse<T[]> {
   pagination: {
     page: number;

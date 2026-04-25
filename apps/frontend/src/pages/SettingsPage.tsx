@@ -6,29 +6,33 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { authApi } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
-
 type SettingsTab = 'profile' | 'security';
-
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
-
-  const tabs: { id: SettingsTab; label: string; icon: string }[] = [
+  const tabs: {
+    id: SettingsTab;
+    label: string;
+    icon: string;
+  }[] = [
     { id: 'profile', label: 'Profile', icon: 'person' },
     { id: 'security', label: 'Security', icon: 'shield' },
   ];
-
   return (
     <DashboardLayout>
       <div className="py-10">
         <header className="mb-10">
-          <h1 className="text-4xl font-black text-primary tracking-tighter leading-none font-headline mb-2">Account Settings</h1>
-          <p className="text-slate-500 font-medium">Manage your personal information and security settings.</p>
+          <h1 className="text-4xl font-black text-primary tracking-tighter leading-none font-headline mb-2">
+            Account Settings
+          </h1>
+          <p className="text-slate-500 font-medium">
+            Manage your personal information and security settings.
+          </p>
         </header>
 
-        <SmoothTabs 
-          tabs={tabs} 
-          activeTab={activeTab} 
-          onChange={(id) => setActiveTab(id as SettingsTab)} 
+        <SmoothTabs
+          tabs={tabs}
+          activeTab={activeTab}
+          onChange={(id) => setActiveTab(id as SettingsTab)}
           className="mb-12"
         />
 
@@ -50,13 +54,10 @@ export default function SettingsPage() {
     </DashboardLayout>
   );
 }
-
 function ProfileSettings() {
   const { user, refreshUser } = useAuth();
-
   const formatRole = (role: string) =>
     role.charAt(0) + role.slice(1).toLowerCase().replace(/_/g, ' ');
-
   const [fields, setFields] = useState({
     fullName: user?.fullName ?? '',
     email: user?.email ?? '',
@@ -66,8 +67,6 @@ function ProfileSettings() {
   const [error, setError] = useState<string | null>(null);
   const [apiErrors, setApiErrors] = useState<string[]>([]);
   const [success, setSuccess] = useState(false);
-
-  // Re-initialize form when user data changes (e.g. after refreshUser)
   useEffect(() => {
     if (user) {
       setFields({
@@ -76,15 +75,18 @@ function ProfileSettings() {
         jobTitle: user.jobTitle ?? '',
       });
     }
-  }, [user?.fullName, user?.email, user?.jobTitle]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleChange = (e: { target: { name: string; value: string } }) => {
+  }, [user]);
+  const handleChange = (e: {
+    target: {
+      name: string;
+      value: string;
+    };
+  }) => {
     setFields((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setError(null);
     setApiErrors([]);
     setSuccess(false);
   };
-
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setError(null);
@@ -97,7 +99,10 @@ function ProfileSettings() {
       setSuccess(true);
       toast.success('Profile updated successfully');
     } catch (err: unknown) {
-      const apiErr = err as { message?: string; errors?: string[] };
+      const apiErr = err as {
+        message?: string;
+        errors?: string[];
+      };
       const msg = apiErr?.message || 'Failed to save changes. Please try again.';
       setError(msg);
       setApiErrors(apiErr?.errors ?? []);
@@ -106,13 +111,14 @@ function ProfileSettings() {
       setIsLoading(false);
     }
   };
-
   return (
     <form onSubmit={handleSubmit} className="space-y-10">
       <section className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Full Name</label>
+            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">
+              Full Name
+            </label>
             <Input
               name="fullName"
               value={fields.fullName}
@@ -122,7 +128,9 @@ function ProfileSettings() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Email Address</label>
+            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">
+              Email Address
+            </label>
             <Input
               type="email"
               name="email"
@@ -133,7 +141,9 @@ function ProfileSettings() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Job Title</label>
+            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">
+              Job Title
+            </label>
             <Input
               name="jobTitle"
               value={fields.jobTitle}
@@ -143,10 +153,16 @@ function ProfileSettings() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Role</label>
+            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">
+              Role
+            </label>
             <div className="input-standard flex items-center">
-              <span className="text-sm font-bold text-primary">{user?.role ? formatRole(user.role) : '—'}</span>
-              <span className="ml-auto text-[10px] font-black uppercase tracking-widest text-slate-400">Read only</span>
+              <span className="text-sm font-bold text-primary">
+                {user?.role ? formatRole(user.role) : '—'}
+              </span>
+              <span className="ml-auto text-[10px] font-black uppercase tracking-widest text-slate-400">
+                Read only
+              </span>
             </div>
           </div>
         </div>
@@ -157,7 +173,9 @@ function ProfileSettings() {
             {apiErrors.length > 0 && (
               <ul className="list-disc list-inside space-y-0.5">
                 {apiErrors.map((e, i) => (
-                  <li key={i} className="text-xs font-medium text-red-500">{e}</li>
+                  <li key={i} className="text-xs font-medium text-red-500">
+                    {e}
+                  </li>
                 ))}
               </ul>
             )}
@@ -182,37 +200,43 @@ function ProfileSettings() {
     </form>
   );
 }
-
-
 function SecuritySettings() {
-  const [fields, setFields] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
-  const [showPasswords, setShowPasswords] = useState({ currentPassword: false, newPassword: false, confirmPassword: false });
+  const [fields, setFields] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [showPasswords, setShowPasswords] = useState({
+    currentPassword: false,
+    newPassword: false,
+    confirmPassword: false,
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [apiErrors, setApiErrors] = useState<string[]>([]);
   const [success, setSuccess] = useState(false);
-
   const toggleShow = (name: keyof typeof showPasswords) =>
     setShowPasswords((prev) => ({ ...prev, [name]: !prev[name] }));
-
-  const handleChange = (e: { target: { name: string; value: string } }) => {
+  const handleChange = (e: {
+    target: {
+      name: string;
+      value: string;
+    };
+  }) => {
     setFields((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setError(null);
     setApiErrors([]);
     setSuccess(false);
   };
-
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setError(null);
     setApiErrors([]);
     setSuccess(false);
-
     if (fields.newPassword !== fields.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
     setIsLoading(true);
     try {
       await authApi.changePassword({
@@ -223,7 +247,10 @@ function SecuritySettings() {
       setFields({ currentPassword: '', newPassword: '', confirmPassword: '' });
       toast.success('Password changed successfully');
     } catch (err: unknown) {
-      const apiErr = err as { message?: string; errors?: string[] };
+      const apiErr = err as {
+        message?: string;
+        errors?: string[];
+      };
       const msg = apiErr?.message || 'Failed to change password. Please try again.';
       setError(msg);
       setApiErrors(apiErr?.errors ?? []);
@@ -232,13 +259,14 @@ function SecuritySettings() {
       setIsLoading(false);
     }
   };
-
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       <section className="space-y-6">
         <div>
           <h3 className="text-lg font-black text-primary font-headline mb-1">Change Password</h3>
-          <p className="text-sm text-slate-500 font-medium">Keep your account secure with a strong password.</p>
+          <p className="text-sm text-slate-500 font-medium">
+            Keep your account secure with a strong password.
+          </p>
         </div>
 
         <div className="space-y-4 max-w-md">
@@ -247,7 +275,13 @@ function SecuritySettings() {
               <Input
                 type={showPasswords[name] ? 'text' : 'password'}
                 name={name}
-                placeholder={name === 'currentPassword' ? 'Current Password' : name === 'newPassword' ? 'New Password' : 'Confirm New Password'}
+                placeholder={
+                  name === 'currentPassword'
+                    ? 'Current Password'
+                    : name === 'newPassword'
+                      ? 'New Password'
+                      : 'Confirm New Password'
+                }
                 value={fields[name]}
                 onChange={handleChange}
                 className="input-standard w-full pr-12"
@@ -273,7 +307,9 @@ function SecuritySettings() {
             {apiErrors.length > 0 && (
               <ul className="list-disc list-inside space-y-0.5">
                 {apiErrors.map((e, i) => (
-                  <li key={i} className="text-xs font-medium text-red-500">{e}</li>
+                  <li key={i} className="text-xs font-medium text-red-500">
+                    {e}
+                  </li>
                 ))}
               </ul>
             )}

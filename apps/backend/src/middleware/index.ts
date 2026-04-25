@@ -1,4 +1,3 @@
-
 export { authenticate, generateToken } from './auth';
 export {
   authorize,

@@ -1,13 +1,10 @@
 import { v2 as cloudinary } from 'cloudinary';
-
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-
 export default cloudinary;
-
 export const uploadToCloudinary = async (
   filePath: string,
   folder: string = 'construction-docs'
@@ -22,7 +19,6 @@ export const uploadToCloudinary = async (
       folder: 'sustain/' + folder,
       resource_type: 'auto',
     });
-
     return {
       url: result.secure_url,
       cloudinaryId: result.public_id,
@@ -34,7 +30,6 @@ export const uploadToCloudinary = async (
     throw new Error('Failed to upload file to Cloudinary');
   }
 };
-
 export const deleteFromCloudinary = async (publicId: string): Promise<void> => {
   try {
     await cloudinary.uploader.destroy(publicId);

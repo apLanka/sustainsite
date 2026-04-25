@@ -1,18 +1,15 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
-
 export enum ProjectStatus {
   PLANNING = 'Planning',
   IN_PROGRESS = 'In Progress',
   ON_HOLD = 'On Hold',
   COMPLETED = 'Completed',
 }
-
 interface ILocation {
   address: string;
   latitude?: number;
   longitude?: number;
 }
-
 export interface IProject extends Document {
   projectName: string;
   description?: string;
@@ -30,11 +27,9 @@ export interface IProject extends Document {
   createdBy: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
-
   daysRemaining?: number;
   budgetVariance?: number;
 }
-
 const locationSchema = new Schema<ILocation>(
   {
     address: {
@@ -54,7 +49,6 @@ const locationSchema = new Schema<ILocation>(
   },
   { _id: false }
 );
-
 const projectSchema = new Schema<IProject>(
   {
     projectName: {
@@ -132,12 +126,13 @@ const projectSchema = new Schema<IProject>(
     timestamps: true,
   }
 );
-
 projectSchema.index({ projectManager: 1 });
 projectSchema.index({ status: 1 });
 projectSchema.index({ startDate: -1 });
-projectSchema.index({ projectName: 'text', description: 'text' }, { weights: { projectName: 10, description: 1 } });
-
+projectSchema.index(
+  { projectName: 'text', description: 'text' },
+  { weights: { projectName: 10, description: 1 } }
+);
 projectSchema.virtual('daysRemaining').get(function (this: IProject) {
   if (this.status === ProjectStatus.COMPLETED) {
     return 0;
@@ -148,14 +143,10 @@ projectSchema.virtual('daysRemaining').get(function (this: IProject) {
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   return diffDays > 0 ? diffDays : 0;
 });
-
 projectSchema.virtual('budgetVariance').get(function (this: IProject) {
   return this.budget - this.actualCost;
 });
-
 projectSchema.set('toJSON', { virtuals: true });
 projectSchema.set('toObject', { virtuals: true });
-
 const Project: Model<IProject> = mongoose.model<IProject>('Project', projectSchema);
-
 export default Project;

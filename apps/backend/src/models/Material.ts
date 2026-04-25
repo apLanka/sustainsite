@@ -1,5 +1,4 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
-
 export enum MaterialCategory {
   CEMENT = 'Cement',
   STEEL = 'Steel',
@@ -9,7 +8,6 @@ export enum MaterialCategory {
   EQUIPMENT = 'Equipment',
   OTHER = 'Other',
 }
-
 export enum MaterialStatus {
   ORDERED = 'Ordered',
   IN_TRANSIT = 'In Transit',
@@ -18,7 +16,6 @@ export enum MaterialStatus {
   USED = 'Used',
   CANCELLED = 'Cancelled',
 }
-
 interface IUsageHistory {
   usedQuantity: number;
   usedDate: Date;
@@ -26,7 +23,6 @@ interface IUsageHistory {
   purpose?: string;
   notes?: string;
 }
-
 export interface IMaterial extends Document {
   projectId: mongoose.Types.ObjectId;
   materialName: string;
@@ -61,7 +57,6 @@ export interface IMaterial extends Document {
     purpose?: string
   ): Promise<IMaterial>;
 }
-
 const usageHistorySchema = new Schema<IUsageHistory>(
   {
     usedQuantity: {
@@ -89,7 +84,6 @@ const usageHistorySchema = new Schema<IUsageHistory>(
   },
   { _id: false }
 );
-
 const materialSchema = new Schema<IMaterial>(
   {
     projectId: {
@@ -206,15 +200,12 @@ const materialSchema = new Schema<IMaterial>(
     timestamps: true,
   }
 );
-
 materialSchema.index({ projectId: 1 });
 materialSchema.index({ status: 1 });
 materialSchema.index({ supplier: 1 });
 materialSchema.index({ currentStock: 1 });
-
 materialSchema.pre('save', async function () {
   this.totalCost = this.quantity * this.unitPrice;
-
   if (
     this.isModified('status') &&
     this.status === MaterialStatus.DELIVERED &&
@@ -223,11 +214,9 @@ materialSchema.pre('save', async function () {
     this.currentStock = this.quantity;
   }
 });
-
 materialSchema.methods.checkLowStock = function (): boolean {
   return this.currentStock < this.minimumThreshold;
 };
-
 materialSchema.methods.recordUsage = async function (
   quantity: number,
   usedBy: mongoose.Types.ObjectId,
@@ -236,23 +225,17 @@ materialSchema.methods.recordUsage = async function (
   if (quantity > this.currentStock) {
     throw new Error('Insufficient stock for this usage');
   }
-
   this.usageHistory.push({
     usedQuantity: quantity,
     usedDate: new Date(),
     usedBy,
     purpose,
   });
-
   this.currentStock -= quantity;
-
   if (this.currentStock === 0) {
     this.status = MaterialStatus.USED;
   }
-
   return this.save();
 };
-
 const Material: Model<IMaterial> = mongoose.model<IMaterial>('Material', materialSchema);
-
 export default Material;

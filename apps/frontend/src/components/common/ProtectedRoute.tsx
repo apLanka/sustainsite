@@ -4,17 +4,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 import type { UserRole } from '@/types/auth';
 import { isSupplier, loginHomePath } from '@/lib/rbac';
-
 interface ProtectedRouteProps {
   children: ReactNode;
-  /** User must have one of these roles. */
   allowedRoles?: readonly UserRole[];
 }
-
 export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -25,21 +21,16 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
       </div>
     );
   }
-
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
-
   const role = user?.role;
-
   if (allowedRoles?.length) {
     if (!role || !allowedRoles.includes(role as UserRole)) {
       return <Navigate to={loginHomePath(role)} replace />;
     }
     return <>{children}</>;
   }
-
-  // Supplier: only supplier portal + settings (no project-wide dashboard/list)
   if (isSupplier(role)) {
     const allowed =
       location.pathname.startsWith('/supplier') || location.pathname.startsWith('/settings');
@@ -49,6 +40,5 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
   } else if (location.pathname.startsWith('/supplier')) {
     return <Navigate to="/dashboard" replace />;
   }
-
   return <>{children}</>;
 }

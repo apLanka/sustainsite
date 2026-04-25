@@ -7,7 +7,6 @@ import { projectApi } from '@/lib/api';
 import { ProjectStatus } from '@/types/project';
 import { useProjectStore } from '@/store';
 import LocationPicker from './LocationPicker';
-
 const projectSchema = z
   .object({
     projectName: z.string().min(3, 'Project name must be at least 3 characters').max(200),
@@ -17,21 +16,20 @@ const projectSchema = z
     longitude: z.number().optional(),
     startDate: z.string().min(1, 'Start date is required'),
     endDate: z.string().min(1, 'Completion date is required'),
-    budget: z.coerce.number({ error: 'Budget must be a number' }).positive('Budget must be greater than 0'),
+    budget: z.coerce
+      .number({ error: 'Budget must be a number' })
+      .positive('Budget must be greater than 0'),
     status: z.nativeEnum(ProjectStatus).optional(),
   })
   .refine((d) => new Date(d.endDate) > new Date(d.startDate), {
     message: 'Completion date must be after start date',
     path: ['endDate'],
   });
-
 type ProjectFormData = z.infer<typeof projectSchema>;
-
 const ProjectForm = () => {
   const navigate = useNavigate();
   const { setSelectedProject } = useProjectStore();
   const [serverError, setServerError] = useState<string | null>(null);
-
   const {
     register,
     handleSubmit,
@@ -43,7 +41,6 @@ const ProjectForm = () => {
     resolver: zodResolver(projectSchema) as never,
     defaultValues: { status: ProjectStatus.PLANNING },
   });
-
   const onSubmit = async (data: ProjectFormData) => {
     setServerError(null);
     try {
@@ -63,21 +60,23 @@ const ProjectForm = () => {
       setSelectedProject(res.data);
       navigate(`/projects/${res.data._id}`);
     } catch (err: unknown) {
-      const message = (err as { message?: string })?.message ?? 'Failed to create project.';
+      const message =
+        (
+          err as {
+            message?: string;
+          }
+        )?.message ?? 'Failed to create project.';
       setServerError(message);
     }
   };
-
   return (
     <form className="space-y-10" onSubmit={handleSubmit(onSubmit)} noValidate>
-
       {serverError && (
         <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-600 font-medium">
           {serverError}
         </div>
       )}
 
-      {/* SECTION: General Information */}
       <section className="space-y-6">
         <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
           <span className="material-symbols-outlined text-emerald-600">info</span>
@@ -117,7 +116,6 @@ const ProjectForm = () => {
         </div>
       </section>
 
-      {/* SECTION: Logistics & Financials */}
       <section className="space-y-6">
         <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
           <span className="material-symbols-outlined text-emerald-600">payments</span>
@@ -130,7 +128,9 @@ const ProjectForm = () => {
               Total Budget (USD)
             </label>
             <div className="relative">
-              <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+              <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">
+                $
+              </span>
               <input
                 type="number"
                 placeholder="0.00"
@@ -202,7 +202,6 @@ const ProjectForm = () => {
         </div>
       </section>
 
-      {/* SECTION: Project Configuration */}
       <section className="space-y-6">
         <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
           <span className="material-symbols-outlined text-emerald-600">tune</span>
@@ -226,7 +225,6 @@ const ProjectForm = () => {
         </div>
       </section>
 
-      {/* ACTION BUTTONS */}
       <div className="pt-10 flex flex-col sm:flex-row gap-4">
         <button
           type="submit"
@@ -239,5 +237,4 @@ const ProjectForm = () => {
     </form>
   );
 };
-
 export default ProjectForm;

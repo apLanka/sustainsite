@@ -1,6 +1,6 @@
 # Test Report — SustainSite
 
-**Related documents:** [README / Setup & API Docs](../README.md) · [Deployment Report](./DEPLOYMENT.md) · [Testing Instruction Report](./TESTING.md)
+**Related documents:** [README / Setup & API Docs](../README.md) · [SE3040 documentation (Fern)](https://sustain-site-api.docs.buildwithfern.com/) · [Deployment Report](./DEPLOYMENT.md) · [Testing Instruction Report](./TESTING.md)
 
 ---
 

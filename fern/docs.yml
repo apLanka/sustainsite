@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=https://schema.buildwithfern.dev/docs-yml.json
+
+instances:
+  - url: sustain-site-api.docs.buildwithfern.com
+
+title: SustainSite — SE3040 Documentation
+
+layout:
+  searchbar-placement: header
+  page-width: full
+
+navigation:
+  - section: Getting Started
+    icon: rocket
+    contents:
+      - page: Welcome
+        path: docs/pages/welcome.mdx
+      - page: Quick Start Guide
+        path: docs/pages/se3040/quickstart.mdx
+  - section: Assignment
+    icon: document
+    contents:
+      - page: Specification
+        path: docs/pages/se3040/assignment-specification.mdx
+  - section: API Reference
+    icon: code
+    contents:
+      - page: API Overview
+        path: docs/pages/se3040/api-overview.mdx
+      - page: Authentication
+        path: docs/pages/se3040/api-auth.mdx
+      - page: Projects API
+        path: docs/pages/se3040/api-projects.mdx
+      - page: Sustainability API
+        path: docs/pages/se3040/api-sustainability.mdx
+      - page: Documents API
+        path: docs/pages/se3040/api-documents.mdx
+      - page: Resources API
+        path: docs/pages/se3040/api-resources.mdx
+  - section: Testing & Reports
+    icon: beaker
+    contents:
+      - page: Testing Instructions
+        path: docs/pages/se3040/testing-instructions.mdx
+      - page: Test Report
+        path: docs/pages/se3040/test-report.mdx
+      - page: Deployment Report
+        path: docs/pages/se3040/deployment-report.mdx
+  - api: API Reference
+
+navbar-links:
+  - type: github
+    value: https://github.com/apLanka/sustainsite
+
+colors:
+  accent-primary:
+    dark: "#34d399"
+    light: "#047857"
+  background:
+    dark: "#0f172a"
+    light: "#ffffff"
+
+logo:
+  light: docs/assets/logo-placeholder.svg
+  dark: docs/assets/logo-placeholder.svg
+  height: 28
+  href: https://github.com/apLanka/sustainsite
+
+favicon: docs/assets/favicon-placeholder.svg

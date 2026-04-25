@@ -7,13 +7,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAuthStore } from '@/store';
 import { loginHomePath } from '@/lib/rbac';
 import { loginSchema, type LoginFormData } from '@/lib/validations/auth';
-
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [serverError, setServerError] = useState<string | null>(null);
   const [remember, setRemember] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -21,7 +19,6 @@ export default function LoginPage() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
-
   const onSubmit = async (data: LoginFormData) => {
     setServerError(null);
     try {
@@ -30,11 +27,14 @@ export default function LoginPage() {
       navigate(loginHomePath(role), { replace: true });
     } catch (err: unknown) {
       const message =
-        (err as { message?: string })?.message ?? 'Invalid email or password. Please try again.';
+        (
+          err as {
+            message?: string;
+          }
+        )?.message ?? 'Invalid email or password. Please try again.';
       setServerError(message);
     }
   };
-
   return (
     <AuthLayout
       title="Access Dashboard"
@@ -42,14 +42,12 @@ export default function LoginPage() {
       imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuBemI1byj2zRLu-Fe9i0-F5Y_f0Z1ufhXpAasg0sKaYgr-RvIhl_DgJC91zdrmaSHLHMOHENNW_7slbCed5L1IdDZ742ybz_aVvRa8gbkKlwONl_FAXZ0jLqD6gvCq_jVI5gBD5xWHMlCaOL4lP7cKOzc3NIXeph34TSunqYxXKx4x_vZojG7vrJatQLblQ2ZKISP9nchunuD0Cf1zXdKdS9GXqLbUnzf55jl89qHl62OhqUaJ3BpKB_ccwHx95cJLx6rexnw8jhdU"
     >
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
-
         {serverError && (
           <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-600 font-medium">
             {serverError}
           </div>
         )}
 
-        {/* Email */}
         <div className="space-y-2">
           <label
             className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant font-label"
@@ -69,7 +67,6 @@ export default function LoginPage() {
           )}
         </div>
 
-        {/* Password */}
         <div className="space-y-2">
           <label
             className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant font-label"
@@ -108,7 +105,7 @@ export default function LoginPage() {
         </div>
 
         <button
-          className="signature-gradient w-full py-4 rounded-xl font-headline font-bold text-white shadow-xl hover:shadow-primary/20 hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
+          className="signature-gradient w-full py-4 rounded-xl font-headline font-bold text-white shadow-xl hover:scale-[1.01] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
           type="submit"
           disabled={isSubmitting}
         >
